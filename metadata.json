@@ -1,0 +1,6 @@
+{
+  "name": "Panadería Santa Fé - Plan de Negocios & Calculadora 10 MDP",
+  "description": "Plan de negocios profesional y simulador de inversión para Panadería Santa Fé (10 MDP, sucursales Zákia y Refugio), con rendimientos y comparativa vs Banco y Bienes Raíces.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
