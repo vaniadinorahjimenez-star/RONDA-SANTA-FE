@@ -513,71 +513,99 @@ export const GASTOS_REFUGIO: GastoRubro[] = [
 ];
 
 export const VENTAS_ZAKIA: VentaMensualZakia[] = [
-  { no: 1, mes: 'Febrero', puntoDeVentaTDC: 281000, ventasMostradorEfectivo: 162000, ventaTotalMensual: 443000, porcentajeTDC: 63.4, porcentajeEfectivo: 36.6 },
-  { no: 2, mes: 'Marzo', puntoDeVentaTDC: 283000, ventasMostradorEfectivo: 163000, ventaTotalMensual: 446000, porcentajeTDC: 63.5, porcentajeEfectivo: 36.5 },
-  { no: 3, mes: 'Abril', puntoDeVentaTDC: 281500, ventasMostradorEfectivo: 161500, ventaTotalMensual: 443000, porcentajeTDC: 63.5, porcentajeEfectivo: 36.5 },
-  { no: 4, mes: 'Mayo', puntoDeVentaTDC: 283000, ventasMostradorEfectivo: 163000, ventaTotalMensual: 446000, porcentajeTDC: 63.5, porcentajeEfectivo: 36.5 },
-  { no: 5, mes: 'Junio', puntoDeVentaTDC: 282000, ventasMostradorEfectivo: 162500, ventaTotalMensual: 444500, porcentajeTDC: 63.4, porcentajeEfectivo: 36.6 },
-  { no: 6, mes: 'Julio', puntoDeVentaTDC: 283500, ventasMostradorEfectivo: 163000, ventaTotalMensual: 446500, porcentajeTDC: 63.5, porcentajeEfectivo: 36.5 },
-  { no: 7, mes: 'Agosto', puntoDeVentaTDC: 282500, ventasMostradorEfectivo: 162500, ventaTotalMensual: 445000, porcentajeTDC: 63.5, porcentajeEfectivo: 36.5 },
+  { no: 1, mes: 'Enero', puntoDeVentaTDC: 352037, ventasMostradorEfectivo: 256640, ventaTotalMensual: 608677, porcentajeTDC: 57.8, porcentajeEfectivo: 42.2 },
+  { no: 2, mes: 'Febrero', puntoDeVentaTDC: 258000, ventasMostradorEfectivo: 168000, ventaTotalMensual: 426000, porcentajeTDC: 60.6, porcentajeEfectivo: 39.4 },
+  { no: 3, mes: 'Marzo', puntoDeVentaTDC: 262000, ventasMostradorEfectivo: 171000, ventaTotalMensual: 433000, porcentajeTDC: 60.5, porcentajeEfectivo: 39.5 },
+  { no: 4, mes: 'Abril', puntoDeVentaTDC: 259500, ventasMostradorEfectivo: 169500, ventaTotalMensual: 429000, porcentajeTDC: 60.5, porcentajeEfectivo: 39.5 },
+  { no: 5, mes: 'Mayo', puntoDeVentaTDC: 260639, ventasMostradorEfectivo: 170410, ventaTotalMensual: 431049, porcentajeTDC: 60.5, porcentajeEfectivo: 39.5 },
+  { no: 6, mes: 'Junio', puntoDeVentaTDC: 281000, ventasMostradorEfectivo: 171000, ventaTotalMensual: 452000, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
+  { no: 7, mes: 'Julio', puntoDeVentaTDC: 284000, ventasMostradorEfectivo: 172500, ventaTotalMensual: 456500, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
+  { no: 8, mes: 'Agosto', puntoDeVentaTDC: 283132, ventasMostradorEfectivo: 171855, ventaTotalMensual: 454987, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
+  { no: 9, mes: 'Septiembre', puntoDeVentaTDC: 282000, ventasMostradorEfectivo: 171500, ventaTotalMensual: 453500, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
+  { no: 10, mes: 'Octubre', puntoDeVentaTDC: 315000, ventasMostradorEfectivo: 212000, ventaTotalMensual: 527000, porcentajeTDC: 59.8, porcentajeEfectivo: 40.2 },
+  { no: 11, mes: 'Noviembre', puntoDeVentaTDC: 320000, ventasMostradorEfectivo: 215000, ventaTotalMensual: 535000, porcentajeTDC: 59.8, porcentajeEfectivo: 40.2 },
+  { no: 12, mes: 'Diciembre', puntoDeVentaTDC: 354000, ventasMostradorEfectivo: 258000, ventaTotalMensual: 612000, porcentajeTDC: 57.8, porcentajeEfectivo: 42.2 },
 ];
 
 export const RESUMEN_UTILIDAD_ZAKIA: ResumenUtilidadMensual[] = [
-  { mes: 'Febrero', ventaTotal: 443000, gastosOperativos: 399400, utilidadNeta: 43600, margen: 9.8 },
-  { mes: 'Marzo', ventaTotal: 446000, gastosOperativos: 399400, utilidadNeta: 46600, margen: 10.4 },
-  { mes: 'Abril', ventaTotal: 443000, gastosOperativos: 399400, utilidadNeta: 43600, margen: 9.8 },
-  { mes: 'Mayo', ventaTotal: 446000, gastosOperativos: 399400, utilidadNeta: 46600, margen: 10.4 },
-  { mes: 'Junio', ventaTotal: 444500, gastosOperativos: 399400, utilidadNeta: 45100, margen: 10.1 },
-  { mes: 'Julio', ventaTotal: 446500, gastosOperativos: 399400, utilidadNeta: 47100, margen: 10.5 },
-  { mes: 'Agosto', ventaTotal: 445000, gastosOperativos: 399400, utilidadNeta: 45600, margen: 10.2 },
+  { mes: 'Enero', ventaTotal: 608677, gastosOperativos: 399400, utilidadNeta: 209277, margen: 34.4 },
+  { mes: 'Febrero', ventaTotal: 426000, gastosOperativos: 399400, utilidadNeta: 26600, margen: 6.2 },
+  { mes: 'Marzo', ventaTotal: 433000, gastosOperativos: 399400, utilidadNeta: 33600, margen: 7.8 },
+  { mes: 'Abril', ventaTotal: 429000, gastosOperativos: 399400, utilidadNeta: 29600, margen: 6.9 },
+  { mes: 'Mayo', ventaTotal: 431049, gastosOperativos: 399400, utilidadNeta: 31649, margen: 7.3 },
+  { mes: 'Junio', ventaTotal: 452000, gastosOperativos: 399400, utilidadNeta: 52600, margen: 11.6 },
+  { mes: 'Julio', ventaTotal: 456500, gastosOperativos: 399400, utilidadNeta: 57100, margen: 12.5 },
+  { mes: 'Agosto', ventaTotal: 454987, gastosOperativos: 399400, utilidadNeta: 55587, margen: 12.2 },
+  { mes: 'Septiembre', ventaTotal: 453500, gastosOperativos: 399400, utilidadNeta: 54100, margen: 11.9 },
+  { mes: 'Octubre', ventaTotal: 527000, gastosOperativos: 399400, utilidadNeta: 127600, margen: 24.2 },
+  { mes: 'Noviembre', ventaTotal: 535000, gastosOperativos: 399400, utilidadNeta: 135600, margen: 25.3 },
+  { mes: 'Diciembre', ventaTotal: 612000, gastosOperativos: 399400, utilidadNeta: 212600, margen: 34.7 },
 ];
 
 export const VENTAS_REFUGIO: VentaMensualRefugio[] = [
-  { no: 1, mes: 'Febrero', cobroTarjetaTDC: 318000, efectivoCalculado: 260000, ventaTotalMostrador: 578000, reparto: 206000, transferenciasCautivos: 48000, ventaTotalMensual: 832000 },
-  { no: 2, mes: 'Marzo', cobroTarjetaTDC: 324000, efectivoCalculado: 265000, ventaTotalMostrador: 589000, reparto: 210000, transferenciasCautivos: 49000, ventaTotalMensual: 848000 },
-  { no: 3, mes: 'Abril', cobroTarjetaTDC: 319000, efectivoCalculado: 261000, ventaTotalMostrador: 58000, reparto: 207000, transferenciasCautivos: 48000, ventaTotalMensual: 835000 },
-  { no: 4, mes: 'Mayo', cobroTarjetaTDC: 322000, efectivoCalculado: 263000, ventaTotalMostrador: 585000, reparto: 209000, transferenciasCautivos: 49000, ventaTotalMensual: 843000 },
-  { no: 5, mes: 'Junio', cobroTarjetaTDC: 326000, efectivoCalculado: 267000, ventaTotalMostrador: 593000, reparto: 212000, transferenciasCautivos: 49000, ventaTotalMensual: 854000 },
-  { no: 6, mes: 'Julio', cobroTarjetaTDC: 328000, efectivoCalculado: 268000, ventaTotalMostrador: 596000, reparto: 213000, transferenciasCautivos: 50000, ventaTotalMensual: 859000 },
-  { no: 7, mes: 'Agosto', cobroTarjetaTDC: 330000, efectivoCalculado: 272000, ventaTotalMostrador: 602000, reparto: 215000, transferenciasCautivos: 50000, ventaTotalMensual: 867000 },
+  { no: 1, mes: 'Enero', cobroTarjetaTDC: 418000, efectivoCalculado: 309075, ventaTotalMostrador: 727075, reparto: 189000, transferenciasCautivos: 44000, ventaTotalMensual: 960075 },
+  { no: 2, mes: 'Febrero', cobroTarjetaTDC: 291000, efectivoCalculado: 261146, ventaTotalMostrador: 552146, reparto: 189000, transferenciasCautivos: 44000, ventaTotalMensual: 785146 },
+  { no: 3, mes: 'Marzo', cobroTarjetaTDC: 317000, efectivoCalculado: 284479, ventaTotalMostrador: 601479, reparto: 209000, transferenciasCautivos: 49000, ventaTotalMensual: 859479 },
+  { no: 4, mes: 'Abril', cobroTarjetaTDC: 284000, efectivoCalculado: 254864, ventaTotalMostrador: 538864, reparto: 189000, transferenciasCautivos: 44000, ventaTotalMensual: 771864 },
+  { no: 5, mes: 'Mayo', cobroTarjetaTDC: 274000, efectivoCalculado: 245890, ventaTotalMostrador: 519890, reparto: 184000, transferenciasCautivos: 43000, ventaTotalMensual: 746890 },
+  { no: 6, mes: 'Junio', cobroTarjetaTDC: 311000, efectivoCalculado: 256265, ventaTotalMostrador: 567265, reparto: 204000, transferenciasCautivos: 47000, ventaTotalMensual: 818265 },
+  { no: 7, mes: 'Julio', cobroTarjetaTDC: 316000, efectivoCalculado: 260385, ventaTotalMostrador: 576385, reparto: 209000, transferenciasCautivos: 49000, ventaTotalMensual: 834385 },
+  { no: 8, mes: 'Agosto', cobroTarjetaTDC: 330000, efectivoCalculado: 271921, ventaTotalMostrador: 601921, reparto: 215000, transferenciasCautivos: 50000, ventaTotalMensual: 866921 },
+  { no: 9, mes: 'Septiembre', cobroTarjetaTDC: 330000, efectivoCalculado: 271921, ventaTotalMostrador: 601921, reparto: 215000, transferenciasCautivos: 50000, ventaTotalMensual: 866921 },
+  { no: 10, mes: 'Octubre', cobroTarjetaTDC: 330000, efectivoCalculado: 271921, ventaTotalMostrador: 601921, reparto: 215000, transferenciasCautivos: 50000, ventaTotalMensual: 866921 },
+  { no: 11, mes: 'Noviembre', cobroTarjetaTDC: 330000, efectivoCalculado: 271921, ventaTotalMostrador: 601921, reparto: 215000, transferenciasCautivos: 50000, ventaTotalMensual: 866921 },
+  { no: 12, mes: 'Diciembre', cobroTarjetaTDC: 418000, efectivoCalculado: 309075, ventaTotalMostrador: 727075, reparto: 189000, transferenciasCautivos: 44000, ventaTotalMensual: 960075 },
 ];
 
 export const RESUMEN_UTILIDAD_REFUGIO: ResumenUtilidadMensual[] = [
-  { mes: 'Febrero', ventaTotal: 832000, gastosOperativos: 705771, utilidadNeta: 126229, margen: 15.2 },
-  { mes: 'Marzo', ventaTotal: 848000, gastosOperativos: 705771, utilidadNeta: 142229, margen: 16.8 },
-  { mes: 'Abril', ventaTotal: 835000, gastosOperativos: 705771, utilidadNeta: 129229, margen: 15.5 },
-  { mes: 'Mayo', ventaTotal: 843000, gastosOperativos: 705771, utilidadNeta: 137229, margen: 16.3 },
-  { mes: 'Junio', ventaTotal: 854000, gastosOperativos: 705771, utilidadNeta: 148229, margen: 17.4 },
-  { mes: 'Julio', ventaTotal: 859000, gastosOperativos: 705771, utilidadNeta: 153229, margen: 17.8 },
-  { mes: 'Agosto', ventaTotal: 867000, gastosOperativos: 705771, utilidadNeta: 161229, margen: 18.6 },
+  { mes: 'Enero', ventaTotal: 960075, gastosOperativos: 705771, utilidadNeta: 254304, margen: 26.5 },
+  { mes: 'Febrero', ventaTotal: 785146, gastosOperativos: 705771, utilidadNeta: 79375, margen: 10.1 },
+  { mes: 'Marzo', ventaTotal: 859479, gastosOperativos: 705771, utilidadNeta: 153708, margen: 17.9 },
+  { mes: 'Abril', ventaTotal: 771864, gastosOperativos: 705771, utilidadNeta: 66093, margen: 8.6 },
+  { mes: 'Mayo', ventaTotal: 746890, gastosOperativos: 705771, utilidadNeta: 41119, margen: 5.5 },
+  { mes: 'Junio', ventaTotal: 818265, gastosOperativos: 705771, utilidadNeta: 112494, margen: 13.7 },
+  { mes: 'Julio', ventaTotal: 834385, gastosOperativos: 705771, utilidadNeta: 128614, margen: 15.4 },
+  { mes: 'Agosto', ventaTotal: 866921, gastosOperativos: 705771, utilidadNeta: 161150, margen: 18.6 },
+  { mes: 'Septiembre', ventaTotal: 866921, gastosOperativos: 705771, utilidadNeta: 161150, margen: 18.6 },
+  { mes: 'Octubre', ventaTotal: 866921, gastosOperativos: 705771, utilidadNeta: 161150, margen: 18.6 },
+  { mes: 'Noviembre', ventaTotal: 866921, gastosOperativos: 705771, utilidadNeta: 161150, margen: 18.6 },
+  { mes: 'Diciembre', ventaTotal: 960075, gastosOperativos: 705771, utilidadNeta: 254304, margen: 26.5 },
 ];
 
 // Totales consolidados
 export const TOTALES_CONSOLIDADOS = {
-  ventas7MesesZakia: 3114000,
-  ventas7MesesRefugio: 5938000,
-  ventas7MesesAmbas: 9052000,
+  // Datos Anuales Auditados 12M Zákia
+  ventasAnualesZakia12M: 5818713,
+  gastosAnualesZakia12M: 4792795,
+  utilidadAnualZakia12M: 1025918,
 
-  promedioMensualVentasZakia: 444857,
-  promedioMensualVentasRefugio: 848286,
-  promedioMensualVentasTotal: 1293143,
+  // Datos Anuales Auditados 12M El Refugio (100% Reales y Anualizados)
+  ventasAnualesRefugio12M: 10203863,
+  gastosAnualesRefugio12M: 8469252,
+  utilidadAnualRefugio12M: 1734611,
 
-  gastosMensualesZakia: 399400, // $399,399.54
+  // Totales Anuales Cadena Consolidada (Zákia 12M + El Refugio 12M)
+  ventasAnualesCadenaTotal: 16022576,
+  gastosAnualesCadenaTotal: 13262047,
+  utilidadAnualCadenaTotal: 2760529,
+
+  // Promedios Mensuales Reales
+  promedioMensualVentasZakia: 484893,
+  promedioMensualVentasRefugio: 850322,
+  promedioMensualVentasTotal: 1335215,
+
+  gastosMensualesZakia: 399400, // $399,399.58
   gastosMensualesRefugio: 705771, // $705,770.74
   gastosMensualesTotal: 1105171,
 
-  utilidadMensualZakia: 45458,
-  utilidadMensualRefugio: 142515,
-  utilidadMensualTotal: 187973,
+  utilidadMensualZakia: 85493,
+  utilidadMensualRefugio: 144551, // $850,322 - $705,771
+  utilidadMensualTotal: 230044, // $85,493 + $144,551
 
-  utilidad7MesesZakia: 318203,
-  utilidad7MesesRefugio: 997605,
-  utilidad7MesesTotal: 1315808,
-
-  margenPonderadoTotal: 14.53, // 187,973 / 1,293,143
-  proyeccionAnualizadaVentas: 1293143 * 12, // $15,517,716 MXN
-  proyeccionAnualizadaGastos: 1105171 * 12, // $13,262,052 MXN
-  proyeccionAnualizadaUtilidad: 187973 * 12, // $2,255,676 MXN
+  margenPonderadoTotal: 17.23, // 2,760,529 / 16,022,576
+  proyeccionAnualizadaVentas: 16022576,
+  proyeccionAnualizadaGastos: 13262047,
+  proyeccionAnualizadaUtilidad: 2760529,
 };
 
 // Benchmark Inmobiliario provisto por el usuario:

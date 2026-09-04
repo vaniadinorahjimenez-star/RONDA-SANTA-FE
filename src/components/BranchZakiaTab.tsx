@@ -3,6 +3,7 @@ import { GASTOS_ZAKIA, VENTAS_ZAKIA, RESUMEN_UTILIDAD_ZAKIA } from '../data/fina
 import { GastoRubro } from '../types';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { DetailModal } from './DetailModal';
+import { ZakiaSalesTable } from './ZakiaSalesTable';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -15,7 +16,9 @@ import {
   Search,
   PieChart as PieChartIcon,
   BarChart3,
-  Calendar
+  Calendar,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -36,6 +39,7 @@ export const BranchZakiaTab: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeSection, setActiveSection] = useState<'gastos' | 'ventas' | 'resumen'>('gastos');
+  const [showIngresosTable, setShowIngresosTable] = useState<boolean>(false);
 
   const categories = ['Todas', ...Array.from(new Set(GASTOS_ZAKIA.map(g => g.categoria)))];
 
@@ -80,32 +84,62 @@ export const BranchZakiaTab: React.FC = () => {
             Análisis Operativo &amp; Financiero Zákia
           </h2>
           <p className="text-stone-300 text-sm mt-2 leading-relaxed">
-            Sucursal con flujo de mostrador constante en una de las zonas de mayor plusvalía y crecimiento habitacional de Querétaro. Predominio de pagos electrónicos (63.5%) y venta directa de pan recién horneado.
+            Sucursal con flujo de mostrador constante en una de las zonas de mayor plusvalía y crecimiento habitacional de Querétaro. Predominio de pagos electrónicos (60.3%) y venta directa de pan recién horneado.
           </p>
         </div>
       </div>
 
       {/* CORE EQUATION HIGHLIGHT: INGRESOS - GASTOS = UTILIDAD */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
+      <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs space-y-6">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
           {/* Ingresos */}
-          <div className="w-full lg:w-1/3 bg-stone-50 border border-stone-200 rounded-xl p-4.5 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <span>1. Ingresos Mensuales Promedio</span>
+          <div 
+            onClick={() => setShowIngresosTable(!showIngresosTable)}
+            className={`w-full lg:w-1/3 border-2 rounded-xl p-4.5 text-center sm:text-left cursor-pointer transition-all ${
+              showIngresosTable
+                ? 'bg-amber-50/80 border-amber-500 shadow-sm ring-2 ring-amber-400/20'
+                : 'bg-stone-50 border-stone-200 hover:border-stone-400'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                <span>1. Ingresos Mensuales Promedio</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${
+                showIngresosTable ? 'bg-amber-500 text-stone-900' : 'bg-stone-200 text-stone-700'
+              }`}>
+                {showIngresosTable ? 'Ocultar' : 'Desplegar'}
+              </span>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-stone-900">
-              {formatCurrency(444857)}
+              {formatCurrency(484893)}
             </div>
             <div className="text-xs text-stone-700 mt-1">
-              Ventas totales 7 meses: <strong className="text-stone-700">{formatCurrency(3114000)}</strong>
+              Venta Total Anual (12M): <strong className="text-stone-900">{formatCurrency(5818713)}</strong>
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-xs font-semibold text-amber-900 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                {showIngresosTable ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {showIngresosTable ? 'Cerrar tabla de ingresos' : 'Desplegar tabla de ingresos por mes'}
+              </span>
+              <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold">
+                12 Meses
+              </span>
             </div>
           </div>
 
           <div className="hidden lg:flex text-stone-400 font-bold text-2xl">-</div>
 
           {/* Menos Gastos */}
-          <div className="w-full lg:w-1/3 bg-stone-50 border border-stone-200 rounded-xl p-4.5 text-center sm:text-left">
+          <div 
+            onClick={() => setActiveSection('gastos')}
+            className={`w-full lg:w-1/3 border rounded-xl p-4.5 text-center sm:text-left cursor-pointer transition-all ${
+              activeSection === 'gastos'
+                ? 'bg-stone-100/70 border-stone-400 shadow-2xs'
+                : 'bg-stone-50 border-stone-200 hover:border-stone-300'
+            }`}
+          >
             <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
               <DollarSign className="w-4 h-4 text-amber-600" />
               <span>2. Menos Gastos Operativos</span>
@@ -114,34 +148,61 @@ export const BranchZakiaTab: React.FC = () => {
               {formatCurrency(399400)}
             </div>
             <div className="text-xs text-stone-700 mt-1">
-              Semanal: {formatCurrency(91967)} &bull; Diario: {formatCurrency(13138)}
+              Gasto Anual (12M): {formatCurrency(4792795)} &bull; Semanal: {formatCurrency(91967)}
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-xs text-stone-600 flex items-center justify-between">
+              <span>23 Rubros auditados</span>
+              <span className="text-[10px] text-amber-800 font-bold">Ver desglose &rarr;</span>
             </div>
           </div>
 
           <div className="hidden lg:flex text-stone-400 font-bold text-2xl">=</div>
 
           {/* Igual Utilidad */}
-          <div className="w-full lg:w-1/3 bg-emerald-50/80 border border-emerald-200 rounded-xl p-4.5 text-center sm:text-left">
+          <div 
+            onClick={() => setActiveSection('resumen')}
+            className={`w-full lg:w-1/3 border rounded-xl p-4.5 text-center sm:text-left cursor-pointer transition-all ${
+              activeSection === 'resumen'
+                ? 'bg-emerald-100/60 border-emerald-500 shadow-2xs'
+                : 'bg-emerald-50/80 border-emerald-200 hover:border-emerald-300'
+            }`}
+          >
             <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>3. Igual Utilidad Neta Mensual</span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-900">
-              {formatCurrency(45458)}
+              {formatCurrency(85493)}
             </div>
             <div className="text-xs text-emerald-700 font-medium mt-1">
-              Margen Neto: <strong>10.2%</strong> &bull; 7 Meses: {formatCurrency(318203)}
+              Margen Neto: <strong>17.6%</strong> &bull; Utilidad Anual (12M): {formatCurrency(1025918)}
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
+              <span>Retorno neto mensual</span>
+              <span className="text-[10px] text-emerald-900 font-bold">Ver histórico &rarr;</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
+        {/* DESPLEGABLE DE TABLA DE INGRESOS POR MES CONFORME A REPORTE */}
+        {showIngresosTable && (
+          <div className="pt-2 animate-in fade-in duration-200">
+            <ZakiaSalesTable 
+              defaultExpanded={true}
+              showToggle={true}
+              title="Tabla de Ingresos Mensuales Auditados (12 Meses: Enero a Diciembre)"
+              subtitle="Desglose auditado conforme a libros contables: Punto de Venta (Tarjeta) vs. Efectivo Mostrador, Gastos Operativos y Utilidad Neta Mensual."
+            />
+          </div>
+        )}
+
+        <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
           <span className="flex items-center gap-1.5">
             <HelpCircle className="w-3.5 h-3.5 text-stone-400" />
-            Haz clic en cualquier renglón o rubro abajo para ver el desglose diario, semanal y justificación detallada.
+            Haz clic en <strong>"1. Ingresos Mensuales Promedio"</strong> para desplegar u ocultar la tabla mensual auditada.
           </span>
           <span className="font-semibold text-amber-800 hidden sm:inline">
-            23 Rubros Auditados
+            12 Meses Auditados (100% Real)
           </span>
         </div>
       </div>
@@ -168,7 +229,7 @@ export const BranchZakiaTab: React.FC = () => {
           }`}
         >
           <BarChart3 className="w-4 h-4" />
-          Análisis de Ventas (Feb - Ago)
+          Análisis de Ventas (12 Meses)
         </button>
         <button
           onClick={() => setActiveSection('resumen')}
@@ -179,7 +240,7 @@ export const BranchZakiaTab: React.FC = () => {
           }`}
         >
           <Calendar className="w-4 h-4" />
-          Resumen Utilidad Mensual
+          Resumen Utilidad Mensual (12 Meses)
         </button>
       </div>
 
@@ -369,65 +430,15 @@ export const BranchZakiaTab: React.FC = () => {
         </div>
       )}
 
-      {/* SECTION 2: ANALISIS DE VENTAS (FEB - AGO) */}
+      {/* SECTION 2: ANALISIS DE VENTAS (12 MESES) */}
       {activeSection === 'ventas' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-stone-200 shadow-2xs overflow-hidden">
-            <div className="p-4 sm:p-6 border-b border-stone-200">
-              <h3 className="text-base font-bold text-stone-900">
-                Historial de Ventas Auditado (7 Meses: Feb - Ago)
-              </h3>
-              <p className="text-xs text-stone-700 mt-1">
-                Comportamiento muy estable y predecible con un promedio de $444,857 MXN al mes.
-              </p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase text-[11px] tracking-wider font-semibold">
-                  <tr>
-                    <th className="py-3 px-4">No.</th>
-                    <th className="py-3 px-4">Mes</th>
-                    <th className="py-3 px-4 text-right">Punto de Venta (TDC)</th>
-                    <th className="py-3 px-4 text-right">% TDC</th>
-                    <th className="py-3 px-4 text-right">Ventas Mostrador (Efectivo)</th>
-                    <th className="py-3 px-4 text-right">% Efectivo</th>
-                    <th className="py-3 px-4 text-right font-bold text-stone-900">Venta Total Mensual</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100">
-                  {VENTAS_ZAKIA.map((v) => (
-                    <tr key={v.mes} className="hover:bg-stone-50">
-                      <td className="py-3 px-4 font-mono text-stone-400">{v.no}</td>
-                      <td className="py-3 px-4 font-semibold text-stone-900">{v.mes}</td>
-                      <td className="py-3 px-4 text-right font-mono text-stone-700">{formatCurrency(v.puntoDeVentaTDC)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-amber-800 font-medium">{formatPercent(v.porcentajeTDC)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-stone-700">{formatCurrency(v.ventasMostradorEfectivo)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-stone-700">{formatPercent(v.porcentajeEfectivo)}</td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(v.ventaTotalMensual)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-stone-50 border-t-2 border-stone-300 font-bold text-stone-900">
-                  <tr>
-                    <td colSpan={2} className="py-3 px-4 uppercase text-xs">Total (7 Meses)</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(1976500)}</td>
-                    <td className="py-3 px-4 text-right font-mono text-amber-800">63.5%</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(1137500)}</td>
-                    <td className="py-3 px-4 text-right font-mono">36.5%</td>
-                    <td className="py-3 px-4 text-right font-mono text-amber-900 text-base">{formatCurrency(3114000)}</td>
-                  </tr>
-                  <tr className="bg-amber-50/50">
-                    <td colSpan={2} className="py-2.5 px-4 uppercase text-xs text-amber-900">Promedio Mensual</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-stone-800">{formatCurrency(282357)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-amber-800">63.5%</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-stone-800">{formatCurrency(162500)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono">36.5%</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-amber-900 font-extrabold">{formatCurrency(444857)}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
+          <ZakiaSalesTable 
+            defaultExpanded={true}
+            showToggle={false}
+            title="Historial de Ventas y Utilidad Auditado (12 Meses: Ene - Dic)"
+            subtitle="Desglose auditado conforme a libros contables: Punto de Venta (Tarjeta) vs. Efectivo Mostrador, Gastos Operativos y Utilidad Neta Mensual."
+          />
 
           {/* Chart: Sales breakdown */}
           <div className="bg-white p-6 rounded-2xl border border-stone-200">
@@ -442,8 +453,8 @@ export const BranchZakiaTab: React.FC = () => {
                   <YAxis tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} tick={{ fill: '#4b5563', fontSize: 12 }} />
                   <Tooltip formatter={(value: number) => [formatCurrency(value), '']} />
                   <Legend />
-                  <Bar dataKey="Tarjeta" stackId="a" fill="#b45309" name="Cobro Tarjeta (TDC) 63.5%" />
-                  <Bar dataKey="Efectivo" stackId="a" fill="#d97706" name="Efectivo Mostrador 36.5%" />
+                  <Bar dataKey="Tarjeta" stackId="a" fill="#b45309" name="Cobro Tarjeta (TDC) 60.3%" />
+                  <Bar dataKey="Efectivo" stackId="a" fill="#d97706" name="Efectivo Mostrador 39.7%" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -451,16 +462,16 @@ export const BranchZakiaTab: React.FC = () => {
         </div>
       )}
 
-      {/* SECTION 3: RESUMEN UTILIDAD MENSUAL */}
+      {/* SECTION 3: RESUMEN UTILIDAD MENSUAL (12 MESES) */}
       {activeSection === 'resumen' && (
         <div className="space-y-6">
           <div className="bg-white rounded-xl border border-stone-200 shadow-2xs overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-stone-200">
               <h3 className="text-base font-bold text-stone-900">
-                Resumen Final de Utilidad Neta Mensual Zákia
+                Resumen Final de Utilidad Neta Mensual Zákia (12 Meses)
               </h3>
               <p className="text-xs text-stone-700 mt-1">
-                Venta Total menos Gastos Operativos fijos y variables da como resultado la utilidad neta mensual y margen operativo.
+                Venta Total menos Gastos Operativos fijos y variables ($399,400/mes) resulta en una Utilidad Neta Anual de $1,025,918 MXN (17.6% de margen promedio).
               </p>
             </div>
             <div className="overflow-x-auto">
@@ -487,18 +498,18 @@ export const BranchZakiaTab: React.FC = () => {
                 </tbody>
                 <tfoot className="bg-stone-50 border-t-2 border-stone-300 font-bold text-stone-900">
                   <tr>
-                    <td className="py-3 px-4 uppercase text-xs">Total (7 Meses)</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(3114000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(2795797)}</td>
-                    <td className="py-3 px-4 text-right font-mono text-emerald-800 text-base">{formatCurrency(318203)}</td>
-                    <td className="py-3 px-4 text-right font-mono">10.2%</td>
+                    <td className="py-3 px-4 uppercase text-xs">Total Anual (12 Meses)</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(5818713)}</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(4792795)}</td>
+                    <td className="py-3 px-4 text-right font-mono text-emerald-800 text-base">{formatCurrency(1025918)}</td>
+                    <td className="py-3 px-4 text-right font-mono">17.6%</td>
                   </tr>
                   <tr className="bg-emerald-50/50">
                     <td className="py-2.5 px-4 uppercase text-xs text-emerald-900">Promedio Mensual</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(444857)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(484893)}</td>
                     <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(399400)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-emerald-900 font-extrabold">{formatCurrency(45458)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">10.2%</td>
+                    <td className="py-2.5 px-4 text-right font-mono text-emerald-900 font-extrabold">{formatCurrency(85493)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">17.6%</td>
                   </tr>
                 </tfoot>
               </table>

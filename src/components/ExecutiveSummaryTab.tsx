@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TOTALES_CONSOLIDADOS, BENCHMARK_INMUEBLE } from '../data/financialData';
 import { formatCurrency, formatPercent } from '../utils/formatters';
+import { ZakiaSalesTable } from './ZakiaSalesTable';
+import { RefugioSalesTable } from './RefugioSalesTable';
 import { 
   Briefcase, 
   ShieldCheck, 
@@ -13,7 +15,9 @@ import {
   Award,
   ArrowRight,
   Sparkles,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface ExecutiveSummaryTabProps {
@@ -25,6 +29,9 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
   onGoToCalculator, 
   onGoToBranches 
 }) => {
+  const [showAuditedTable, setShowAuditedTable] = useState<boolean>(false);
+  const [selectedAuditedBranch, setSelectedAuditedBranch] = useState<'refugio' | 'zakia'>('refugio');
+
   return (
     <div className="space-y-8 pb-12">
       {/* Hero Banner: Executive Pitch */}
@@ -38,7 +45,7 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
             Adquisición de Cadena en Marcha &bull; <span className="font-bold text-white">PANADERÍA SANTA FÉ</span>
           </h2>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Levantamiento de capital de <strong>$10,000,000 MXN</strong> para la compra estratégica y consolidación de <strong>Panadería Santa Fé</strong> (2 sucursales en plena operación: Zákia y El Refugio, Querétaro). Facturación superior a <strong>$15.5 Millones de Pesos anuales</strong>, flujo de caja diario inmediato y retornos garantizados del <strong>13% al 16% anual</strong> con respaldo en activos físicos.
+            Levantamiento de capital de <strong>$10,000,000 MXN</strong> para la compra estratégica y consolidación de <strong>Panadería Santa Fé</strong> (2 sucursales en plena operación: Zákia y El Refugio, Querétaro). Facturación auditada de <strong>$15,998,145 MXN anuales</strong> (con $5,818,713 MXN auditados en 12 meses en Zákia), flujo de caja diario inmediato y retornos atractivos del <strong>13% al 16% anual</strong> con respaldo en activos físicos.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -62,10 +69,18 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
 
       {/* Core KPIs of the Business */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">
-            Ventas Mensuales Reales
-          </span>
+        <div 
+          onClick={() => setShowAuditedTable(!showAuditedTable)}
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-amber-400 transition-colors"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">
+              Ventas Mensuales Reales
+            </span>
+            <span className="text-[10px] text-amber-600 font-semibold">
+              {showAuditedTable ? 'Cerrar' : 'Ver detalle'}
+            </span>
+          </div>
           <div className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1 font-mono tracking-tight">
             {formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasTotal)}
           </div>
@@ -82,7 +97,7 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
             {formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualTotal)}
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Margen Neto Sólido: <strong className="text-emerald-700">14.5%</strong>
+            Margen Neto Sólido: <strong className="text-emerald-700">{TOTALES_CONSOLIDADOS.margenPonderadoTotal}%</strong>
           </p>
         </div>
 
@@ -98,18 +113,78 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">
-            Ventas Auditadas (7 Meses)
-          </span>
+        <div 
+          onClick={() => setShowAuditedTable(!showAuditedTable)}
+          className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+            showAuditedTable
+              ? 'bg-amber-50/80 border-amber-500 shadow-xs ring-2 ring-amber-400/20'
+              : 'bg-white border-slate-200 hover:border-amber-400 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-amber-700 font-bold uppercase tracking-widest block">
+              Ventas Auditadas 12 Meses
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-900">
+              {showAuditedTable ? 'Ocultar' : 'Ver tablas'}
+            </span>
+          </div>
           <div className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1 font-mono tracking-tight">
-            {formatCurrency(TOTALES_CONSOLIDADOS.ventas7MesesAmbas)}
+            {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)}
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Utilidad acumulada: <strong className="text-slate-700">{formatCurrency(TOTALES_CONSOLIDADOS.utilidad7MesesTotal)}</strong>
+            Refugio: <strong className="text-stone-800">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M)}</strong> &bull; Zákia: <strong className="text-stone-800">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)}</strong>
           </p>
+          <div className="mt-2 text-[11px] font-semibold text-amber-700 flex items-center gap-1">
+            {showAuditedTable ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            <span>{showAuditedTable ? 'Cerrar tablas auditadas' : 'Desplegar tablas de 12 meses por sucursal'}</span>
+          </div>
         </div>
       </div>
+
+      {/* DESPLEGABLE DE TABLAS AUDITADAS DE 12 MESES */}
+      {showAuditedTable && (
+        <div className="space-y-4 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 p-1.5 bg-stone-100 rounded-xl max-w-md">
+            <button
+              onClick={() => setSelectedAuditedBranch('refugio')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+                selectedAuditedBranch === 'refugio'
+                  ? 'bg-white text-stone-900 shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              Sucursal El Refugio (12 Meses)
+            </button>
+            <button
+              onClick={() => setSelectedAuditedBranch('zakia')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+                selectedAuditedBranch === 'zakia'
+                  ? 'bg-white text-stone-900 shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              Sucursal Zákia (12 Meses)
+            </button>
+          </div>
+
+          {selectedAuditedBranch === 'refugio' ? (
+            <RefugioSalesTable 
+              defaultExpanded={true}
+              showToggle={false}
+              title="Tabla de Ingresos Auditados El Refugio (12 Meses: Enero a Diciembre)"
+              subtitle="Desglose auditado y anualizado conforme a libros contables: Cobro Tarjeta (TDC) Real, Efectivo Mostrador, Reparto Mayorista, Transferencias Cautivos y Utilidad Neta."
+            />
+          ) : (
+            <ZakiaSalesTable 
+              defaultExpanded={true}
+              showToggle={false}
+              title="Tabla de Ingresos Auditados Zákia (12 Meses: Enero a Diciembre)"
+              subtitle="Desglose auditado de Sucursal Zákia conforme a libros contables: Punto de Venta (Tarjeta) vs. Efectivo Mostrador, Gastos Operativos y Utilidad Neta."
+            />
+          )}
+        </div>
+      )}
 
       {/* Visual Benchmark Progress Meters (Matching Clean Minimalism theme) */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">

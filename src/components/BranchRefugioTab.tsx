@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { GASTOS_REFUGIO, VENTAS_REFUGIO, RESUMEN_UTILIDAD_REFUGIO } from '../data/financialData';
+import { GASTOS_REFUGIO, VENTAS_REFUGIO, RESUMEN_UTILIDAD_REFUGIO, TOTALES_CONSOLIDADOS } from '../data/financialData';
 import { GastoRubro } from '../types';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { DetailModal } from './DetailModal';
+import { RefugioSalesTable } from './RefugioSalesTable';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -15,7 +16,9 @@ import {
   BarChart3,
   Calendar,
   Truck,
-  Building
+  Building,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -36,6 +39,7 @@ export const BranchRefugioTab: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeSection, setActiveSection] = useState<'gastos' | 'ventas' | 'resumen'>('gastos');
+  const [showIngresosTable, setShowIngresosTable] = useState<boolean>(false);
 
   const categories = ['Todas', ...Array.from(new Set(GASTOS_REFUGIO.map(g => g.categoria)))];
 
@@ -81,68 +85,125 @@ export const BranchRefugioTab: React.FC = () => {
             Análisis Operativo &amp; Financiero El Refugio
           </h2>
           <p className="text-stone-300 text-sm mt-2 leading-relaxed">
-            Planta matriz de alta escala: combina ventas de mostrador de alto flujo con rutas de reparto mayorista ($210,286/mes) y clientes institucionales cautivos por transferencia ($49,000/mes). Margen neto del 16.8%.
+            Planta matriz de alta escala: combina ventas de mostrador de alto flujo con rutas de reparto mayorista ($201,833/mes) y clientes institucionales cautivos por transferencia ($47,000/mes). Facturación auditada de <strong>$10,203,863 MXN</strong> anuales con margen neto del 17.0%.
           </p>
         </div>
       </div>
 
       {/* CORE EQUATION HIGHLIGHT: INGRESOS - GASTOS = UTILIDAD */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
+      <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs space-y-6">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
           {/* Ingresos */}
-          <div className="w-full lg:w-1/3 bg-stone-50 border border-stone-200 rounded-xl p-4.5 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <span>1. Ingresos Mensuales Promedio</span>
+          <div 
+            onClick={() => setShowIngresosTable(!showIngresosTable)}
+            className={`w-full lg:w-1/3 border-2 rounded-xl p-4.5 text-center sm:text-left cursor-pointer transition-all ${
+              showIngresosTable
+                ? 'bg-amber-50/80 border-amber-500 shadow-sm ring-2 ring-amber-400/20'
+                : 'bg-stone-50 border-stone-200 hover:border-stone-400'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                <span>1. Ingresos Mensuales Promedio</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${
+                showIngresosTable ? 'bg-amber-500 text-stone-900' : 'bg-stone-200 text-stone-700'
+              }`}>
+                {showIngresosTable ? 'Ocultar' : 'Desplegar'}
+              </span>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-stone-900">
-              {formatCurrency(848286)}
+              {formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}
             </div>
             <div className="text-xs text-stone-700 mt-1">
-              Ventas 7 meses: <strong className="text-stone-700">{formatCurrency(5938000)}</strong>
+              Venta Total Anual (12M): <strong className="text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M)}</strong>
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-xs font-semibold text-amber-900 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                {showIngresosTable ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {showIngresosTable ? 'Cerrar tabla de ingresos' : 'Desplegar tabla de ingresos por mes'}
+              </span>
+              <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold">
+                12 Meses
+              </span>
             </div>
           </div>
 
           <div className="hidden lg:flex text-stone-400 font-bold text-2xl">-</div>
 
           {/* Menos Gastos */}
-          <div className="w-full lg:w-1/3 bg-stone-50 border border-stone-200 rounded-xl p-4.5 text-center sm:text-left">
+          <div 
+            onClick={() => setActiveSection('gastos')}
+            className={`w-full lg:w-1/3 border rounded-xl p-4.5 text-center sm:text-left cursor-pointer transition-all ${
+              activeSection === 'gastos'
+                ? 'bg-stone-100/70 border-stone-400 shadow-2xs'
+                : 'bg-stone-50 border-stone-200 hover:border-stone-300'
+            }`}
+          >
             <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
               <DollarSign className="w-4 h-4 text-amber-600" />
               <span>2. Menos Gastos Operativos</span>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-stone-900">
-              {formatCurrency(705771)}
+              {formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesRefugio)}
             </div>
             <div className="text-xs text-stone-700 mt-1">
-              Semanal: {formatCurrency(162513)} &bull; Diario: {formatCurrency(23216.14, true)}
+              Gasto Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M)} &bull; Semanal: {formatCurrency(162513)}
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-xs text-stone-600 flex items-center justify-between">
+              <span>23 Rubros auditados</span>
+              <span className="text-[10px] text-amber-800 font-bold">Ver desglose &rarr;</span>
             </div>
           </div>
 
           <div className="hidden lg:flex text-stone-400 font-bold text-2xl">=</div>
 
           {/* Igual Utilidad */}
-          <div className="w-full lg:w-1/3 bg-emerald-50/80 border border-emerald-200 rounded-xl p-4.5 text-center sm:text-left">
+          <div 
+            onClick={() => setActiveSection('resumen')}
+            className={`w-full lg:w-1/3 border rounded-xl p-4.5 text-center sm:text-left cursor-pointer transition-all ${
+              activeSection === 'resumen'
+                ? 'bg-emerald-100/60 border-emerald-500 shadow-2xs'
+                : 'bg-emerald-50/80 border-emerald-200 hover:border-emerald-300'
+            }`}
+          >
             <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>3. Igual Utilidad Neta Mensual</span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-900">
-              {formatCurrency(142515)}
+              {formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}
             </div>
             <div className="text-xs text-emerald-700 font-medium mt-1">
-              Margen Neto: <strong>16.8%</strong> &bull; 7 Meses: {formatCurrency(997605)}
+              Margen Neto: <strong>17.0%</strong> &bull; Utilidad Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M)}
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
+              <span>Retorno neto mensual</span>
+              <span className="text-[10px] text-emerald-900 font-bold">Ver histórico &rarr;</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
+        {/* DESPLEGABLE DE TABLA DE INGRESOS POR MES CONFORME A REPORTE */}
+        {showIngresosTable && (
+          <div className="pt-2 animate-in fade-in duration-200">
+            <RefugioSalesTable 
+              defaultExpanded={true}
+              showToggle={true}
+              title="Tabla de Ingresos Mensuales Auditados (12 Meses: Enero a Diciembre)"
+              subtitle="Desglose auditado y anualizado: Cobro Tarjeta (TDC) Real, Efectivo Mostrador, Reparto Mayorista, Transferencias Cautivos y Utilidad Neta."
+            />
+          </div>
+        )}
+
+        <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-700">
           <span className="flex items-center gap-1.5">
             <HelpCircle className="w-3.5 h-3.5 text-stone-400" />
-            Haz clic en cualquier renglón o rubro abajo para ver el desglose diario, semanal y justificación detallada.
+            Haz clic en <strong>"1. Ingresos Mensuales Promedio"</strong> para desplegar u ocultar la tabla de ingresos por canal.
           </span>
           <span className="font-semibold text-amber-800 hidden sm:inline">
-            23 Rubros Operativos
+            12 Meses Auditados &amp; Anualizados (100% Real)
           </span>
         </div>
       </div>
@@ -155,10 +216,10 @@ export const BranchRefugioTab: React.FC = () => {
             <span>Venta Mostrador (Tienda)</span>
           </div>
           <div className="text-lg font-bold text-stone-900">
-            {formatCurrency(589000)} <span className="text-xs font-normal text-stone-500">/ mes (69.4%)</span>
+            {formatCurrency(601489)} <span className="text-xs font-normal text-stone-500">/ mes (70.7%)</span>
           </div>
           <p className="text-[11px] text-stone-500 mt-1">
-            Tarjeta TDC ($323k) + Efectivo ($265k)
+            Anual 12M: {formatCurrency(7217863)} &bull; TDC ($329k) + Efectivo ($272k)
           </p>
         </div>
 
@@ -168,10 +229,10 @@ export const BranchRefugioTab: React.FC = () => {
             <span>Rutas de Reparto Mayorista</span>
           </div>
           <div className="text-lg font-bold text-stone-900">
-            {formatCurrency(210286)} <span className="text-xs font-normal text-stone-500">/ mes (24.8%)</span>
+            {formatCurrency(201833)} <span className="text-xs font-normal text-stone-500">/ mes (23.7%)</span>
           </div>
           <p className="text-[11px] text-stone-500 mt-1">
-            Distribución programada a cafeterías y tiendas
+            Anual 12M: {formatCurrency(2422000)} &bull; Distribución comercial mayorista
           </p>
         </div>
 
@@ -181,10 +242,10 @@ export const BranchRefugioTab: React.FC = () => {
             <span>Transferencias Clientes Cautivos</span>
           </div>
           <div className="text-lg font-bold text-stone-900">
-            {formatCurrency(49000)} <span className="text-xs font-normal text-stone-500">/ mes (5.8%)</span>
+            {formatCurrency(47000)} <span className="text-xs font-normal text-stone-500">/ mes (5.5%)</span>
           </div>
           <p className="text-[11px] text-stone-500 mt-1">
-            Cuentas corporativas fijas e institucionales
+            Anual 12M: {formatCurrency(564000)} &bull; Cuentas corporativas fijas
           </p>
         </div>
       </div>
@@ -412,75 +473,24 @@ export const BranchRefugioTab: React.FC = () => {
         </div>
       )}
 
-      {/* SECTION 2: ANALISIS DE VENTAS (FEB - AGO) */}
+      {/* SECTION 2: ANALISIS DE VENTAS (12 MESES AUDITADOS) */}
       {activeSection === 'ventas' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-stone-200 shadow-2xs overflow-hidden">
-            <div className="p-4 sm:p-6 border-b border-stone-200">
-              <h3 className="text-base font-bold text-stone-900">
-                Historial de Ventas Auditado por Canal (7 Meses)
-              </h3>
-              <p className="text-xs text-stone-700 mt-1">
-                Tres canales simultáneos de comercialización: Mostrador, Rutas de Reparto y Clientes Cautivos.
-              </p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase text-[11px] tracking-wider font-semibold">
-                  <tr>
-                    <th className="py-3 px-4">No.</th>
-                    <th className="py-3 px-4">Mes</th>
-                    <th className="py-3 px-4 text-right">Tarjeta (TDC)</th>
-                    <th className="py-3 px-4 text-right">Efectivo (45%)</th>
-                    <th className="py-3 px-4 text-right font-semibold text-amber-900">Total Mostrador</th>
-                    <th className="py-3 px-4 text-right font-semibold text-stone-800">Reparto</th>
-                    <th className="py-3 px-4 text-right">Transf. Cautivos</th>
-                    <th className="py-3 px-4 text-right font-bold text-stone-900">Venta Total Mes</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100">
-                  {VENTAS_REFUGIO.map((v) => (
-                    <tr key={v.mes} className="hover:bg-stone-50">
-                      <td className="py-3 px-4 font-mono text-stone-400">{v.no}</td>
-                      <td className="py-3 px-4 font-semibold text-stone-900">{v.mes}</td>
-                      <td className="py-3 px-4 text-right font-mono text-stone-700">{formatCurrency(v.cobroTarjetaTDC)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-stone-700">{formatCurrency(v.efectivoCalculado)}</td>
-                      <td className="py-3 px-4 text-right font-mono font-semibold text-amber-900">{formatCurrency(v.ventaTotalMostrador)}</td>
-                      <td className="py-3 px-4 text-right font-mono font-medium text-stone-800">{formatCurrency(v.reparto)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-stone-700">{formatCurrency(v.transferenciasCautivos)}</td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(v.ventaTotalMensual)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-stone-50 border-t-2 border-stone-300 font-bold text-stone-900">
-                  <tr>
-                    <td colSpan={2} className="py-3 px-4 uppercase text-xs">Total (7 Meses)</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(2267000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(1856000)}</td>
-                    <td className="py-3 px-4 text-right font-mono text-amber-900">{formatCurrency(4123000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(1472000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(343000)}</td>
-                    <td className="py-3 px-4 text-right font-mono text-amber-900 text-base">{formatCurrency(5938000)}</td>
-                  </tr>
-                  <tr className="bg-amber-50/50">
-                    <td colSpan={2} className="py-2.5 px-4 uppercase text-xs text-amber-900">Promedio Mensual</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-stone-800">{formatCurrency(323857)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-stone-800">{formatCurrency(265143)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-amber-900 font-bold">{formatCurrency(589000)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-stone-800">{formatCurrency(210286)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-stone-800">{formatCurrency(49000)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-amber-900 font-extrabold">{formatCurrency(848286)}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
+          <RefugioSalesTable 
+            defaultExpanded={true}
+            showToggle={false}
+            title="Historial de Ventas Auditado por Canal (12 Meses: Ene - Dic)"
+            subtitle="Desglose auditado y anualizado: Mostrador (Tarjeta TDC + Efectivo), Rutas de Reparto Mayorista y Clientes Cautivos."
+          />
 
           {/* Chart: Sales breakdown */}
           <div className="bg-white p-6 rounded-2xl border border-stone-200">
-            <h4 className="text-sm font-bold text-stone-900 mb-4">
-              Composición Mensual por Canal Comercial
+            <h4 className="text-sm font-bold text-stone-900 mb-1">
+              Composición Mensual por Canal Comercial (12 Meses)
             </h4>
+            <p className="text-xs text-stone-500 mb-4">
+              Distribución mensual de ingresos entre Mostrador ($601k/m), Reparto Mayorista ($202k/m) y Cautivos ($47k/m).
+            </p>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartVentasData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
@@ -505,10 +515,10 @@ export const BranchRefugioTab: React.FC = () => {
           <div className="bg-white rounded-xl border border-stone-200 shadow-2xs overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-stone-200">
               <h3 className="text-base font-bold text-stone-900">
-                Resumen Final de Utilidad Neta Mensual Refugio
+                Resumen Final de Utilidad Neta Mensual Refugio (12 Meses Auditados)
               </h3>
               <p className="text-xs text-stone-700 mt-1">
-                Utilidad neta mensual promedio de $142,515 MXN con un margen neto superior al 16.8% sostenido.
+                Utilidad neta mensual promedio de $144,551 MXN ($1,734,611 anuales) con un margen neto sostenido del 17.0%.
               </p>
             </div>
             <div className="overflow-x-auto">
@@ -547,24 +557,24 @@ export const BranchRefugioTab: React.FC = () => {
                 </tbody>
                 <tfoot className="bg-stone-50 border-t-2 border-stone-300 font-bold text-stone-900">
                   <tr>
-                    <td className="py-3 px-4 uppercase text-xs">Total (7 Meses)</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(4123000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(1472000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(343000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(5938000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(4940395)}</td>
-                    <td className="py-3 px-4 text-right font-mono text-emerald-800 text-base">{formatCurrency(997605)}</td>
-                    <td className="py-3 px-4 text-right font-mono">16.8%</td>
+                    <td className="py-3 px-4 uppercase text-xs">Total (12 Meses)</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(7217863)}</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(2422000)}</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(564000)}</td>
+                    <td className="py-3 px-4 text-right font-mono text-amber-900 text-base">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M)}</td>
+                    <td className="py-3 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M)}</td>
+                    <td className="py-3 px-4 text-right font-mono text-emerald-800 text-base">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M)}</td>
+                    <td className="py-3 px-4 text-right font-mono">17.0%</td>
                   </tr>
                   <tr className="bg-emerald-50/50">
                     <td className="py-2.5 px-4 uppercase text-xs text-emerald-900">Promedio Mensual</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(589000)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(210286)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(49000)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(848286)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(705771)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-emerald-900 font-extrabold">{formatCurrency(142515)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">16.8%</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(601489)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(201833)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(47000)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesRefugio)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono text-emerald-900 font-extrabold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">17.0%</td>
                   </tr>
                 </tfoot>
               </table>

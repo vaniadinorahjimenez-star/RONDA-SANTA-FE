@@ -94,15 +94,15 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({ onCl
                 </tr>
                 <tr>
                   <td className="p-2.5 font-medium">Margen Operativo (%)</td>
-                  <td className="p-2.5 text-right font-mono">10.2%</td>
-                  <td className="p-2.5 text-right font-mono">16.8%</td>
-                  <td className="p-2.5 text-right font-mono font-bold">14.5%</td>
+                  <td className="p-2.5 text-right font-mono">17.6%</td>
+                  <td className="p-2.5 text-right font-mono">17.0%</td>
+                  <td className="p-2.5 text-right font-mono font-bold">{TOTALES_CONSOLIDADOS.margenPonderadoTotal}%</td>
                 </tr>
                 <tr>
-                  <td className="p-2.5 font-medium">Venta Anualizada Estimada</td>
-                  <td className="p-2.5 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasZakia * 12)}</td>
-                  <td className="p-2.5 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio * 12)}</td>
-                  <td className="p-2.5 text-right font-mono font-bold">{formatCurrency(TOTALES_CONSOLIDADOS.proyeccionAnualizadaVentas)}</td>
+                  <td className="p-2.5 font-medium">Venta Anual Auditada (12 Meses)</td>
+                  <td className="p-2.5 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)}</td>
+                  <td className="p-2.5 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M)}</td>
+                  <td className="p-2.5 text-right font-mono font-bold">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)}</td>
                 </tr>
               </tbody>
             </table>

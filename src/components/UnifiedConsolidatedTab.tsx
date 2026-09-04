@@ -34,13 +34,16 @@ import {
 } from 'recharts';
 
 export const UnifiedConsolidatedTab: React.FC = () => {
-  // Monthly consolidated data
-  const meses = ['Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto'];
-  const consolidatedMonthly = meses.map((mes, idx) => {
-    const vz = VENTAS_ZAKIA[idx].ventaTotalMensual;
-    const vr = VENTAS_REFUGIO[idx].ventaTotalMensual;
-    const gz = RESUMEN_UTILIDAD_ZAKIA[idx].gastosOperativos;
-    const gr = RESUMEN_UTILIDAD_REFUGIO[idx].gastosOperativos;
+  // Monthly consolidated data for all 12 months
+  const meses = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  const consolidatedMonthly = meses.map((mes) => {
+    const vz = VENTAS_ZAKIA.find(v => v.mes === mes)?.ventaTotalMensual || 0;
+    const vr = VENTAS_REFUGIO.find(v => v.mes === mes)?.ventaTotalMensual || 0;
+    const gz = RESUMEN_UTILIDAD_ZAKIA.find(r => r.mes === mes)?.gastosOperativos || 399400;
+    const gr = RESUMEN_UTILIDAD_REFUGIO.find(r => r.mes === mes)?.gastosOperativos || 705771;
     const uz = vz - gz;
     const ur = vr - gr;
 
@@ -67,10 +70,10 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             <span>Panadería Santa Fé &bull; Consolidación de Cadena (Zákia + El Refugio)</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            Estado Financiero Consolidado Unificado
+            Estado Financiero Consolidado Unificado (12 Meses Auditados)
           </h2>
           <p className="text-stone-300 text-sm mt-2 leading-relaxed">
-            Visión integral de <strong>Panadería Santa Fé</strong> que se consolidará con la ronda de $10 MDP. Dos ubicaciones estratégicas sinérgicas generando más de $15.5 Millones de Pesos anuales en ventas brutas y $2.25 Millones de Pesos en utilidad neta.
+            Visión integral de <strong>Panadería Santa Fé</strong> consolidada con la ronda de $10 MDP. Dos ubicaciones estratégicas sinérgicas generando <strong>{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)}</strong> anuales en ventas brutas y <strong>{formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal)}</strong> en utilidad neta.
           </p>
         </div>
       </div>
@@ -102,11 +105,11 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             </div>
             <div className="mt-2 text-xs text-stone-600 space-y-0.5">
               <div className="flex justify-between">
-                <span>Refugio (65.6%):</span>
+                <span>Refugio (63.6%):</span>
                 <span className="font-semibold text-stone-800">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Zákia (34.4%):</span>
+                <span>Zákia (36.4%):</span>
                 <span className="font-semibold text-stone-800">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasZakia)}</span>
               </div>
             </div>
@@ -119,7 +122,7 @@ export const UnifiedConsolidatedTab: React.FC = () => {
                 <DollarSign className="w-4 h-4 text-amber-600" />
                 Gastos Operativos / Mes
               </span>
-              <span className="text-stone-400">85.5%</span>
+              <span className="text-stone-400">82.9%</span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-stone-900">
               {formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesTotal)}
@@ -144,7 +147,7 @@ export const UnifiedConsolidatedTab: React.FC = () => {
                 Utilidad Neta / Mes
               </span>
               <span className="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                14.5% Margen
+                17.1% Margen
               </span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-950">
@@ -152,11 +155,11 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             </div>
             <div className="mt-2 text-xs text-emerald-800 space-y-0.5 font-medium">
               <div className="flex justify-between">
-                <span>Refugio (75.8% de util.):</span>
+                <span>Refugio (62.5% de util.):</span>
                 <span className="font-bold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Zákia (24.2% de util.):</span>
+                <span>Zákia (37.5% de util.):</span>
                 <span className="font-bold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}</span>
               </div>
             </div>
@@ -207,23 +210,23 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             <tbody className="divide-y divide-stone-100">
               <tr>
                 <td className="py-3.5 px-4 font-semibold text-stone-900">Ventas Promedio Mensuales</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(444857)}</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(848286)}</td>
-                <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(1293143)}</td>
-                <td className="py-3.5 px-4 text-center text-xs text-stone-700">34.4% Z / 65.6% R</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasZakia)}</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}</td>
+                <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasTotal)}</td>
+                <td className="py-3.5 px-4 text-center text-xs text-stone-700">36.4% Z / 63.6% R</td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-semibold text-stone-900">Ventas 7 Meses Auditadas (Feb - Ago)</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(3114000)}</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(5938000)}</td>
-                <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(9052000)}</td>
+                <td className="py-3.5 px-4 font-semibold text-stone-900">Ventas Anuales (12M Auditadas / Anualizadas)</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)}</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M)}</td>
+                <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)}</td>
                 <td className="py-3.5 px-4 text-center text-xs text-stone-700">100% de la red</td>
               </tr>
               <tr>
                 <td className="py-3.5 px-4 font-semibold text-stone-900">Gasto Operativo Mensual Proyectado</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(399400)}</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(705771)}</td>
-                <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(1105171)}</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesZakia)}</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesRefugio)}</td>
+                <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesTotal)}</td>
                 <td className="py-3.5 px-4 text-center text-xs text-stone-700">36.1% Z / 63.9% R</td>
               </tr>
               <tr>
@@ -242,16 +245,16 @@ export const UnifiedConsolidatedTab: React.FC = () => {
               </tr>
               <tr className="bg-emerald-50/60 font-bold">
                 <td className="py-3.5 px-4 text-emerald-950 font-bold">Utilidad Neta Mensual Promedio</td>
-                <td className="py-3.5 px-4 text-right font-mono text-emerald-900">{formatCurrency(45458)}</td>
-                <td className="py-3.5 px-4 text-right font-mono text-emerald-900">{formatCurrency(142515)}</td>
-                <td className="py-3.5 px-4 text-right font-mono text-emerald-950 text-base">{formatCurrency(187973)}</td>
-                <td className="py-3.5 px-4 text-center text-xs text-emerald-800">24.2% Z / 75.8% R</td>
+                <td className="py-3.5 px-4 text-right font-mono text-emerald-900">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}</td>
+                <td className="py-3.5 px-4 text-right font-mono text-emerald-900">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}</td>
+                <td className="py-3.5 px-4 text-right font-mono text-emerald-950 text-base">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualTotal)}</td>
+                <td className="py-3.5 px-4 text-center text-xs text-emerald-800">37.5% Z / 62.5% R</td>
               </tr>
               <tr className="bg-emerald-50/30">
                 <td className="py-3.5 px-4 font-semibold text-stone-900">Margen Neto de Operación (%)</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-800">10.2%</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-800">16.8%</td>
-                <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-900">14.5%</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-800">17.6%</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-800">17.0%</td>
+                <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-900">17.2%</td>
                 <td className="py-3.5 px-4 text-center text-xs text-stone-700">Margen ponderado</td>
               </tr>
             </tbody>
@@ -259,19 +262,19 @@ export const UnifiedConsolidatedTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Chart: Historical Consolidated Evolution (Feb - Ago) */}
+      {/* Chart: Historical Consolidated Evolution (12 Meses Auditados) */}
       <div className="bg-white p-6 rounded-2xl border border-stone-200">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
           <div>
             <h4 className="text-base font-bold text-stone-900">
-              Evolución Mensual Consolidada: Ingresos vs. Costos vs. Utilidad
+              Evolución Mensual Consolidada: Ingresos vs. Costos vs. Utilidad (12 Meses)
             </h4>
             <p className="text-xs text-stone-700">
-              Historial real auditado de los 7 meses reportados (febrero a agosto)
+              Historial real auditado de los 12 meses (Enero a Diciembre) para ambas sucursales
             </p>
           </div>
           <div className="text-xs font-semibold text-stone-700 bg-stone-100 px-3 py-1 rounded-lg">
-            Total 7 Meses: {formatCurrency(9052000)} en ventas
+            Total 12 Meses: {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)} en ventas
           </div>
         </div>
 
