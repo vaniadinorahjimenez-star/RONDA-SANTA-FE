@@ -45,7 +45,7 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
             Adquisición de Cadena en Marcha &bull; <span className="font-bold text-white">PANADERÍA SANTA FÉ</span>
           </h2>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Levantamiento de capital de <strong>$10,000,000 MXN</strong> para la compra estratégica y consolidación de <strong>Panadería Santa Fé</strong> (2 sucursales en plena operación: Zákia y El Refugio, Querétaro). Facturación auditada de <strong>$15,998,145 MXN anuales</strong> (con $5,818,713 MXN auditados en 12 meses en Zákia), flujo de caja diario inmediato y retornos atractivos del <strong>13% al 16% anual</strong> con respaldo en activos físicos.
+            Levantamiento de capital de <strong>$10,000,000 MXN</strong> para la compra estratégica y consolidación de <strong>Panadería Santa Fé</strong> (2 sucursales en plena operación: Zákia y El Refugio, Querétaro). Facturación auditada de <strong>{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)} anuales</strong> (con {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)} auditados en 12 meses en Zákia), flujo de caja diario inmediato y retornos atractivos del <strong>13% al 16% anual</strong> con respaldo en activos físicos.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-3">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GASTOS_ZAKIA, VENTAS_ZAKIA, RESUMEN_UTILIDAD_ZAKIA } from '../data/financialData';
+import { GASTOS_ZAKIA, VENTAS_ZAKIA, RESUMEN_UTILIDAD_ZAKIA, TOTALES_CONSOLIDADOS } from '../data/financialData';
 import { GastoRubro } from '../types';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { DetailModal } from './DetailModal';
@@ -113,10 +113,10 @@ export const BranchZakiaTab: React.FC = () => {
               </span>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-stone-900">
-              {formatCurrency(484893)}
+              {formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasZakia)}
             </div>
             <div className="text-xs text-stone-700 mt-1">
-              Venta Total Anual (12M): <strong className="text-stone-900">{formatCurrency(5818713)}</strong>
+              Venta Total Anual (12M): <strong className="text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)}</strong>
             </div>
             <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-xs font-semibold text-amber-900 flex items-center justify-between">
               <span className="flex items-center gap-1">
@@ -172,10 +172,10 @@ export const BranchZakiaTab: React.FC = () => {
               <span>3. Igual Utilidad Neta Mensual</span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-900">
-              {formatCurrency(85493)}
+              {formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}
             </div>
             <div className="text-xs text-emerald-700 font-medium mt-1">
-              Margen Neto: <strong>17.6%</strong> &bull; Utilidad Anual (12M): {formatCurrency(1025918)}
+              Margen Neto: <strong>19.9%</strong> &bull; Utilidad Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualZakia12M)}
             </div>
             <div className="mt-2.5 pt-2 border-t border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
               <span>Retorno neto mensual</span>
@@ -499,17 +499,17 @@ export const BranchZakiaTab: React.FC = () => {
                 <tfoot className="bg-stone-50 border-t-2 border-stone-300 font-bold text-stone-900">
                   <tr>
                     <td className="py-3 px-4 uppercase text-xs">Total Anual (12 Meses)</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(5818713)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(4792795)}</td>
-                    <td className="py-3 px-4 text-right font-mono text-emerald-800 text-base">{formatCurrency(1025918)}</td>
-                    <td className="py-3 px-4 text-right font-mono">17.6%</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)}</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesZakia12M)}</td>
+                    <td className="py-3 px-4 text-right font-mono text-emerald-800 text-base">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualZakia12M)}</td>
+                    <td className="py-3 px-4 text-right font-mono">19.9%</td>
                   </tr>
                   <tr className="bg-emerald-50/50">
                     <td className="py-2.5 px-4 uppercase text-xs text-emerald-900">Promedio Mensual</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(484893)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(399400)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-emerald-900 font-extrabold">{formatCurrency(85493)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">17.6%</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasZakia)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesZakia)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono text-emerald-900 font-extrabold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">19.9%</td>
                   </tr>
                 </tfoot>
               </table>

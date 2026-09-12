@@ -514,14 +514,14 @@ export const GASTOS_REFUGIO: GastoRubro[] = [
 
 export const VENTAS_ZAKIA: VentaMensualZakia[] = [
   { no: 1, mes: 'Enero', puntoDeVentaTDC: 352037, ventasMostradorEfectivo: 256640, ventaTotalMensual: 608677, porcentajeTDC: 57.8, porcentajeEfectivo: 42.2 },
-  { no: 2, mes: 'Febrero', puntoDeVentaTDC: 258000, ventasMostradorEfectivo: 168000, ventaTotalMensual: 426000, porcentajeTDC: 60.6, porcentajeEfectivo: 39.4 },
-  { no: 3, mes: 'Marzo', puntoDeVentaTDC: 262000, ventasMostradorEfectivo: 171000, ventaTotalMensual: 433000, porcentajeTDC: 60.5, porcentajeEfectivo: 39.5 },
-  { no: 4, mes: 'Abril', puntoDeVentaTDC: 259500, ventasMostradorEfectivo: 169500, ventaTotalMensual: 429000, porcentajeTDC: 60.5, porcentajeEfectivo: 39.5 },
+  { no: 2, mes: 'Febrero', puntoDeVentaTDC: 258000, ventasMostradorEfectivo: 208984, ventaTotalMensual: 466984, porcentajeTDC: 55.2, porcentajeEfectivo: 44.8 },
+  { no: 3, mes: 'Marzo', puntoDeVentaTDC: 262000, ventasMostradorEfectivo: 205819, ventaTotalMensual: 467819, porcentajeTDC: 56.0, porcentajeEfectivo: 44.0 },
+  { no: 4, mes: 'Abril', puntoDeVentaTDC: 259500, ventasMostradorEfectivo: 187380, ventaTotalMensual: 446880, porcentajeTDC: 58.1, porcentajeEfectivo: 41.9 },
   { no: 5, mes: 'Mayo', puntoDeVentaTDC: 260639, ventasMostradorEfectivo: 170410, ventaTotalMensual: 431049, porcentajeTDC: 60.5, porcentajeEfectivo: 39.5 },
-  { no: 6, mes: 'Junio', puntoDeVentaTDC: 281000, ventasMostradorEfectivo: 171000, ventaTotalMensual: 452000, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
-  { no: 7, mes: 'Julio', puntoDeVentaTDC: 284000, ventasMostradorEfectivo: 172500, ventaTotalMensual: 456500, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
+  { no: 6, mes: 'Junio', puntoDeVentaTDC: 281000, ventasMostradorEfectivo: 175360, ventaTotalMensual: 456360, porcentajeTDC: 61.6, porcentajeEfectivo: 38.4 },
+  { no: 7, mes: 'Julio', puntoDeVentaTDC: 284000, ventasMostradorEfectivo: 179054, ventaTotalMensual: 463054, porcentajeTDC: 61.3, porcentajeEfectivo: 38.7 },
   { no: 8, mes: 'Agosto', puntoDeVentaTDC: 283132, ventasMostradorEfectivo: 171855, ventaTotalMensual: 454987, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
-  { no: 9, mes: 'Septiembre', puntoDeVentaTDC: 282000, ventasMostradorEfectivo: 171500, ventaTotalMensual: 453500, porcentajeTDC: 62.2, porcentajeEfectivo: 37.8 },
+  { no: 9, mes: 'Septiembre', puntoDeVentaTDC: 282000, ventasMostradorEfectivo: 230580, ventaTotalMensual: 512580, porcentajeTDC: 55.0, porcentajeEfectivo: 45.0 },
   { no: 10, mes: 'Octubre', puntoDeVentaTDC: 315000, ventasMostradorEfectivo: 212000, ventaTotalMensual: 527000, porcentajeTDC: 59.8, porcentajeEfectivo: 40.2 },
   { no: 11, mes: 'Noviembre', puntoDeVentaTDC: 320000, ventasMostradorEfectivo: 215000, ventaTotalMensual: 535000, porcentajeTDC: 59.8, porcentajeEfectivo: 40.2 },
   { no: 12, mes: 'Diciembre', puntoDeVentaTDC: 354000, ventasMostradorEfectivo: 258000, ventaTotalMensual: 612000, porcentajeTDC: 57.8, porcentajeEfectivo: 42.2 },
@@ -529,14 +529,14 @@ export const VENTAS_ZAKIA: VentaMensualZakia[] = [
 
 export const RESUMEN_UTILIDAD_ZAKIA: ResumenUtilidadMensual[] = [
   { mes: 'Enero', ventaTotal: 608677, gastosOperativos: 399400, utilidadNeta: 209277, margen: 34.4 },
-  { mes: 'Febrero', ventaTotal: 426000, gastosOperativos: 399400, utilidadNeta: 26600, margen: 6.2 },
-  { mes: 'Marzo', ventaTotal: 433000, gastosOperativos: 399400, utilidadNeta: 33600, margen: 7.8 },
-  { mes: 'Abril', ventaTotal: 429000, gastosOperativos: 399400, utilidadNeta: 29600, margen: 6.9 },
+  { mes: 'Febrero', ventaTotal: 466984, gastosOperativos: 399400, utilidadNeta: 67584, margen: 14.5 },
+  { mes: 'Marzo', ventaTotal: 467819, gastosOperativos: 399400, utilidadNeta: 68419, margen: 14.6 },
+  { mes: 'Abril', ventaTotal: 446880, gastosOperativos: 399400, utilidadNeta: 47480, margen: 10.6 },
   { mes: 'Mayo', ventaTotal: 431049, gastosOperativos: 399400, utilidadNeta: 31649, margen: 7.3 },
-  { mes: 'Junio', ventaTotal: 452000, gastosOperativos: 399400, utilidadNeta: 52600, margen: 11.6 },
-  { mes: 'Julio', ventaTotal: 456500, gastosOperativos: 399400, utilidadNeta: 57100, margen: 12.5 },
+  { mes: 'Junio', ventaTotal: 456360, gastosOperativos: 399400, utilidadNeta: 56960, margen: 12.5 },
+  { mes: 'Julio', ventaTotal: 463054, gastosOperativos: 399400, utilidadNeta: 63654, margen: 13.7 },
   { mes: 'Agosto', ventaTotal: 454987, gastosOperativos: 399400, utilidadNeta: 55587, margen: 12.2 },
-  { mes: 'Septiembre', ventaTotal: 453500, gastosOperativos: 399400, utilidadNeta: 54100, margen: 11.9 },
+  { mes: 'Septiembre', ventaTotal: 512580, gastosOperativos: 399400, utilidadNeta: 113180, margen: 22.1 },
   { mes: 'Octubre', ventaTotal: 527000, gastosOperativos: 399400, utilidadNeta: 127600, margen: 24.2 },
   { mes: 'Noviembre', ventaTotal: 535000, gastosOperativos: 399400, utilidadNeta: 135600, margen: 25.3 },
   { mes: 'Diciembre', ventaTotal: 612000, gastosOperativos: 399400, utilidadNeta: 212600, margen: 34.7 },
@@ -574,10 +574,10 @@ export const RESUMEN_UTILIDAD_REFUGIO: ResumenUtilidadMensual[] = [
 
 // Totales consolidados
 export const TOTALES_CONSOLIDADOS = {
-  // Datos Anuales Auditados 12M Zákia
-  ventasAnualesZakia12M: 5818713,
+  // Datos Anuales Auditados 12M Zákia (Actualizados con nuevas ventas en efectivo)
+  ventasAnualesZakia12M: 5982390,
   gastosAnualesZakia12M: 4792795,
-  utilidadAnualZakia12M: 1025918,
+  utilidadAnualZakia12M: 1189595,
 
   // Datos Anuales Auditados 12M El Refugio (100% Reales y Anualizados)
   ventasAnualesRefugio12M: 10203863,
@@ -585,27 +585,27 @@ export const TOTALES_CONSOLIDADOS = {
   utilidadAnualRefugio12M: 1734611,
 
   // Totales Anuales Cadena Consolidada (Zákia 12M + El Refugio 12M)
-  ventasAnualesCadenaTotal: 16022576,
+  ventasAnualesCadenaTotal: 16186253,
   gastosAnualesCadenaTotal: 13262047,
-  utilidadAnualCadenaTotal: 2760529,
+  utilidadAnualCadenaTotal: 2924206,
 
   // Promedios Mensuales Reales
-  promedioMensualVentasZakia: 484893,
+  promedioMensualVentasZakia: 498533,
   promedioMensualVentasRefugio: 850322,
-  promedioMensualVentasTotal: 1335215,
+  promedioMensualVentasTotal: 1348855,
 
   gastosMensualesZakia: 399400, // $399,399.58
   gastosMensualesRefugio: 705771, // $705,770.74
   gastosMensualesTotal: 1105171,
 
-  utilidadMensualZakia: 85493,
+  utilidadMensualZakia: 99133,
   utilidadMensualRefugio: 144551, // $850,322 - $705,771
-  utilidadMensualTotal: 230044, // $85,493 + $144,551
+  utilidadMensualTotal: 243684, // $99,133 + $144,551
 
-  margenPonderadoTotal: 17.23, // 2,760,529 / 16,022,576
-  proyeccionAnualizadaVentas: 16022576,
+  margenPonderadoTotal: 18.07, // 2,924,206 / 16,186,253
+  proyeccionAnualizadaVentas: 16186253,
   proyeccionAnualizadaGastos: 13262047,
-  proyeccionAnualizadaUtilidad: 2760529,
+  proyeccionAnualizadaUtilidad: 2924206,
 };
 
 // Benchmark Inmobiliario provisto por el usuario:

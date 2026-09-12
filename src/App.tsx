@@ -11,6 +11,7 @@ import { BranchZakiaTab } from './components/BranchZakiaTab';
 import { BranchRefugioTab } from './components/BranchRefugioTab';
 import { UnifiedConsolidatedTab } from './components/UnifiedConsolidatedTab';
 import { InvestorCalculatorTab } from './components/InvestorCalculatorTab';
+import { ProposalDonJuventinoTab } from './components/ProposalDonJuventinoTab';
 import { PrintExecutiveReport } from './components/PrintExecutiveReport';
 
 export default function App() {
@@ -42,6 +43,8 @@ export default function App() {
         {activeTab === 'unificado' && <UnifiedConsolidatedTab />}
 
         {activeTab === 'calculadora' && <InvestorCalculatorTab />}
+
+        {activeTab === 'propuesta' && <ProposalDonJuventinoTab />}
       </main>
 
       {/* Printable / PDF Export Modal */}
@@ -66,6 +69,12 @@ export default function App() {
               className="hover:text-slate-900 transition-colors cursor-pointer"
             >
               Resumen Ejecutivo
+            </button>
+            <button 
+              onClick={() => setActiveTab('propuesta')} 
+              className="hover:text-amber-600 font-medium transition-colors cursor-pointer"
+            >
+              Propuesta Don Juventino
             </button>
             <button 
               onClick={() => setActiveTab('calculadora')} 

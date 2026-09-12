@@ -33,6 +33,21 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
     };
   });
 
+  const totalTdc = monthlyRows.reduce((acc, r) => acc + r.puntoDeVentaTDC, 0);
+  const totalEfectivo = monthlyRows.reduce((acc, r) => acc + r.ventasMostradorEfectivo, 0);
+  const totalVentas = monthlyRows.reduce((acc, r) => acc + r.ventaTotalMensual, 0);
+  const totalGastos = monthlyRows.reduce((acc, r) => acc + r.gastosOperativos, 0);
+  const totalUtilidad = monthlyRows.reduce((acc, r) => acc + r.utilidadNeta, 0);
+  const pctTdcAnual = ((totalTdc / totalVentas) * 100).toFixed(1);
+  const pctEfectivoAnual = ((totalEfectivo / totalVentas) * 100).toFixed(1);
+  const margenAnual = ((totalUtilidad / totalVentas) * 100).toFixed(1);
+
+  const promTdc = Math.round(totalTdc / monthlyRows.length);
+  const promEfectivo = Math.round(totalEfectivo / monthlyRows.length);
+  const promVentas = Math.round(totalVentas / monthlyRows.length);
+  const promGastos = Math.round(totalGastos / monthlyRows.length);
+  const promUtilidad = Math.round(totalUtilidad / monthlyRows.length);
+
   return (
     <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden transition-all">
       {/* Header with optional collapse toggle */}
@@ -85,9 +100,9 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
                 <span>Tarjeta (TDC) 12M</span>
               </div>
               <div className="text-base font-bold text-stone-900 font-mono">
-                {formatCurrency(3511308)}
+                {formatCurrency(totalTdc)}
               </div>
-              <span className="text-[11px] text-stone-500">60.3% del total</span>
+              <span className="text-[11px] text-stone-500">{pctTdcAnual}% del total</span>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-stone-200">
@@ -96,9 +111,9 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
                 <span>Efectivo Mostrador 12M</span>
               </div>
               <div className="text-base font-bold text-stone-900 font-mono">
-                {formatCurrency(2307405)}
+                {formatCurrency(totalEfectivo)}
               </div>
-              <span className="text-[11px] text-stone-500">39.7% del total</span>
+              <span className="text-[11px] text-stone-500">{pctEfectivoAnual}% del total</span>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-stone-200">
@@ -107,7 +122,7 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
                 <span>Venta Promedio Mes</span>
               </div>
               <div className="text-base font-bold text-stone-900 font-mono">
-                {formatCurrency(484893)}
+                {formatCurrency(promVentas)}
               </div>
               <span className="text-[11px] text-stone-500">12 meses auditados</span>
             </div>
@@ -118,9 +133,9 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
                 <span>Utilidad Neta Anual</span>
               </div>
               <div className="text-base font-extrabold text-emerald-900 font-mono">
-                {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualZakia12M)}
+                {formatCurrency(totalUtilidad)}
               </div>
-              <span className="text-[11px] text-emerald-700 font-semibold">17.6% margen neto anual</span>
+              <span className="text-[11px] text-emerald-700 font-semibold">{margenAnual}% margen neto anual</span>
             </div>
           </div>
 
@@ -173,21 +188,21 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
                   <td colSpan={2} className="py-3.5 px-4 uppercase tracking-wider text-xs font-bold text-stone-800">
                     Total Anual (12 Meses)
                   </td>
-                  <td className="py-3.5 px-4 text-right font-mono text-stone-900">{formatCurrency(3511308)}</td>
-                  <td className="py-3.5 px-3 text-right font-mono text-amber-800">60.3%</td>
-                  <td className="py-3.5 px-4 text-right font-mono text-stone-900">{formatCurrency(2307405)}</td>
-                  <td className="py-3.5 px-3 text-right font-mono text-stone-600">39.7%</td>
+                  <td className="py-3.5 px-4 text-right font-mono text-stone-900">{formatCurrency(totalTdc)}</td>
+                  <td className="py-3.5 px-3 text-right font-mono text-amber-800">{pctTdcAnual}%</td>
+                  <td className="py-3.5 px-4 text-right font-mono text-stone-900">{formatCurrency(totalEfectivo)}</td>
+                  <td className="py-3.5 px-3 text-right font-mono text-stone-600">{pctEfectivoAnual}%</td>
                   <td className="py-3.5 px-4 text-right font-mono text-stone-950 font-extrabold bg-stone-100 text-sm sm:text-base">
-                    {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)}
+                    {formatCurrency(totalVentas)}
                   </td>
                   <td className="py-3.5 px-4 text-right font-mono text-stone-700">
-                    {formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesZakia12M)}
+                    {formatCurrency(totalGastos)}
                   </td>
                   <td className="py-3.5 px-4 text-right font-mono text-emerald-950 font-extrabold bg-emerald-100/70 text-sm sm:text-base">
-                    {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualZakia12M)}
+                    {formatCurrency(totalUtilidad)}
                   </td>
                   <td className="py-3.5 px-3.5 text-right font-mono text-emerald-900 font-extrabold">
-                    17.6%
+                    {margenAnual}%
                   </td>
                 </tr>
 
@@ -196,21 +211,21 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
                   <td colSpan={2} className="py-3 px-4 uppercase tracking-wider text-xs font-bold text-amber-950">
                     Promedio Mensual Real
                   </td>
-                  <td className="py-3 px-4 text-right font-mono text-stone-800">{formatCurrency(292609)}</td>
-                  <td className="py-3 px-3 text-right font-mono text-amber-900">60.3%</td>
-                  <td className="py-3 px-4 text-right font-mono text-stone-800">{formatCurrency(192284)}</td>
-                  <td className="py-3 px-3 text-right font-mono text-stone-600">39.7%</td>
+                  <td className="py-3 px-4 text-right font-mono text-stone-800">{formatCurrency(promTdc)}</td>
+                  <td className="py-3 px-3 text-right font-mono text-amber-900">{pctTdcAnual}%</td>
+                  <td className="py-3 px-4 text-right font-mono text-stone-800">{formatCurrency(promEfectivo)}</td>
+                  <td className="py-3 px-3 text-right font-mono text-stone-600">{pctEfectivoAnual}%</td>
                   <td className="py-3 px-4 text-right font-mono text-amber-950 font-extrabold bg-amber-100/50">
-                    {formatCurrency(484893)}
+                    {formatCurrency(promVentas)}
                   </td>
                   <td className="py-3 px-4 text-right font-mono text-stone-700">
-                    {formatCurrency(399400)}
+                    {formatCurrency(promGastos)}
                   </td>
                   <td className="py-3 px-4 text-right font-mono text-emerald-950 font-extrabold bg-emerald-100/50">
-                    {formatCurrency(85493)}
+                    {formatCurrency(promUtilidad)}
                   </td>
                   <td className="py-3 px-3.5 text-right font-mono text-emerald-900 font-extrabold">
-                    17.6%
+                    {margenAnual}%
                   </td>
                 </tr>
               </tfoot>

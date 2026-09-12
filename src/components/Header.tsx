@@ -9,7 +9,8 @@ import {
   Printer, 
   TrendingUp, 
   CheckCircle2,
-  DollarSign
+  DollarSign,
+  Handshake
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -25,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onPrint
     { id: 'refugio' as TabId, label: 'Sucursal Refugio', icon: Store },
     { id: 'unificado' as TabId, label: 'Consolidado Unificado', icon: Layers, badge: 'Ambas' },
     { id: 'calculadora' as TabId, label: 'Calculadora Inversionista', icon: Calculator, badge: 'Simulador' },
+    { id: 'propuesta' as TabId, label: 'Propuesta', icon: Handshake, badge: 'Don Juventino' },
   ];
 
   return (
