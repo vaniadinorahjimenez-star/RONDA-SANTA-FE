@@ -7,7 +7,6 @@ import {
   Upload, 
   Trash2, 
   Camera, 
-  Printer, 
   ArrowRight,
   ShieldCheck,
   Clock,
@@ -231,32 +230,24 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
             
             {/* Contenedor del Monito Oficial */}
             <div className="flex flex-col items-center text-center shrink-0">
-              <div className="relative p-2 rounded-3xl bg-white shadow-md border-2 border-amber-300/80 group">
+              <div 
+                onClick={() => logoInputRef.current?.click()}
+                className="relative p-2 rounded-3xl bg-white shadow-md border-2 border-amber-300/80 hover:border-amber-500 hover:shadow-lg transition-all cursor-pointer group"
+                title="Haz clic para cargar o cambiar imagen"
+              >
                 <MonitoLogo 
                   size="xl" 
-                  showUploadControls={true} 
+                  showUploadControls={false} 
                   className="w-40 h-40 sm:w-52 sm:h-52"
                 />
               </div>
-
-              {/* Botón directo para cargar el archivo original del monito */}
-              <div className="mt-3 print:hidden">
-                <button
-                  type="button"
-                  onClick={() => logoInputRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-[11px] font-bold transition-all shadow-xs cursor-pointer active:scale-95"
-                >
-                  <Upload className="w-3 h-3 text-amber-700" />
-                  <span>{hasCustomLogo ? 'Cambiar imagen del Monito' : 'Cargar archivo del Monito'}</span>
-                </button>
-                <input
-                  type="file"
-                  ref={logoInputRef}
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
-              </div>
+              <input
+                type="file"
+                ref={logoInputRef}
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
             </div>
 
             {/* Texto de Cabecera y Dedicación */}
@@ -279,16 +270,6 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
               <p className="text-stone-600 text-xs sm:text-sm leading-relaxed max-w-2xl pt-1">
                 Querétaro &bull; Un testimonio de respeto, trabajo mano a mano y compromiso firme con el oficio panadero y las familias que dan vida a este gran proyecto.
               </p>
-
-              <div className="pt-2 flex items-center justify-center md:justify-start gap-3 print:hidden">
-                <button
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-                >
-                  <Printer className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Imprimir Esta Portada</span>
-                </button>
-              </div>
             </div>
           </div>
 
@@ -434,24 +415,9 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
 
 
       {/* ========================================================
-          GALERÍA DE LAS 7 FOTOS (COLLAGE DE PLANTA)
+          COLLAGE DE FOTOS DE PLANTA
           ======================================================== */}
-      <section className="space-y-6 pt-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-amber-200/80 pb-3">
-          <div>
-            <div className="flex items-center gap-2 text-amber-900 text-xs font-bold uppercase tracking-wider">
-              <Camera className="w-4 h-4 text-amber-700" />
-              <span>Evidencia Fotográfica &bull; Levantamiento Operativo</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 font-serif mt-1">
-              Collage Fotográfico de Planta (7 Fotos)
-            </h2>
-          </div>
-          <p className="text-xs text-stone-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
-            📸 Carga tus 7 fotos directamente desde tu dispositivo (se guardan de forma permanente).
-          </p>
-        </div>
-
+      <section className="pt-2">
         {/* Collage Grid de 7 Fotos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:auto-rows-[220px]">
           {photos.map((photo, index) => {
@@ -576,29 +542,6 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
           <blockquote className="text-base sm:text-xl leading-relaxed text-stone-900 font-serif font-bold italic text-center sm:text-left">
             &ldquo;SEMANAS LLENAS DE EMOCIÓN, MUCHO CORAZÓN, EXPRESO MI MAYOR RESPETO Y LA FIRME DECISIÓN DE TOMAR ESTE NEGOCIO BUSCANDO QUE PREVALEZCA Y CREZCA, ASUMIR ESTE COMPROMISO SERÍA PARA MI CUIDAR Y CONTINUAR CONTRUYENDO UN LEGADO FAMILIAR.&rdquo;
           </blockquote>
-        </div>
-
-        {/* Firmas Institucionales y Sello de Compromiso */}
-        <div className="pt-6 border-t-2 border-amber-200/80 grid grid-cols-1 sm:grid-cols-2 gap-8 text-center">
-          <div className="space-y-1">
-            <div className="w-56 h-0.5 bg-stone-400 mx-auto mb-2" />
-            <p className="font-extrabold text-sm text-stone-900 font-serif">
-              Dirección y Compromiso Operativo
-            </p>
-            <p className="text-xs text-amber-900 font-medium">
-              Panadería Santa Fé
-            </p>
-          </div>
-
-          <div className="space-y-1">
-            <div className="w-56 h-0.5 bg-stone-400 mx-auto mb-2" />
-            <p className="font-extrabold text-sm text-stone-900 font-serif">
-              Familia Fundadora
-            </p>
-            <p className="text-xs text-amber-900 font-medium">
-              Sra. Sandra &bull; Don Juventino &bull; Yovis
-            </p>
-          </div>
         </div>
 
         {/* Botón de Avance a Sucursales */}

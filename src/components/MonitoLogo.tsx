@@ -100,8 +100,9 @@ export const MonitoLogo: React.FC<MonitoLogoProps> = ({
     <div className={`relative inline-flex items-center justify-center ${className}`}>
       {logoUrl ? (
         <div 
-          onClick={onClick}
-          className={`${sizeClasses} relative group flex items-center justify-center rounded-2xl bg-amber-50/60 p-1.5 transition-all overflow-hidden ${onClick ? 'cursor-pointer' : ''}`}
+          onClick={onClick || (() => fileInputRef.current?.click())}
+          className={`${sizeClasses} relative group flex items-center justify-center rounded-2xl bg-amber-50/60 p-1.5 transition-all overflow-hidden cursor-pointer`}
+          title="Haz clic en la imagen para cambiar"
         >
           <img 
             src={logoUrl} 
@@ -113,7 +114,10 @@ export const MonitoLogo: React.FC<MonitoLogoProps> = ({
             <div className="absolute inset-0 bg-stone-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1 rounded-2xl backdrop-blur-xs print:hidden">
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
                 className="p-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs cursor-pointer shadow-md"
                 title="Cambiar monito"
               >
@@ -135,7 +139,7 @@ export const MonitoLogo: React.FC<MonitoLogoProps> = ({
         <div 
           onClick={() => fileInputRef.current?.click()}
           className={`${sizeClasses} relative group flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50/60 to-amber-100/80 border-2 border-dashed border-amber-300 hover:border-amber-500 transition-all cursor-pointer p-2 text-center overflow-hidden shadow-xs hover:shadow-md`}
-          title="Haz clic para cargar el archivo original del Monito Panadero"
+          title="Haz clic para cargar imagen"
         >
           {isProcessing ? (
             <div className="flex flex-col items-center gap-1">
@@ -189,9 +193,6 @@ export const MonitoLogo: React.FC<MonitoLogoProps> = ({
 
               <span className="text-[10px] font-bold text-amber-900 leading-tight mt-1">
                 Monito Panadero
-              </span>
-              <span className="text-[9px] text-amber-700/80 underline decoration-amber-400 group-hover:text-amber-950 font-medium">
-                Cargar original
               </span>
             </div>
           )}
