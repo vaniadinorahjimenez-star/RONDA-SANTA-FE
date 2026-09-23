@@ -820,7 +820,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
   );
 
   const renderCartaReport = () => {
-    let savedPhotos: Array<{ id: number; label: string; sublabel: string; dataUrl: string | null }> = [];
+    let savedPhotos: Array<{ id: number; label?: string; sublabel?: string; title?: string; subtitle?: string; dataUrl: string | null }> = [];
     try {
       const saved = localStorage.getItem('santafe_fotos_inicio_v1');
       if (saved) savedPhotos = JSON.parse(saved);
@@ -900,24 +900,23 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
           </div>
         </div>
 
-        {/* 4 Fotos */}
+        {/* Evidencia Fotográfica */}
         {savedPhotos.length > 0 && savedPhotos.some(p => p.dataUrl) && (
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
-              Evidencia Fotográfica de Planta
+              Evidencia Fotográfica de Planta ({savedPhotos.filter(p => p.dataUrl).length} Fotografías)
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {savedPhotos.map((photo, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+              {savedPhotos.filter(p => p.dataUrl).map((photo, i) => (
                 <div key={photo.id || i} className="border border-stone-200 rounded-xl overflow-hidden bg-stone-50">
                   <div className="aspect-4/3 bg-stone-100 flex items-center justify-center overflow-hidden">
-                    {photo.dataUrl ? (
-                      <img src={photo.dataUrl} alt={photo.label} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-[10px] text-stone-400">Sin foto</span>
-                    )}
+                    <img src={photo.dataUrl!} alt={photo.title || photo.label || `Foto ${i + 1}`} className="w-full h-full object-cover" />
                   </div>
-                  <div className="p-2 text-[10px]">
-                    <span className="font-bold text-stone-800 block truncate">{photo.label}</span>
+                  <div className="p-1.5 text-[9px] text-center">
+                    <span className="font-bold text-stone-800 block truncate">{photo.title || photo.label || `Foto ${i + 1}`}</span>
+                    {(photo.subtitle || photo.sublabel) && (
+                      <span className="text-[8px] text-stone-500 block truncate">{photo.subtitle || photo.sublabel}</span>
+                    )}
                   </div>
                 </div>
               ))}

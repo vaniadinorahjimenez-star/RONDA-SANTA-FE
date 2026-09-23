@@ -36,30 +36,51 @@ interface PhotoItem {
 const DEFAULT_PHOTOS: PhotoItem[] = [
   {
     id: 1,
-    title: 'Hornos y Madrugada',
-    subtitle: 'El Origen del Producto',
-    description: 'Donde nace nuestro producto, ingredientes, horarios y las manos que lo amasan con amor.',
+    title: 'Foto 1',
+    subtitle: 'Hornos y Producción',
+    description: 'Donde nace nuestro producto y las manos que lo amasan con amor.',
     dataUrl: null
   },
   {
     id: 2,
-    title: 'Apertura y Mostrador',
-    subtitle: 'El Despertar de la Panadería',
-    description: 'Vitrinas impecables, limpieza, orden, el equipo de mostrador y el equipo de reparto listos.',
+    title: 'Foto 2',
+    subtitle: 'Apertura y Vitrinas',
+    description: 'Vitrinas impecables, frescura y el primer horneado listo para venta.',
     dataUrl: null
   },
   {
     id: 3,
-    title: 'Ventas y Atención',
-    subtitle: 'El Turno Fuerte y Clientes',
-    description: 'La hora de mayor venta, la calidez en la atención y los pedidos de las familias para el día siguiente.',
+    title: 'Foto 3',
+    subtitle: 'Mostrador y Clientes',
+    description: 'La hora de mayor venta y la calidez en la atención a las familias.',
     dataUrl: null
   },
   {
     id: 4,
-    title: 'Legado y Equipo',
-    subtitle: 'El Corazón de Santa Fé',
-    description: 'La esencia humana, el compañerismo y el valor de una tradición familiar que prevalece.',
+    title: 'Foto 4',
+    subtitle: 'Equipo y Compañerismo',
+    description: 'Maestros panaderos y equipo operativo en planta.',
+    dataUrl: null
+  },
+  {
+    id: 5,
+    title: 'Foto 5',
+    subtitle: 'Rutas y Reparto',
+    description: 'Logística, camioneta y entrega mayorista a cafeterías y clientes.',
+    dataUrl: null
+  },
+  {
+    id: 6,
+    title: 'Foto 6',
+    subtitle: 'Calidad e Insumos',
+    description: 'Harina Dialpa, levaduras e insumos de primera calidad.',
+    dataUrl: null
+  },
+  {
+    id: 7,
+    title: 'Foto 7',
+    subtitle: 'Tradición y Legado',
+    description: 'La esencia y el valor de una tradición familiar que prevalece.',
     dataUrl: null
   }
 ];
@@ -83,8 +104,20 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === 4) {
-          setPhotos(parsed);
+        if (Array.isArray(parsed)) {
+          const merged = DEFAULT_PHOTOS.map((def, idx) => {
+            if (parsed[idx] && parsed[idx].dataUrl) {
+              return { 
+                ...def, 
+                dataUrl: parsed[idx].dataUrl,
+                title: parsed[idx].title || def.title,
+                subtitle: parsed[idx].subtitle || def.subtitle,
+                description: parsed[idx].description || def.description
+              };
+            }
+            return def;
+          });
+          setPhotos(merged);
         }
       }
     } catch (e) {
@@ -401,43 +434,55 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
 
 
       {/* ========================================================
-          GALERÍA DE LAS 4 FOTOS (MEMORIA FOTOGRÁFICA)
+          GALERÍA DE LAS 7 FOTOS (COLLAGE DE PLANTA)
           ======================================================== */}
       <section className="space-y-6 pt-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-amber-200/80 pb-3">
           <div>
             <div className="flex items-center gap-2 text-amber-900 text-xs font-bold uppercase tracking-wider">
               <Camera className="w-4 h-4 text-amber-700" />
-              <span>Álbum de Recuerdos &bull; Levantamiento Operativo</span>
+              <span>Evidencia Fotográfica &bull; Levantamiento Operativo</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 font-serif mt-1">
-              Memoria Fotográfica de Planta (4 Fotografías)
+              Collage Fotográfico de Planta (7 Fotos)
             </h2>
           </div>
           <p className="text-xs text-stone-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
-            📸 Carga tus fotos directamente desde tu dispositivo (se guardan de forma permanente).
+            📸 Carga tus 7 fotos directamente desde tu dispositivo (se guardan de forma permanente).
           </p>
         </div>
 
-        {/* Las 4 Tarjetas Fotográficas estilo Polaroid / Galería de Recuerdos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {photos.map((photo, index) => (
-            <div
-              key={photo.id}
-              className="bg-white rounded-2xl border-2 border-stone-200 shadow-sm hover:shadow-lg hover:border-amber-400 transition-all flex flex-col overflow-hidden group"
-            >
-              {/* Espacio para la Fotografía */}
-              <div className="relative aspect-4/3 w-full bg-stone-100 flex items-center justify-center overflow-hidden">
+        {/* Collage Grid de 7 Fotos */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:auto-rows-[220px]">
+          {photos.map((photo, index) => {
+            const isHero = index === 0;
+            const isWide = index === 3 || index === 6;
+
+            let cardSpan = 'col-span-1 min-h-[220px]';
+            if (isHero) {
+              cardSpan = 'col-span-1 sm:col-span-2 sm:row-span-2 min-h-[280px] sm:min-h-[460px]';
+            } else if (isWide) {
+              cardSpan = 'col-span-1 sm:col-span-2 min-h-[220px]';
+            }
+
+            return (
+              <div
+                key={photo.id}
+                className={`${cardSpan} bg-white rounded-2xl border-2 border-stone-200 shadow-2xs hover:shadow-lg hover:border-amber-400 transition-all flex flex-col overflow-hidden group relative`}
+              >
                 {photo.dataUrl ? (
-                  <>
+                  <div className="relative w-full h-full flex flex-col justify-end overflow-hidden">
                     <img
                       src={photo.dataUrl}
                       alt={photo.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/25 to-transparent pointer-events-none" />
+
                     {/* Botones de acción flotantes */}
-                    <div className="absolute top-2 right-2 flex items-center gap-1.5 print:hidden">
+                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 print:hidden">
                       <button
                         onClick={() => fileInputRefs.current[index]?.click()}
                         className="p-1.5 rounded-lg bg-stone-900/85 hover:bg-stone-900 text-white backdrop-blur-xs transition-colors cursor-pointer shadow-md"
@@ -453,14 +498,29 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  </>
+
+                    {/* Bottom Caption Overlay */}
+                    <div className="relative z-10 p-3 sm:p-4 text-white">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider bg-amber-600/90 backdrop-blur-xs px-2 py-0.5 rounded text-white">
+                          Foto {index + 1}
+                        </span>
+                        <span className="text-[11px] text-stone-200 font-medium truncate">
+                          {photo.subtitle}
+                        </span>
+                      </div>
+                      <p className="text-xs text-stone-300 mt-1 line-clamp-1">
+                        {photo.description}
+                      </p>
+                    </div>
+                  </div>
                 ) : (
                   <button
                     onClick={() => fileInputRefs.current[index]?.click()}
                     disabled={uploadingIndex === index}
-                    className="w-full h-full flex flex-col items-center justify-center p-5 text-center hover:bg-amber-50/60 transition-colors cursor-pointer group"
+                    className="w-full h-full flex flex-col items-center justify-center p-5 text-center hover:bg-amber-50/60 transition-colors cursor-pointer group/btn"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-amber-100/90 text-amber-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-100/90 text-amber-800 flex items-center justify-center mb-2 group-hover/btn:scale-110 transition-transform shadow-xs">
                       {uploadingIndex === index ? (
                         <div className="w-5 h-5 border-2 border-amber-700 border-t-transparent rounded-full animate-spin" />
                       ) : (
@@ -470,7 +530,10 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
                     <span className="text-xs font-bold text-stone-800">
                       {uploadingIndex === index ? 'Procesando...' : `Subir Foto ${index + 1}`}
                     </span>
-                    <span className="text-[10px] text-amber-800/80 mt-1 font-medium">
+                    <span className="text-[11px] text-amber-900/80 mt-0.5 font-medium">
+                      {photo.subtitle}
+                    </span>
+                    <span className="text-[10px] text-stone-500 mt-1">
                       Haz clic para elegir archivo
                     </span>
                   </button>
@@ -484,28 +547,8 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
                   className="hidden"
                 />
               </div>
-
-              {/* Pie de foto explicativo */}
-              <div className="p-4 bg-stone-50/90 border-t border-stone-200/80 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-[10px] font-extrabold text-amber-800 uppercase tracking-wider">
-                      Foto {index + 1}
-                    </span>
-                    <span className="text-[10px] text-stone-500 font-medium">
-                      {photo.subtitle}
-                    </span>
-                  </div>
-                  <h4 className="text-sm font-bold text-stone-900 mt-0.5">
-                    {photo.title}
-                  </h4>
-                  <p className="text-xs text-stone-600 mt-1.5 leading-snug">
-                    {photo.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

@@ -56,6 +56,15 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
     return matchesCategory && matchesSearch;
   });
 
+  // 12-Month Evolution Data (Ingresos vs. Costos vs. Utilidad)
+  const zakiaMonthlyEvolution = RESUMEN_UTILIDAD_ZAKIA.map(item => ({
+    mes: item.mes,
+    ventas: item.ventaTotal,
+    gastos: item.gastosOperativos,
+    utilidad: item.utilidadNeta,
+    margen: item.margen
+  }));
+
   // Category aggregations for pie chart
   const categoryData = Object.entries(
     GASTOS_ZAKIA.reduce((acc, curr) => {
@@ -533,6 +542,38 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
           </div>
         </div>
       )}
+
+      {/* Chart: Historical Monthly Evolution (12 Meses Auditados) */}
+      <div className="bg-white p-6 rounded-2xl border border-stone-200">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
+          <div>
+            <h4 className="text-base font-bold text-stone-900">
+              Evolución Mensual: Ingresos vs. Costos vs. Utilidad (12 Meses)
+            </h4>
+            <p className="text-xs text-stone-600">
+              Historial real auditado de los 12 meses (Enero a Diciembre) para Sucursal Zákia
+            </p>
+          </div>
+          <div className="text-xs font-semibold text-stone-700 bg-stone-100 px-3 py-1 rounded-lg">
+            Total 12 Meses: {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)} en ventas
+          </div>
+        </div>
+
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={zakiaMonthlyEvolution} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+              <XAxis dataKey="mes" tick={{ fill: '#4b5563', fontSize: 12 }} />
+              <YAxis tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} tick={{ fill: '#4b5563', fontSize: 12 }} />
+              <Tooltip formatter={(value: number) => [formatCurrency(value), '']} />
+              <Legend />
+              <Bar dataKey="ventas" fill="#b45309" name="Ventas Totales ($)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="gastos" fill="#78716c" name="Gastos Operativos ($)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="utilidad" fill="#059669" name="Utilidad Neta ($)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
       {/* Recuadros Resumen al Final de la Hoja */}
       <div className="pt-4 border-t border-stone-200 space-y-3">
