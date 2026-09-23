@@ -18,6 +18,17 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
+  // Dynamic totals and averages computed directly from validated data
+  const totalTdc = VENTAS_REFUGIO.reduce((s, v) => s + v.cobroTarjetaTDC, 0);
+  const totalEfectivo = VENTAS_REFUGIO.reduce((s, v) => s + v.efectivoCalculado, 0);
+  const totalMostrador = VENTAS_REFUGIO.reduce((s, v) => s + v.ventaTotalMostrador, 0);
+  const totalReparto = VENTAS_REFUGIO.reduce((s, v) => s + v.reparto, 0);
+  const totalCautivos = VENTAS_REFUGIO.reduce((s, v) => s + v.transferenciasCautivos, 0);
+  const totalVentas = TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M;
+  const totalGastos = TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M;
+  const totalUtilidad = TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M;
+  const margenAnual = ((totalUtilidad / totalVentas) * 100).toFixed(1);
+
   // Combine Ventas with Resumen de Utilidad
   const monthlyRows = VENTAS_REFUGIO.map(v => {
     const res = RESUMEN_UTILIDAD_REFUGIO.find(r => r.mes === v.mes) || {
@@ -85,20 +96,20 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
                 <span>Tarjeta (TDC) Real</span>
               </div>
               <div className="text-base font-bold text-stone-900 font-mono">
-                {formatCurrency(3949000)}
+                {formatCurrency(totalTdc)}
               </div>
-              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(329083)}/m (38.7%)</span>
+              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(Math.round(totalTdc / 12))}/m ({((totalTdc / totalVentas) * 100).toFixed(1)}%)</span>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-stone-200">
               <div className="flex items-center gap-1.5 text-amber-800 font-semibold mb-1">
                 <Coins className="w-3.5 h-3.5" />
-                <span>Efectivo Calculado</span>
+                <span>Efectivo Validado</span>
               </div>
               <div className="text-base font-bold text-stone-900 font-mono">
-                {formatCurrency(3268863)}
+                {formatCurrency(totalEfectivo)}
               </div>
-              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(272405)}/m (32.0%)</span>
+              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(Math.round(totalEfectivo / 12))}/m ({((totalEfectivo / totalVentas) * 100).toFixed(1)}%)</span>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-stone-200">
@@ -107,9 +118,9 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
                 <span>Venta Total Mostrador</span>
               </div>
               <div className="text-base font-bold text-amber-950 font-mono">
-                {formatCurrency(7217863)}
+                {formatCurrency(totalMostrador)}
               </div>
-              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(601489)}/m (70.7%)</span>
+              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(Math.round(totalMostrador / 12))}/m ({((totalMostrador / totalVentas) * 100).toFixed(1)}%)</span>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-stone-200">
@@ -118,9 +129,9 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
                 <span>Rutas de Reparto</span>
               </div>
               <div className="text-base font-bold text-stone-900 font-mono">
-                {formatCurrency(2422000)}
+                {formatCurrency(totalReparto)}
               </div>
-              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(201833)}/m (23.7%)</span>
+              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(Math.round(totalReparto / 12))}/m ({((totalReparto / totalVentas) * 100).toFixed(1)}%)</span>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-stone-200 col-span-2 lg:col-span-1">
@@ -129,9 +140,9 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
                 <span>Transf. Cautivos</span>
               </div>
               <div className="text-base font-bold text-stone-900 font-mono">
-                {formatCurrency(564000)}
+                {formatCurrency(totalCautivos)}
               </div>
-              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(47000)}/m (5.5%)</span>
+              <span className="text-[11px] text-stone-500">Promedio: {formatCurrency(Math.round(totalCautivos / 12))}/m ({((totalCautivos / totalVentas) * 100).toFixed(1)}%)</span>
             </div>
           </div>
 
@@ -143,7 +154,7 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
                   <th className="py-3 px-3 sm:px-4">No.</th>
                   <th className="py-3 px-3 sm:px-4">Mes</th>
                   <th className="py-3 px-3 sm:px-4 text-right">Cobro Tarjeta (TDC) Real</th>
-                  <th className="py-3 px-3 sm:px-4 text-right">Efectivo Calculado (45-47%)</th>
+                  <th className="py-3 px-3 sm:px-4 text-right">Efectivo Validado</th>
                   <th className="py-3 px-3 sm:px-4 text-right font-bold text-amber-950">Venta Total Mostrador</th>
                   <th className="py-3 px-3 sm:px-4 text-right font-semibold text-stone-800">REPARTO</th>
                   <th className="py-3 px-3 sm:px-4 text-right">TRANSFERENCIAS CAUTIVOS</th>
@@ -174,29 +185,29 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
                 {/* Total Anual Row */}
                 <tr className="bg-stone-100/80">
                   <td colSpan={2} className="py-3 px-3 sm:px-4 uppercase text-xs tracking-wider">TOTAL ANUAL (12 MESES)</td>
-                  <td className="py-3 px-3 sm:px-4 text-right font-mono">{formatCurrency(3949000)}</td>
-                  <td className="py-3 px-3 sm:px-4 text-right font-mono">{formatCurrency(3268863)}</td>
-                  <td className="py-3 px-3 sm:px-4 text-right font-mono font-bold text-amber-950">{formatCurrency(7217863)}</td>
-                  <td className="py-3 px-3 sm:px-4 text-right font-mono font-bold">{formatCurrency(2422000)}</td>
-                  <td className="py-3 px-3 sm:px-4 text-right font-mono">{formatCurrency(564000)}</td>
+                  <td className="py-3 px-3 sm:px-4 text-right font-mono">{formatCurrency(totalTdc)}</td>
+                  <td className="py-3 px-3 sm:px-4 text-right font-mono">{formatCurrency(totalEfectivo)}</td>
+                  <td className="py-3 px-3 sm:px-4 text-right font-mono font-bold text-amber-950">{formatCurrency(totalMostrador)}</td>
+                  <td className="py-3 px-3 sm:px-4 text-right font-mono font-bold">{formatCurrency(totalReparto)}</td>
+                  <td className="py-3 px-3 sm:px-4 text-right font-mono">{formatCurrency(totalCautivos)}</td>
                   <td className="py-3 px-3 sm:px-4 text-right font-mono text-amber-950 text-base font-extrabold bg-amber-100/60">
-                    {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M)}
+                    {formatCurrency(totalVentas)}
                   </td>
-                  <td className="py-3 px-3 sm:px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M)}</td>
+                  <td className="py-3 px-3 sm:px-4 text-right font-mono text-stone-700">{formatCurrency(totalGastos)}</td>
                   <td className="py-3 px-3 sm:px-4 text-right font-mono text-emerald-800 text-base font-extrabold">
-                    {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M)}
+                    {formatCurrency(totalUtilidad)}
                   </td>
-                  <td className="py-3 px-3 sm:px-4 text-right font-mono text-emerald-900 font-bold">17.0%</td>
+                  <td className="py-3 px-3 sm:px-4 text-right font-mono text-emerald-900 font-bold">{margenAnual}%</td>
                 </tr>
 
                 {/* Promedio Mensual Row */}
                 <tr className="bg-amber-50/70 border-t border-amber-200">
                   <td colSpan={2} className="py-2.5 px-3 sm:px-4 uppercase text-xs text-amber-950 tracking-wider">PROMEDIO MENSUAL</td>
-                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800">{formatCurrency(329083)}</td>
-                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800">{formatCurrency(272405)}</td>
-                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono font-bold text-amber-950">{formatCurrency(601489)}</td>
-                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800 font-bold">{formatCurrency(201833)}</td>
-                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800">{formatCurrency(47000)}</td>
+                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800">{formatCurrency(Math.round(totalTdc / 12))}</td>
+                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800">{formatCurrency(Math.round(totalEfectivo / 12))}</td>
+                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono font-bold text-amber-950">{formatCurrency(Math.round(totalMostrador / 12))}</td>
+                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800 font-bold">{formatCurrency(Math.round(totalReparto / 12))}</td>
+                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-stone-800">{formatCurrency(Math.round(totalCautivos / 12))}</td>
                   <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-amber-950 font-extrabold text-base bg-amber-200/50">
                     {formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}
                   </td>
@@ -204,7 +215,7 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
                   <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-emerald-900 font-extrabold text-base">
                     {formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}
                   </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-emerald-950 font-bold">17.0%</td>
+                  <td className="py-2.5 px-3 sm:px-4 text-right font-mono text-emerald-950 font-bold">{margenAnual}%</td>
                 </tr>
               </tfoot>
             </table>
@@ -212,10 +223,10 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
 
           <div className="p-4 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-stone-600 gap-2">
             <div>
-              <strong>Canales de Venta:</strong> Mostrador Tienda (70.7% = 38.7% Tarjeta + 32.0% Efectivo) &bull; Rutas de Reparto (23.7%) &bull; Clientes Cautivos (5.5%).
+              <strong>Canales de Venta:</strong> Mostrador Tienda ({((totalMostrador / totalVentas) * 100).toFixed(1)}% = {((totalTdc / totalVentas) * 100).toFixed(1)}% Tarjeta + {((totalEfectivo / totalVentas) * 100).toFixed(1)}% Efectivo) &bull; Rutas de Reparto ({((totalReparto / totalVentas) * 100).toFixed(1)}%) &bull; Clientes Cautivos ({((totalCautivos / totalVentas) * 100).toFixed(1)}%).
             </div>
             <div className="font-semibold text-amber-900">
-              Auditoría Anualizada: $10,203,863 MXN / Año
+              Auditoría Validada: {formatCurrency(totalVentas)} MXN / Año
             </div>
           </div>
         </>

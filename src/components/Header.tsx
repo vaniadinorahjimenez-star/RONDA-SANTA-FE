@@ -4,14 +4,11 @@ import {
   Building2, 
   Store, 
   Layers, 
-  Calculator, 
-  FileText, 
   Printer, 
-  TrendingUp, 
-  CheckCircle2,
-  DollarSign,
-  Handshake
+  Handshake,
+  Heart
 } from 'lucide-react';
+import { MonitoLogo } from './MonitoLogo';
 
 interface HeaderProps {
   activeTab: TabId;
@@ -19,51 +16,58 @@ interface HeaderProps {
   onPrint: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onPrint }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  activeTab, 
+  setActiveTab, 
+  onPrint 
+}) => {
   const tabs = [
-    { id: 'pitch' as TabId, label: 'Resumen Ejecutivo', icon: FileText },
+    { id: 'inicio' as TabId, label: 'Inicio', icon: Heart, badge: 'Carta' },
     { id: 'zakia' as TabId, label: 'Sucursal Zákia', icon: Store },
     { id: 'refugio' as TabId, label: 'Sucursal Refugio', icon: Store },
     { id: 'unificado' as TabId, label: 'Consolidado Unificado', icon: Layers, badge: 'Ambas' },
-    { id: 'calculadora' as TabId, label: 'Calculadora Inversionista', icon: Calculator, badge: 'Simulador' },
     { id: 'propuesta' as TabId, label: 'Propuesta', icon: Handshake, badge: 'Don Juventino' },
   ];
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
       {/* Top Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg tracking-tight shadow-xs">
-            <span className="text-amber-400">SF</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div 
+            onClick={() => setActiveTab('inicio')}
+            className="cursor-pointer transition-transform hover:scale-105"
+            title="Ir a Inicio y Carta"
+          >
+            <MonitoLogo size="sm" className="w-12 h-12" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
               <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                PANADERÍA <span className="text-amber-500">SANTA FÉ</span>
+                PANADERÍA <span className="text-amber-600">SANTA FÉ</span>
               </h1>
               <span className="hidden sm:inline-block text-slate-300">|</span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> 10 MDP Ronda
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Control Operativo
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5 tracking-normal">
-              Prospecto de inversión &bull; Adquisición estratégica de Panadería Santa Fé (Zákia &amp; El Refugio)
+              Sistema de Control Operativo y Financiero &bull; Sucursales Zákia &amp; El Refugio
             </p>
           </div>
         </div>
 
         {/* Quick Stats & Print Action */}
-        <div className="flex items-center gap-3 self-end md:self-auto">
+        <div className="flex items-center gap-3 self-end md:self-auto flex-wrap">
           <div className="hidden sm:flex items-center gap-4 bg-slate-50 border border-slate-200 px-4 py-1.5 rounded-xl text-xs">
             <div>
               <span className="text-slate-400 uppercase text-[10px] tracking-wider block">Venta Mensual:</span>
-              <span className="font-semibold text-slate-800">$1,293,143 MXN</span>
+              <span className="font-semibold text-slate-800">$1,340,722 MXN</span>
             </div>
             <div className="w-px h-6 bg-slate-200" />
             <div>
-              <span className="text-slate-400 uppercase text-[10px] tracking-wider block">Target ROI Anual:</span>
-              <span className="font-bold text-emerald-600">13% &ndash; 16%</span>
+              <span className="text-slate-400 uppercase text-[10px] tracking-wider block">Margen Neto:</span>
+              <span className="font-bold text-emerald-600">17.6%</span>
             </div>
           </div>
 

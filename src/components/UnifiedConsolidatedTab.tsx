@@ -18,7 +18,8 @@ import {
   ShieldCheck,
   Scale,
   PieChart as PieChartIcon,
-  BarChart3
+  BarChart3,
+  Printer
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -32,8 +33,13 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import { SummaryEquationCards } from './SummaryEquationCards';
 
-export const UnifiedConsolidatedTab: React.FC = () => {
+interface UnifiedConsolidatedTabProps {
+  onExport?: () => void;
+}
+
+export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ onExport }) => {
   // Monthly consolidated data for all 12 months
   const meses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
@@ -63,7 +69,7 @@ export const UnifiedConsolidatedTab: React.FC = () => {
   return (
     <div className="space-y-8 pb-12">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-stone-900 via-amber-950 to-stone-900 text-white p-6 sm:p-8 rounded-2xl shadow-sm">
+      <div className="bg-gradient-to-r from-stone-900 via-amber-950 to-stone-900 text-white p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="max-w-3xl">
           <div className="flex items-center gap-2 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Layers className="w-4 h-4" />
@@ -76,6 +82,16 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             Visión integral de <strong>Panadería Santa Fé</strong> consolidada con la ronda de $10 MDP. Dos ubicaciones estratégicas sinérgicas generando <strong>{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)}</strong> anuales en ventas brutas y <strong>{formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal)}</strong> en utilidad neta.
           </p>
         </div>
+        {onExport && (
+          <button
+            onClick={onExport}
+            className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0 active:scale-95"
+            title="Exportar hoja ejecutiva auditada en conjunto"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Exportar Resumen PDF</span>
+          </button>
+        )}
       </div>
 
       {/* CORE FORMULA CONSOLIDADA: INGRESOS - GASTOS = UTILIDAD */}
@@ -105,11 +121,11 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             </div>
             <div className="mt-2 text-xs text-stone-600 space-y-0.5">
               <div className="flex justify-between">
-                <span>Refugio (63.6%):</span>
+                <span>Refugio ({((TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio / TOTALES_CONSOLIDADOS.promedioMensualVentasTotal) * 100).toFixed(1)}%):</span>
                 <span className="font-semibold text-stone-800">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Zákia (36.4%):</span>
+                <span>Zákia ({((TOTALES_CONSOLIDADOS.promedioMensualVentasZakia / TOTALES_CONSOLIDADOS.promedioMensualVentasTotal) * 100).toFixed(1)}%):</span>
                 <span className="font-semibold text-stone-800">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasZakia)}</span>
               </div>
             </div>
@@ -122,7 +138,7 @@ export const UnifiedConsolidatedTab: React.FC = () => {
                 <DollarSign className="w-4 h-4 text-amber-600" />
                 Gastos Operativos / Mes
               </span>
-              <span className="text-stone-400">82.9%</span>
+              <span className="text-stone-400">{((TOTALES_CONSOLIDADOS.gastosMensualesTotal / TOTALES_CONSOLIDADOS.promedioMensualVentasTotal) * 100).toFixed(1)}%</span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-stone-900">
               {formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesTotal)}
@@ -147,7 +163,7 @@ export const UnifiedConsolidatedTab: React.FC = () => {
                 Utilidad Neta / Mes
               </span>
               <span className="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                17.1% Margen
+                {TOTALES_CONSOLIDADOS.margenPonderadoTotal}% Margen
               </span>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-950">
@@ -155,11 +171,11 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             </div>
             <div className="mt-2 text-xs text-emerald-800 space-y-0.5 font-medium">
               <div className="flex justify-between">
-                <span>Refugio (62.5% de util.):</span>
+                <span>Refugio ({((TOTALES_CONSOLIDADOS.utilidadMensualRefugio / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% de util.):</span>
                 <span className="font-bold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Zákia (37.5% de util.):</span>
+                <span>Zákia ({((TOTALES_CONSOLIDADOS.utilidadMensualZakia / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% de util.):</span>
                 <span className="font-bold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}</span>
               </div>
             </div>
@@ -213,7 +229,7 @@ export const UnifiedConsolidatedTab: React.FC = () => {
                 <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasZakia)}</td>
                 <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}</td>
                 <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasTotal)}</td>
-                <td className="py-3.5 px-4 text-center text-xs text-stone-700">36.4% Z / 63.6% R</td>
+                <td className="py-3.5 px-4 text-center text-xs text-stone-700">{((TOTALES_CONSOLIDADOS.promedioMensualVentasZakia / TOTALES_CONSOLIDADOS.promedioMensualVentasTotal) * 100).toFixed(1)}% Z / {((TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio / TOTALES_CONSOLIDADOS.promedioMensualVentasTotal) * 100).toFixed(1)}% R</td>
               </tr>
               <tr>
                 <td className="py-3.5 px-4 font-semibold text-stone-900">Ventas Anuales (12M Auditadas / Anualizadas)</td>
@@ -227,7 +243,7 @@ export const UnifiedConsolidatedTab: React.FC = () => {
                 <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesZakia)}</td>
                 <td className="py-3.5 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesRefugio)}</td>
                 <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesTotal)}</td>
-                <td className="py-3.5 px-4 text-center text-xs text-stone-700">36.1% Z / 63.9% R</td>
+                <td className="py-3.5 px-4 text-center text-xs text-stone-700">{((TOTALES_CONSOLIDADOS.gastosMensualesZakia / TOTALES_CONSOLIDADOS.gastosMensualesTotal) * 100).toFixed(1)}% Z / {((TOTALES_CONSOLIDADOS.gastosMensualesRefugio / TOTALES_CONSOLIDADOS.gastosMensualesTotal) * 100).toFixed(1)}% R</td>
               </tr>
               <tr>
                 <td className="py-3.5 px-4 font-semibold text-stone-900">Gasto de Nómina Operativa Semanal</td>
@@ -248,13 +264,13 @@ export const UnifiedConsolidatedTab: React.FC = () => {
                 <td className="py-3.5 px-4 text-right font-mono text-emerald-900">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}</td>
                 <td className="py-3.5 px-4 text-right font-mono text-emerald-900">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}</td>
                 <td className="py-3.5 px-4 text-right font-mono text-emerald-950 text-base">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualTotal)}</td>
-                <td className="py-3.5 px-4 text-center text-xs text-emerald-800">37.5% Z / 62.5% R</td>
+                <td className="py-3.5 px-4 text-center text-xs text-emerald-800">{((TOTALES_CONSOLIDADOS.utilidadMensualZakia / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% Z / {((TOTALES_CONSOLIDADOS.utilidadMensualRefugio / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% R</td>
               </tr>
               <tr className="bg-emerald-50/30">
                 <td className="py-3.5 px-4 font-semibold text-stone-900">Margen Neto de Operación (%)</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-800">17.6%</td>
-                <td className="py-3.5 px-4 text-right font-mono text-stone-800">17.0%</td>
-                <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-900">17.2%</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-800">{((TOTALES_CONSOLIDADOS.utilidadMensualZakia / TOTALES_CONSOLIDADOS.promedioMensualVentasZakia) * 100).toFixed(1)}%</td>
+                <td className="py-3.5 px-4 text-right font-mono text-stone-800">{((TOTALES_CONSOLIDADOS.utilidadMensualRefugio / TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio) * 100).toFixed(1)}%</td>
+                <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-900">{TOTALES_CONSOLIDADOS.margenPonderadoTotal}%</td>
                 <td className="py-3.5 px-4 text-center text-xs text-stone-700">Margen ponderado</td>
               </tr>
             </tbody>
@@ -344,6 +360,43 @@ export const UnifiedConsolidatedTab: React.FC = () => {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Recuadros Resumen al Final de la Hoja */}
+      <div className="pt-4 border-t border-stone-200 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-stone-800">
+              Recuadros Resumen Financiero &bull; Cadena Consolidada (Zákia + El Refugio)
+            </h3>
+            <p className="text-xs text-stone-500">
+              Ecuación neta mensual consolidada de la red integral conforme a auditoría de 12 meses.
+            </p>
+          </div>
+          {onExport && (
+            <button
+              onClick={onExport}
+              className="text-xs font-semibold text-amber-800 hover:text-amber-950 flex items-center gap-1.5 cursor-pointer bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition-colors w-fit"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Abrir Hoja Exportable PDF</span>
+            </button>
+          )}
+        </div>
+
+        <SummaryEquationCards
+          ingresosMensuales={TOTALES_CONSOLIDADOS.promedioMensualVentasTotal}
+          ingresosAnuales={TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal}
+          gastosMensuales={TOTALES_CONSOLIDADOS.gastosMensualesTotal}
+          gastosAnuales={TOTALES_CONSOLIDADOS.gastosAnualesCadenaTotal}
+          gastosSemanales={TOTALES_CONSOLIDADOS.gastosSemanalesTotal}
+          rubrosCount={47}
+          utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualTotal}
+          utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal}
+          margenNeto={`${TOTALES_CONSOLIDADOS.margenPonderadoTotal}%`}
+          tituloIngresos="1. INGRESOS TOTALES MENSUALES PROMEDIO"
+          showClickHelper={false}
+        />
       </div>
     </div>
   );

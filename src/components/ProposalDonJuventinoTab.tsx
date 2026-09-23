@@ -86,6 +86,38 @@ export const ProposalDonJuventinoTab: React.FC = () => {
   // 1 = Cash Inmediato, 2 = Interés Blando 3 Años, 3 = Financiamiento 12% a 5 Años, 4 = Pensión Vitalicia (Mín. 10 Años)
   const [selectedScenario, setSelectedScenario] = useState<1 | 2 | 3 | 4>(1);
   const [confirmedChoice, setConfirmedChoice] = useState<number | null>(null);
+
+  // Cartas tapadas para Don Juventino (Propuesta 1, 2, 3 y 4)
+  const [openedProposals, setOpenedProposals] = useState<Record<number, boolean>>({
+    1: false,
+    2: false,
+    3: false,
+    4: false,
+  });
+
+  const handleToggleProposal = (id: 1 | 2 | 3 | 4) => {
+    setOpenedProposals(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+    setSelectedScenario(id);
+  };
+
+  const handleOpenProposal = (id: 1 | 2 | 3 | 4) => {
+    setOpenedProposals(prev => ({
+      ...prev,
+      [id]: true
+    }));
+    setSelectedScenario(id);
+  };
+
+  const handleOpenAll = () => {
+    setOpenedProposals({ 1: true, 2: true, 3: true, 4: true });
+  };
+
+  const handleCloseAll = () => {
+    setOpenedProposals({ 1: false, 2: false, 3: false, 4: false });
+  };
   
   // Interactive slider for Scenario 3 utility simulation
   const [simulatedUtility, setSimulatedUtility] = useState<number>(233333);
@@ -343,292 +375,576 @@ export const ProposalDonJuventinoTab: React.FC = () => {
 
       {/* 2. SCENARIO SELECTOR CARDS (Top Overview & Interactive Switch) */}
       <div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl shadow-xs">
           <div>
-            <h3 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight">
-              Los 4 Escenarios Disponibles
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-900 uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-amber-700" />
+              <span>Cartas de Propuesta para Don Juventino</span>
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-stone-900 mt-0.5">
+              Toca cada carta para abrirla y mostrar la propuesta
             </h3>
-            <p className="text-xs sm:text-sm text-stone-600">
-              Haga clic en cualquiera de las alternativas para consultar su desglose detallado, justificación y corridas financieras.
+            <p className="text-xs text-stone-600 mt-0.5">
+              Las 4 opciones inician tapadas. Al tocarlas como cartas de presentación, se abren y revelan sus condiciones.
             </p>
           </div>
-          <button
-            onClick={handlePrintProposal}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-stone-700 bg-white hover:bg-stone-50 border border-stone-300 rounded-xl transition-colors shadow-2xs cursor-pointer"
-          >
-            <Printer className="w-4 h-4 text-stone-600" />
-            <span>Imprimir Propuesta Formal</span>
-          </button>
+
+          <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
+            <button
+              onClick={handleOpenAll}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
+              title="Abrir todas las cartas"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Abrir las 4</span>
+            </button>
+            <button
+              onClick={handleCloseAll}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs font-semibold transition-all shadow-2xs cursor-pointer active:scale-95"
+              title="Tapar todas las cartas"
+            >
+              <EyeOff className="w-3.5 h-3.5" />
+              <span>Tapar todas</span>
+            </button>
+            <button
+              onClick={handlePrintProposal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white hover:bg-stone-50 border border-stone-300 rounded-xl transition-colors shadow-2xs cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5 text-stone-600" />
+              <span>Imprimir</span>
+            </button>
+          </div>
         </div>
 
         {/* 4 Interactive Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           {/* Card 1 */}
-          <div
-            onClick={() => setSelectedScenario(1)}
-            className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
-              selectedScenario === 1
-                ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
-                : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
-            }`}
-          >
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
-                  <Banknote className="w-3.5 h-3.5 text-amber-800" />
-                  Opción 1 &bull; Liquidez Inmediata
+          {!openedProposals[1] ? (
+            <div
+              onClick={() => handleToggleProposal(1)}
+              className="group relative rounded-2xl p-6 bg-gradient-to-br from-stone-900 via-stone-850 to-amber-950 text-white border-2 border-amber-500/50 hover:border-amber-400 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[440px] active:scale-[0.99]"
+            >
+              <div className="absolute -top-12 -right-12 w-44 h-44 bg-amber-400/10 rounded-full blur-2xl group-hover:bg-amber-400/25 transition-all pointer-events-none" />
+
+              <div className="flex items-center justify-between gap-2 relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[11px] font-bold tracking-wider uppercase">
+                  <EyeOff className="w-3.5 h-3.5 text-amber-400" />
+                  Carta Tapada
                 </span>
-                {confirmedChoice === 1 && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Elegida
-                  </span>
-                )}
-              </div>
-
-              <h4 className="text-base font-extrabold text-stone-900 leading-snug">
-                Adquisición Directa de Contado
-              </h4>
-              <p className="text-xs text-stone-600 mt-1">
-                Pago 100% líquido en efectivo en una sola exhibición. Retiro total inmediato sin riesgos ni plazos diferidos.
-              </p>
-
-              <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
-                <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Monto en Efectivo</div>
-                <div className="text-2xl font-extrabold text-stone-900 font-mono">
-                  {formatCurrency(8500000)}
-                </div>
-                <div className="text-xs text-emerald-800 font-semibold mt-0.5">
-                  100% de contado al firmar ante notario
-                </div>
-              </div>
-
-              <ul className="space-y-2 text-xs text-stone-700">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Disponibilidad inmediata:</strong> $8.5 MDP líquidos en cuenta el día uno.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>$0 deuda o crédito:</strong> Cero exposición y cero tiempos de espera.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Retiro definitivo:</strong> Exención absoluta de hornos, personal y nóminas.</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
-                {selectedScenario === 1 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-              <span className="text-[11px] text-stone-400 font-mono">1 exhibición</span>
-            </div>
-          </div>
-
-          {/* Card 2 (NUEVA OPCIÓN 2: INTERÉS BLANDO 3 AÑOS - $150k/mes) */}
-          <div
-            onClick={() => setSelectedScenario(2)}
-            className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
-              selectedScenario === 2
-                ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
-                : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
-            }`}
-          >
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-900">
-                  <Coins className="w-3.5 h-3.5 text-teal-800" />
-                  Opción 2 &bull; Interés Blando (3 Años)
+                <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400/70">
+                  Don Juventino
                 </span>
-                {confirmedChoice === 2 && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Elegida
+              </div>
+
+              <div className="text-center my-6 space-y-4 relative z-10">
+                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-stone-950 flex items-center justify-center shadow-xl border-4 border-amber-200/40 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  <Banknote className="w-9 h-9 text-stone-950" />
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold text-amber-300 uppercase tracking-widest block">
+                    Alternativa Confidencial
                   </span>
-                )}
-              </div>
-
-              <h4 className="text-base font-extrabold text-stone-900 leading-snug">
-                Financiamiento con Interés Blando
-              </h4>
-              <p className="text-xs text-stone-600 mt-1">
-                $5 MDP iniciales + 36 mensualidades fijas de $150,000 MXN. $10.4 MDP totales ($400k de interés como gesto de buena fe).
-              </p>
-
-              <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
-                <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Total Acumulado a Percibir</div>
-                <div className="text-2xl font-extrabold text-teal-950 font-mono">
-                  {formatCurrency(10400000)}
-                </div>
-                <div className="text-xs text-teal-800 font-semibold mt-0.5">
-                  $5 MDP inicial + 36 pagos de $150,000 MXN
+                  <h3 className="text-2xl sm:text-3xl font-black text-amber-50 tracking-tight mt-1 font-serif">
+                    PROPUESTA 1
+                  </h3>
+                  <p className="text-xs text-stone-300 mt-2 font-medium max-w-xs mx-auto leading-relaxed">
+                    Opción de Liquidez Inmediata &bull; Adquisición Directa de Contado al 100%
+                  </p>
                 </div>
               </div>
 
-              <ul className="space-y-2 text-xs text-stone-700">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
-                  <span><strong>$150,000 MXN / mes fijos:</strong> Flujo seguro, idéntico y puntual durante 3 años (36 meses).</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
-                  <span><strong>$400,000 MXN interés blando:</strong> Gesto de agradecimiento y buena fe superando la valuación.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
-                  <span><strong>$80,000 MXN / mes de colchón:</strong> Margen operativo para contingencias y salud del negocio.</span>
-                </li>
-              </ul>
+              <div className="relative z-10 pt-4 border-t border-amber-500/30 flex items-center justify-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 group-hover:bg-amber-500 text-amber-300 group-hover:text-stone-950 font-bold text-xs transition-all border border-amber-400/40">
+                  <span>Toca para abrir la carta</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
             </div>
+          ) : (
+            <div
+              onClick={() => setSelectedScenario(1)}
+              className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                selectedScenario === 1
+                  ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
+                  : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
+                    <Banknote className="w-3.5 h-3.5 text-amber-800" />
+                    PROPUESTA 1 &bull; Contado
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {confirmedChoice === 1 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Elegida
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleProposal(1);
+                      }}
+                      className="text-[10px] font-semibold text-stone-500 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Tapar esta carta"
+                    >
+                      <EyeOff className="w-3 h-3" />
+                      <span>Tapar</span>
+                    </button>
+                  </div>
+                </div>
 
-            <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
-                {selectedScenario === 2 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-              <span className="text-[11px] text-teal-700 font-mono font-bold">3 años (36 meses)</span>
-            </div>
-          </div>
+                <h4 className="text-base font-extrabold text-stone-900 leading-snug">
+                  Adquisición Directa de Contado
+                </h4>
+                <p className="text-xs text-stone-600 mt-1">
+                  Pago 100% líquido en efectivo en una sola exhibición. Retiro total inmediato sin riesgos ni plazos diferidos.
+                </p>
 
-          {/* Card 3 (ANTERIOR OPCIÓN 2: INTERÉS 12% A 5 AÑOS) */}
-          <div
-            onClick={() => setSelectedScenario(3)}
-            className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
-              selectedScenario === 3
-                ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
-                : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
-            }`}
-          >
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900">
-                  <TrendingUp className="w-3.5 h-3.5 text-blue-800" />
-                  Opción 3 &bull; Máximo Retorno 12%
+                <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
+                  <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Monto en Efectivo</div>
+                  <div className="text-2xl font-extrabold text-stone-900 font-mono">
+                    {formatCurrency(8500000)}
+                  </div>
+                  <div className="text-xs text-emerald-800 font-semibold mt-0.5">
+                    100% de contado al firmar ante notario
+                  </div>
+                </div>
+
+                <ul className="space-y-2 text-xs text-stone-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Disponibilidad inmediata:</strong> $8.5 MDP líquidos en cuenta el día uno.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>$0 deuda o crédito:</strong> Cero exposición y cero tiempos de espera.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Retiro definitivo:</strong> Exención absoluta de hornos, personal y nóminas.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
+                  {selectedScenario === 1 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </span>
-                {confirmedChoice === 3 && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Elegida
-                  </span>
-                )}
+                <span className="text-[11px] text-stone-400 font-mono">1 exhibición</span>
               </div>
-
-              <h4 className="text-base font-extrabold text-stone-900 leading-snug">
-                Asociación y Financiamiento al 12%
-              </h4>
-              <p className="text-xs text-stone-600 mt-1">
-                $5 MDP iniciales + pagarés mercantiles con tasa fija del 12% anual a 5 años. Máxima rentabilidad patrimonial.
-              </p>
-
-              <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
-                <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Total Acumulado a Percibir</div>
-                <div className="text-2xl font-extrabold text-stone-900 font-mono">
-                  {formatCurrency(11800000)}
-                </div>
-                <div className="text-xs text-blue-800 font-semibold mt-0.5">
-                  $5 MDP inicial + $5 MDP capital + $1.8 MDP intereses
-                </div>
-              </div>
-
-              <ul className="space-y-2 text-xs text-stone-700">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                  <span><strong>Pago inicial fuerte:</strong> $5,000,000 MXN en efectivo a la firma.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                  <span><strong>Interés fijo 12% anual:</strong> Ingresos mensuales desde $50,000 hasta $10,000 MXN.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                  <span><strong>Pagarés mercantiles:</strong> Respaldo legal y de mutuo sobre saldos insolutos.</span>
-                </li>
-              </ul>
             </div>
+          )}
 
-            <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
-                {selectedScenario === 3 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-              <span className="text-[11px] text-stone-400 font-mono">5 años (60 meses)</span>
-            </div>
-          </div>
+          {/* Card 2 */}
+          {!openedProposals[2] ? (
+            <div
+              onClick={() => handleToggleProposal(2)}
+              className="group relative rounded-2xl p-6 bg-gradient-to-br from-stone-900 via-stone-850 to-teal-950 text-white border-2 border-teal-500/50 hover:border-teal-400 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[440px] active:scale-[0.99]"
+            >
+              <div className="absolute -top-12 -right-12 w-44 h-44 bg-teal-400/10 rounded-full blur-2xl group-hover:bg-teal-400/25 transition-all pointer-events-none" />
 
-          {/* Card 4 (ANTERIOR OPCIÓN 3: PENSIÓN VITALICIA MÍN. 10 AÑOS) */}
-          <div
-            onClick={() => setSelectedScenario(4)}
-            className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
-              selectedScenario === 4
-                ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
-                : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
-            }`}
-          >
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900">
-                  <HeartHandshake className="w-3.5 h-3.5 text-emerald-800" />
-                  Opción 4 &bull; Pensión Vitalicia (Mín. 10 Años)
+              <div className="flex items-center justify-between gap-2 relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-[11px] font-bold tracking-wider uppercase">
+                  <EyeOff className="w-3.5 h-3.5 text-teal-400" />
+                  Carta Tapada
                 </span>
-                {confirmedChoice === 4 && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Elegida
+                <span className="text-[10px] uppercase font-mono tracking-widest text-teal-400/70">
+                  Don Juventino
+                </span>
+              </div>
+
+              <div className="text-center my-6 space-y-4 relative z-10">
+                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-teal-400 via-teal-500 to-teal-600 text-stone-950 flex items-center justify-center shadow-xl border-4 border-teal-200/40 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  <Coins className="w-9 h-9 text-stone-950" />
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold text-teal-300 uppercase tracking-widest block">
+                    Alternativa Confidencial
                   </span>
-                )}
-              </div>
-
-              <h4 className="text-base font-extrabold text-stone-900 leading-snug">
-                Traspaso con Pensión Vitalicia
-              </h4>
-              <p className="text-xs text-stone-600 mt-1">
-                $5 MDP iniciales en efectivo + Pensión vitalicia con piso mínimo garantizado de $35,000 MXN/mes por al menos 10 años (120 meses) y de por vida.
-              </p>
-
-              <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
-                <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Flujo Mensual Mínimo Garantizado</div>
-                <div className="text-2xl font-extrabold text-emerald-900 font-mono">
-                  {formatCurrency(35000)} <span className="text-xs font-bold text-stone-500">/ mes mín.</span>
-                </div>
-                <div className="text-xs text-emerald-800 font-semibold mt-0.5">
-                  $5,000,000 MXN en banco + Mínimo $4,200,000 MXN en 10 años + Vitalicio
+                  <h3 className="text-2xl sm:text-3xl font-black text-amber-50 tracking-tight mt-1 font-serif">
+                    PROPUESTA 2
+                  </h3>
+                  <p className="text-xs text-stone-300 mt-2 font-medium max-w-xs mx-auto leading-relaxed">
+                    Opción a 3 Años con Interés Blando &bull; $5 MDP iniciales + 36 mensualidades fijas
+                  </p>
                 </div>
               </div>
 
-              <ul className="space-y-2 text-xs text-stone-700">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Garantía mínima 10 años:</strong> 120 meses asegurados por contrato para total certeza patrimonial, continuando de por vida.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Piso mínimo $35,000 MXN/mes:</strong> 15% de utilidades netas garantizando que nunca reciba menos de $35,000 MXN al mes.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Descanso total desde las 4:30 AM:</strong> Asumimos el 100% de la carga de hornos, personal, abasto y nóminas.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Potencial de alza:</strong> Si las utilidades crecen, su 15% mensual superará los $35,000 MXN automáticamente.</span>
-                </li>
-              </ul>
+              <div className="relative z-10 pt-4 border-t border-teal-500/30 flex items-center justify-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-500/20 group-hover:bg-teal-500 text-teal-300 group-hover:text-stone-950 font-bold text-xs transition-all border border-teal-400/40">
+                  <span>Toca para abrir la carta</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
             </div>
+          ) : (
+            <div
+              onClick={() => setSelectedScenario(2)}
+              className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                selectedScenario === 2
+                  ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
+                  : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-900">
+                    <Coins className="w-3.5 h-3.5 text-teal-800" />
+                    PROPUESTA 2 &bull; Interés Blando
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {confirmedChoice === 2 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Elegida
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleProposal(2);
+                      }}
+                      className="text-[10px] font-semibold text-stone-500 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Tapar esta carta"
+                    >
+                      <EyeOff className="w-3 h-3" />
+                      <span>Tapar</span>
+                    </button>
+                  </div>
+                </div>
 
-            <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
-                {selectedScenario === 4 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-              <span className="text-[11px] text-stone-500 font-mono font-medium">Mín. 10 años &bull; Vitalicio</span>
+                <h4 className="text-base font-extrabold text-stone-900 leading-snug">
+                  Financiamiento con Interés Blando
+                </h4>
+                <p className="text-xs text-stone-600 mt-1">
+                  $5 MDP iniciales + 36 mensualidades fijas de $150,000 MXN. $10.4 MDP totales ($400k de interés como gesto de buena fe).
+                </p>
+
+                <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
+                  <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Total Acumulado a Percibir</div>
+                  <div className="text-2xl font-extrabold text-teal-950 font-mono">
+                    {formatCurrency(10400000)}
+                  </div>
+                  <div className="text-xs text-teal-800 font-semibold mt-0.5">
+                    $5 MDP inicial + 36 pagos de $150,000 MXN
+                  </div>
+                </div>
+
+                <ul className="space-y-2 text-xs text-stone-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
+                    <span><strong>$150,000 MXN / mes fijos:</strong> Flujo seguro, idéntico y puntual durante 3 años (36 meses).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
+                    <span><strong>$400,000 MXN interés blando:</strong> Gesto de agradecimiento y buena fe superando la valuación.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
+                    <span><strong>$80,000 MXN / mes de colchón:</strong> Margen operativo para contingencias y salud del negocio.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
+                  {selectedScenario === 2 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-[11px] text-teal-700 font-mono font-bold">3 años (36 meses)</span>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Card 3 */}
+          {!openedProposals[3] ? (
+            <div
+              onClick={() => handleToggleProposal(3)}
+              className="group relative rounded-2xl p-6 bg-gradient-to-br from-stone-900 via-stone-850 to-blue-950 text-white border-2 border-blue-500/50 hover:border-blue-400 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[440px] active:scale-[0.99]"
+            >
+              <div className="absolute -top-12 -right-12 w-44 h-44 bg-blue-400/10 rounded-full blur-2xl group-hover:bg-blue-400/25 transition-all pointer-events-none" />
+
+              <div className="flex items-center justify-between gap-2 relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-300 text-[11px] font-bold tracking-wider uppercase">
+                  <EyeOff className="w-3.5 h-3.5 text-blue-400" />
+                  Carta Tapada
+                </span>
+                <span className="text-[10px] uppercase font-mono tracking-widest text-blue-400/70">
+                  Don Juventino
+                </span>
+              </div>
+
+              <div className="text-center my-6 space-y-4 relative z-10">
+                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 text-stone-950 flex items-center justify-center shadow-xl border-4 border-blue-200/40 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  <TrendingUp className="w-9 h-9 text-stone-950" />
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold text-blue-300 uppercase tracking-widest block">
+                    Alternativa Confidencial
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-black text-amber-50 tracking-tight mt-1 font-serif">
+                    PROPUESTA 3
+                  </h3>
+                  <p className="text-xs text-stone-300 mt-2 font-medium max-w-xs mx-auto leading-relaxed">
+                    Opción de Máximo Retorno al 12% Anual &bull; $5 MDP iniciales + pagarés a 5 años ($11.8 MDP)
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative z-10 pt-4 border-t border-blue-500/30 flex items-center justify-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/20 group-hover:bg-blue-500 text-blue-300 group-hover:text-stone-950 font-bold text-xs transition-all border border-blue-400/40">
+                  <span>Toca para abrir la carta</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div
+              onClick={() => setSelectedScenario(3)}
+              className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                selectedScenario === 3
+                  ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
+                  : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900">
+                    <TrendingUp className="w-3.5 h-3.5 text-blue-800" />
+                    PROPUESTA 3 &bull; Tasa 12%
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {confirmedChoice === 3 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Elegida
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleProposal(3);
+                      }}
+                      className="text-[10px] font-semibold text-stone-500 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Tapar esta carta"
+                    >
+                      <EyeOff className="w-3 h-3" />
+                      <span>Tapar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <h4 className="text-base font-extrabold text-stone-900 leading-snug">
+                  Asociación y Financiamiento al 12%
+                </h4>
+                <p className="text-xs text-stone-600 mt-1">
+                  $5 MDP iniciales + pagarés mercantiles con tasa fija del 12% anual a 5 años. Máxima rentabilidad patrimonial.
+                </p>
+
+                <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
+                  <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Total Acumulado a Percibir</div>
+                  <div className="text-2xl font-extrabold text-stone-900 font-mono">
+                    {formatCurrency(11800000)}
+                  </div>
+                  <div className="text-xs text-blue-800 font-semibold mt-0.5">
+                    $5 MDP inicial + $5 MDP capital + $1.8 MDP intereses
+                  </div>
+                </div>
+
+                <ul className="space-y-2 text-xs text-stone-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span><strong>Pago inicial fuerte:</strong> $5,000,000 MXN en efectivo a la firma.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span><strong>Interés fijo 12% anual:</strong> Ingresos mensuales desde $50,000 hasta $10,000 MXN.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span><strong>Pagarés mercantiles:</strong> Respaldo legal y de mutuo sobre saldos insolutos.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
+                  {selectedScenario === 3 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-[11px] text-stone-400 font-mono">5 años (60 meses)</span>
+              </div>
+            </div>
+          )}
+
+          {/* Card 4 */}
+          {!openedProposals[4] ? (
+            <div
+              onClick={() => handleToggleProposal(4)}
+              className="group relative rounded-2xl p-6 bg-gradient-to-br from-stone-900 via-stone-850 to-emerald-950 text-white border-2 border-emerald-500/50 hover:border-emerald-400 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[440px] active:scale-[0.99]"
+            >
+              <div className="absolute -top-12 -right-12 w-44 h-44 bg-emerald-400/10 rounded-full blur-2xl group-hover:bg-emerald-400/25 transition-all pointer-events-none" />
+
+              <div className="flex items-center justify-between gap-2 relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[11px] font-bold tracking-wider uppercase">
+                  <EyeOff className="w-3.5 h-3.5 text-emerald-400" />
+                  Carta Tapada
+                </span>
+                <span className="text-[10px] uppercase font-mono tracking-widest text-emerald-400/70">
+                  Don Juventino
+                </span>
+              </div>
+
+              <div className="text-center my-6 space-y-4 relative z-10">
+                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 text-stone-950 flex items-center justify-center shadow-xl border-4 border-emerald-200/40 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                  <HeartHandshake className="w-9 h-9 text-stone-950" />
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold text-emerald-300 uppercase tracking-widest block">
+                    Alternativa Confidencial
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-black text-amber-50 tracking-tight mt-1 font-serif">
+                    PROPUESTA 4
+                  </h3>
+                  <p className="text-xs text-stone-300 mt-2 font-medium max-w-xs mx-auto leading-relaxed">
+                    Opción de Pensión Vitalicia Garantizada &bull; $5 MDP iniciales + mínimo $35k/mes por 10 años y de por vida
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative z-10 pt-4 border-t border-emerald-500/30 flex items-center justify-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 group-hover:bg-emerald-500 text-emerald-300 group-hover:text-stone-950 font-bold text-xs transition-all border border-emerald-400/40">
+                  <span>Toca para abrir la carta</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div
+              onClick={() => setSelectedScenario(4)}
+              className={`rounded-2xl p-5 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                selectedScenario === 4
+                  ? 'bg-amber-50/70 border-amber-600 shadow-md ring-2 ring-amber-500/20'
+                  : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50 shadow-2xs'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900">
+                    <HeartHandshake className="w-3.5 h-3.5 text-emerald-800" />
+                    PROPUESTA 4 &bull; Pensión
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {confirmedChoice === 4 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Elegida
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleProposal(4);
+                      }}
+                      className="text-[10px] font-semibold text-stone-500 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Tapar esta carta"
+                    >
+                      <EyeOff className="w-3 h-3" />
+                      <span>Tapar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <h4 className="text-base font-extrabold text-stone-900 leading-snug">
+                  Traspaso con Pensión Vitalicia
+                </h4>
+                <p className="text-xs text-stone-600 mt-1">
+                  $5 MDP iniciales en efectivo + Pensión vitalicia con piso mínimo garantizado de $35,000 MXN/mes por al menos 10 años (120 meses) y de por vida.
+                </p>
+
+                <div className="my-3.5 p-3 bg-white/80 rounded-xl border border-stone-200/80">
+                  <div className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">Flujo Mensual Mínimo Garantizado</div>
+                  <div className="text-2xl font-extrabold text-emerald-900 font-mono">
+                    {formatCurrency(35000)} <span className="text-xs font-bold text-stone-500">/ mes mín.</span>
+                  </div>
+                  <div className="text-xs text-emerald-800 font-semibold mt-0.5">
+                    $5,000,000 MXN en banco + Mínimo $4,200,000 MXN en 10 años + Vitalicio
+                  </div>
+                </div>
+
+                <ul className="space-y-2 text-xs text-stone-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Garantía mínima 10 años:</strong> 120 meses asegurados por contrato para total certeza patrimonial, continuando de por vida.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Piso mínimo $35,000 MXN/mes:</strong> 15% de utilidades netas garantizando que nunca reciba menos de $35,000 MXN al mes.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Descanso total desde las 4:30 AM:</strong> Asumimos el 100% de la carga de hornos, personal, abasto y nóminas.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Potencial de alza:</strong> Si las utilidades crecen, su 15% mensual superará los $35,000 MXN automáticamente.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
+                  {selectedScenario === 4 ? 'Viendo detalles abajo' : 'Ver corrida detallada'}
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-[11px] text-stone-500 font-mono font-medium">Mín. 10 años &bull; Vitalicio</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* 3. DETAILED VIEW OF THE CURRENTLY SELECTED SCENARIO */}
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 sm:p-8">
-        {/* Scenario 1 Detailed Tab */}
-        {selectedScenario === 1 && (
+        {!openedProposals[selectedScenario] ? (
+          <div className="py-16 px-4 text-center space-y-4 max-w-lg mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-amber-100 border border-amber-200 text-amber-800 flex items-center justify-center mx-auto shadow-xs">
+              <EyeOff className="w-8 h-8" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-amber-800 uppercase tracking-widest">
+                Carta Tapada &bull; Don Juventino
+              </span>
+              <h3 className="text-2xl font-bold text-stone-900 mt-1 font-serif">
+                PROPUESTA {selectedScenario}
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              Esta propuesta aún se encuentra cubierta. Toca la carta de la <strong>Propuesta {selectedScenario}</strong> arriba o haz clic en el siguiente botón para abrirla y consultar todo su desglose financiero, justificación técnica y corridas.
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => handleOpenProposal(selectedScenario)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
+              >
+                <Sparkles className="w-4 h-4 text-stone-950" />
+                <span>Abrir y Mostrar Propuesta {selectedScenario}</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Scenario 1 Detailed Tab */}
+            {selectedScenario === 1 && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
               <div>
@@ -654,10 +970,10 @@ export const ProposalDonJuventinoTab: React.FC = () => {
             <div className="bg-stone-50 rounded-2xl p-5 sm:p-6 border border-stone-200 space-y-4">
               <div className="flex items-center gap-2 text-stone-900 font-bold text-sm">
                 <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                <h4>Justificación Técnica de Valuación de Mercado ($10,000,000 MXN)</h4>
+                <h4>Justificación Técnica de Valuación de Mercado ($9,000,000 MXN)</h4>
               </div>
               <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                La valuación técnica del establecimiento se sitúa en <strong>$10,000,000 MXN</strong>, calculada con base en los múltiplos de mercado estándar para empresas y comercios tradicionales en marcha dentro del sector de alimentos y panificación, los cuales oscilan habitualmente entre <strong>3 y 4 veces la utilidad neta anual</strong>:
+                La valuación técnica del establecimiento se sitúa en <strong>$9,000,000 MXN</strong>, calculada con base en los múltiplos de mercado estándar para empresas y comercios tradicionales en marcha dentro del sector de alimentos y panificación, los cuales oscilan habitualmente entre <strong>3 y 4 veces la utilidad neta anual</strong>:
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
@@ -678,8 +994,8 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 </div>
                 <div className="bg-amber-100/60 p-3.5 rounded-xl border border-amber-300">
                   <span className="text-amber-900 block text-[11px] font-bold">Valuación Fijada</span>
-                  <span className="text-base font-extrabold text-amber-950 font-mono">{formatCurrency(10000000)}</span>
-                  <span className="text-[10px] text-amber-800 block mt-0.5">Rango alto de mercado (3.62x)</span>
+                  <span className="text-base font-extrabold text-amber-950 font-mono">{formatCurrency(9000000)}</span>
+                  <span className="text-[10px] text-amber-800 block mt-0.5">Múltiplo de mercado objetivo (3.26x)</span>
                 </div>
               </div>
             </div>
@@ -694,7 +1010,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 <ul className="space-y-2.5 text-stone-600">
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-stone-900 min-w-36">Valuación del negocio:</span>
-                    <span>$10,000,000 MXN</span>
+                    <span>$9,000,000 MXN</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-stone-900 min-w-36">Monto en efectivo (Cash):</span>
@@ -1188,6 +1504,8 @@ export const ProposalDonJuventinoTab: React.FC = () => {
             </div>
           </div>
         )}
+          </>
+        )}
       </div>
 
       {/* 4. COMPARATIVE TABLE SUMMARY (Cuadro Sinóptico Oficial) */}
@@ -1210,17 +1528,65 @@ export const ProposalDonJuventinoTab: React.FC = () => {
             <thead className="bg-stone-100/80 border-b border-stone-200 text-stone-700 uppercase text-[11px] tracking-wider font-semibold">
               <tr>
                 <th className="py-3.5 px-4 sm:px-6">Concepto / Métrica</th>
-                <th className={`py-3.5 px-3 text-center ${selectedScenario === 1 ? 'bg-amber-100/60 font-bold text-amber-950' : ''}`}>
-                  Propuesta 1 (Cash Inmediato)
+                <th
+                  onClick={() => handleOpenProposal(1)}
+                  className={`py-3.5 px-3 text-center cursor-pointer transition-colors hover:bg-amber-100/40 ${selectedScenario === 1 ? 'bg-amber-100/60 font-bold text-amber-950' : ''}`}
+                  title="Clic para abrir y consultar Propuesta 1"
+                >
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span>PROPUESTA 1</span>
+                    {!openedProposals[1] ? (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-stone-200 text-stone-700 font-normal">Tapada</span>
+                    ) : (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">Abierta</span>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5 lowercase">(cash inmediato)</span>
                 </th>
-                <th className={`py-3.5 px-3 text-center ${selectedScenario === 2 ? 'bg-teal-100/60 font-bold text-teal-950' : ''}`}>
-                  Propuesta 2 (Interés Blando 3 Años)
+                <th
+                  onClick={() => handleOpenProposal(2)}
+                  className={`py-3.5 px-3 text-center cursor-pointer transition-colors hover:bg-teal-100/40 ${selectedScenario === 2 ? 'bg-teal-100/60 font-bold text-teal-950' : ''}`}
+                  title="Clic para abrir y consultar Propuesta 2"
+                >
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span>PROPUESTA 2</span>
+                    {!openedProposals[2] ? (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-stone-200 text-stone-700 font-normal">Tapada</span>
+                    ) : (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-teal-100 text-teal-800 font-bold">Abierta</span>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5 lowercase">(interés blando 3 años)</span>
                 </th>
-                <th className={`py-3.5 px-3 text-center ${selectedScenario === 3 ? 'bg-blue-100/60 font-bold text-blue-950' : ''}`}>
-                  Propuesta 3 (Interés 12% a 5 Años)
+                <th
+                  onClick={() => handleOpenProposal(3)}
+                  className={`py-3.5 px-3 text-center cursor-pointer transition-colors hover:bg-blue-100/40 ${selectedScenario === 3 ? 'bg-blue-100/60 font-bold text-blue-950' : ''}`}
+                  title="Clic para abrir y consultar Propuesta 3"
+                >
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span>PROPUESTA 3</span>
+                    {!openedProposals[3] ? (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-stone-200 text-stone-700 font-normal">Tapada</span>
+                    ) : (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">Abierta</span>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5 lowercase">(interés 12% a 5 años)</span>
                 </th>
-                <th className={`py-3.5 px-3 text-center ${selectedScenario === 4 ? 'bg-emerald-100/60 font-bold text-emerald-950' : ''}`}>
-                  Propuesta 4 (Pensión Mín. 10 Años y $35k/mes)
+                <th
+                  onClick={() => handleOpenProposal(4)}
+                  className={`py-3.5 px-3 text-center cursor-pointer transition-colors hover:bg-emerald-100/40 ${selectedScenario === 4 ? 'bg-emerald-100/60 font-bold text-emerald-950' : ''}`}
+                  title="Clic para abrir y consultar Propuesta 4"
+                >
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span>PROPUESTA 4</span>
+                    {!openedProposals[4] ? (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-stone-200 text-stone-700 font-normal">Tapada</span>
+                    ) : (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">Abierta</span>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5 lowercase">(pensión mín. 10 años y $35k/mes)</span>
                 </th>
               </tr>
             </thead>
@@ -1229,16 +1595,16 @@ export const ProposalDonJuventinoTab: React.FC = () => {
               <tr className="hover:bg-stone-50/50">
                 <td className="py-3.5 px-4 sm:px-6 font-semibold text-stone-900">Valuación de Referencia</td>
                 <td className={`py-3.5 px-3 text-center font-mono ${selectedScenario === 1 ? 'bg-amber-50/40 font-bold' : ''}`}>
-                  $10,000,000 MXN
+                  $9,000,000 MXN
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono ${selectedScenario === 2 ? 'bg-teal-50/40 font-bold' : ''}`}>
-                  $10,000,000 MXN
+                  $9,000,000 MXN
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono ${selectedScenario === 3 ? 'bg-blue-50/40 font-bold' : ''}`}>
-                  $10,000,000 MXN
+                  $9,000,000 MXN
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono ${selectedScenario === 4 ? 'bg-emerald-50/40 font-bold' : ''}`}>
-                  $10,000,000 MXN
+                  $9,000,000 MXN
                 </td>
               </tr>
 

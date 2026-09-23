@@ -18,7 +18,8 @@ import {
   Truck,
   Building,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Printer
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -33,8 +34,13 @@ import {
   PieChart,
   Pie
 } from 'recharts';
+import { SummaryEquationCards } from './SummaryEquationCards';
 
-export const BranchRefugioTab: React.FC = () => {
+interface BranchRefugioTabProps {
+  onExport?: () => void;
+}
+
+export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) => {
   const [selectedGasto, setSelectedGasto] = useState<GastoRubro | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -72,10 +78,18 @@ export const BranchRefugioTab: React.FC = () => {
     Total: v.ventaTotalMensual
   }));
 
+  const totalTdc = VENTAS_REFUGIO.reduce((s, v) => s + v.cobroTarjetaTDC, 0);
+  const totalEfectivo = VENTAS_REFUGIO.reduce((s, v) => s + v.efectivoCalculado, 0);
+  const totalMostrador = VENTAS_REFUGIO.reduce((s, v) => s + v.ventaTotalMostrador, 0);
+  const totalReparto = VENTAS_REFUGIO.reduce((s, v) => s + v.reparto, 0);
+  const totalCautivos = VENTAS_REFUGIO.reduce((s, v) => s + v.transferenciasCautivos, 0);
+  const totalVentasRefugio = TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M;
+  const margenNetoRefugio = ((TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M / totalVentasRefugio) * 100).toFixed(1);
+
   return (
     <div className="space-y-8 pb-12">
       {/* Top Banner & Context */}
-      <div className="bg-gradient-to-r from-stone-900 to-amber-950 text-white p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-r from-stone-900 to-amber-950 text-white p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="max-w-3xl">
           <div className="flex items-center gap-2 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Store className="w-4 h-4" />
@@ -85,9 +99,19 @@ export const BranchRefugioTab: React.FC = () => {
             Análisis Operativo &amp; Financiero El Refugio
           </h2>
           <p className="text-stone-300 text-sm mt-2 leading-relaxed">
-            Planta matriz de alta escala: combina ventas de mostrador de alto flujo con rutas de reparto mayorista ($201,833/mes) y clientes institucionales cautivos por transferencia ($47,000/mes). Facturación auditada de <strong>$10,203,863 MXN</strong> anuales con margen neto del 17.0%.
+            Planta matriz de alta escala: combina ventas de mostrador de alto flujo con rutas de reparto mayorista ($201,833/mes) y clientes institucionales cautivos por transferencia ($47,000/mes). Facturación auditada y validada de <strong>{formatCurrency(totalVentasRefugio)}</strong> anuales con margen neto del {margenNetoRefugio}%.
           </p>
         </div>
+        {onExport && (
+          <button
+            onClick={onExport}
+            className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0 active:scale-95"
+            title="Exportar hoja ejecutiva auditada de El Refugio"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Exportar Resumen PDF</span>
+          </button>
+        )}
       </div>
 
       {/* CORE EQUATION HIGHLIGHT: INGRESOS - GASTOS = UTILIDAD */}
@@ -216,10 +240,10 @@ export const BranchRefugioTab: React.FC = () => {
             <span>Venta Mostrador (Tienda)</span>
           </div>
           <div className="text-lg font-bold text-stone-900">
-            {formatCurrency(601489)} <span className="text-xs font-normal text-stone-500">/ mes (70.7%)</span>
+            {formatCurrency(Math.round(totalMostrador / 12))} <span className="text-xs font-normal text-stone-500">/ mes ({((totalMostrador / totalVentasRefugio) * 100).toFixed(1)}%)</span>
           </div>
           <p className="text-[11px] text-stone-500 mt-1">
-            Anual 12M: {formatCurrency(7217863)} &bull; TDC ($329k) + Efectivo ($272k)
+            Anual 12M: {formatCurrency(totalMostrador)} &bull; TDC ({formatCurrency(Math.round(totalTdc / 12))}) + Efectivo ({formatCurrency(Math.round(totalEfectivo / 12))})
           </p>
         </div>
 
@@ -518,7 +542,7 @@ export const BranchRefugioTab: React.FC = () => {
                 Resumen Final de Utilidad Neta Mensual Refugio (12 Meses Auditados)
               </h3>
               <p className="text-xs text-stone-700 mt-1">
-                Utilidad neta mensual promedio de $144,551 MXN ($1,734,611 anuales) con un margen neto sostenido del 17.0%.
+                Utilidad neta mensual promedio de {formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)} ({formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M)} anuales) con un margen neto sostenido del {margenNetoRefugio}%.
               </p>
             </div>
             <div className="overflow-x-auto">
@@ -558,23 +582,23 @@ export const BranchRefugioTab: React.FC = () => {
                 <tfoot className="bg-stone-50 border-t-2 border-stone-300 font-bold text-stone-900">
                   <tr>
                     <td className="py-3 px-4 uppercase text-xs">Total (12 Meses)</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(7217863)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(2422000)}</td>
-                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(564000)}</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(totalMostrador)}</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(totalReparto)}</td>
+                    <td className="py-3 px-4 text-right font-mono">{formatCurrency(totalCautivos)}</td>
                     <td className="py-3 px-4 text-right font-mono text-amber-900 text-base">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M)}</td>
                     <td className="py-3 px-4 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M)}</td>
                     <td className="py-3 px-4 text-right font-mono text-emerald-800 text-base">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M)}</td>
-                    <td className="py-3 px-4 text-right font-mono">17.0%</td>
+                    <td className="py-3 px-4 text-right font-mono">{margenNetoRefugio}%</td>
                   </tr>
                   <tr className="bg-emerald-50/50">
                     <td className="py-2.5 px-4 uppercase text-xs text-emerald-900">Promedio Mensual</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(601489)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(201833)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(47000)}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(Math.round(totalMostrador / 12))}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(Math.round(totalReparto / 12))}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(Math.round(totalCautivos / 12))}</td>
                     <td className="py-2.5 px-4 text-right font-mono font-bold text-stone-900">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio)}</td>
                     <td className="py-2.5 px-4 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesRefugio)}</td>
                     <td className="py-2.5 px-4 text-right font-mono text-emerald-900 font-extrabold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}</td>
-                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">17.0%</td>
+                    <td className="py-2.5 px-4 text-right font-mono text-emerald-800 font-bold">{margenNetoRefugio}%</td>
                   </tr>
                 </tfoot>
               </table>
@@ -582,6 +606,46 @@ export const BranchRefugioTab: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Recuadros Resumen al Final de la Hoja */}
+      <div className="pt-4 border-t border-stone-200 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-stone-800">
+              Recuadros Resumen Financiero &bull; Sucursal El Refugio
+            </h3>
+            <p className="text-xs text-stone-500">
+              Ecuación neta mensual auditada y validada de Planta Matriz y Reparto.
+            </p>
+          </div>
+          {onExport && (
+            <button
+              onClick={onExport}
+              className="text-xs font-semibold text-amber-800 hover:text-amber-950 flex items-center gap-1.5 cursor-pointer bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition-colors w-fit"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Abrir Hoja Exportable PDF</span>
+            </button>
+          )}
+        </div>
+
+        <SummaryEquationCards
+          ingresosMensuales={TOTALES_CONSOLIDADOS.promedioMensualVentasRefugio}
+          ingresosAnuales={TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M}
+          gastosMensuales={TOTALES_CONSOLIDADOS.gastosMensualesRefugio}
+          gastosAnuales={TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M}
+          gastosSemanales={162442}
+          rubrosCount={24}
+          utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualRefugio}
+          utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M}
+          margenNeto={`${margenNetoRefugio}%`}
+          onToggleIngresos={() => setShowIngresosTable(!showIngresosTable)}
+          isIngresosExpanded={showIngresosTable}
+          onSelectGastos={() => setActiveSection('gastos')}
+          onSelectResumen={() => setActiveSection('resumen')}
+          showClickHelper={true}
+        />
+      </div>
 
       {/* Selected Gasto Modal */}
       <DetailModal

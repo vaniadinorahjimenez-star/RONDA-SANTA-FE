@@ -71,4 +71,4 @@ export interface SimulacionInversion {
   modoCapitalizacion: 'mensual_efectivo' | 'compuesto_anual';
 }
 
-export type TabId = 'pitch' | 'zakia' | 'refugio' | 'unificado' | 'calculadora' | 'propuesta';
+export type TabId = 'inicio' | 'pitch' | 'zakia' | 'refugio' | 'unificado' | 'calculadora' | 'propuesta';

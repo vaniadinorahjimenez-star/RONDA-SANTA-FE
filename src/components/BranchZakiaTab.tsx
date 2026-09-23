@@ -18,7 +18,8 @@ import {
   BarChart3,
   Calendar,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Printer
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -33,8 +34,13 @@ import {
   PieChart,
   Pie
 } from 'recharts';
+import { SummaryEquationCards } from './SummaryEquationCards';
 
-export const BranchZakiaTab: React.FC = () => {
+interface BranchZakiaTabProps {
+  onExport?: () => void;
+}
+
+export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
   const [selectedGasto, setSelectedGasto] = useState<GastoRubro | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -74,7 +80,7 @@ export const BranchZakiaTab: React.FC = () => {
   return (
     <div className="space-y-8 pb-12">
       {/* Top Banner & Context */}
-      <div className="bg-gradient-to-r from-stone-900 to-stone-800 text-white p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-r from-stone-900 to-stone-800 text-white p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="max-w-3xl">
           <div className="flex items-center gap-2 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Store className="w-4 h-4" />
@@ -84,9 +90,19 @@ export const BranchZakiaTab: React.FC = () => {
             Análisis Operativo &amp; Financiero Zákia
           </h2>
           <p className="text-stone-300 text-sm mt-2 leading-relaxed">
-            Sucursal con flujo de mostrador constante en una de las zonas de mayor plusvalía y crecimiento habitacional de Querétaro. Predominio de pagos electrónicos (60.3%) y venta directa de pan recién horneado.
+            Predominio de pagos electrónicos (60.3%) y venta directa de pan recién horneado.
           </p>
         </div>
+        {onExport && (
+          <button
+            onClick={onExport}
+            className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0 active:scale-95"
+            title="Exportar hoja ejecutiva auditada de Zákia"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Exportar Resumen PDF</span>
+          </button>
+        )}
       </div>
 
       {/* CORE EQUATION HIGHLIGHT: INGRESOS - GASTOS = UTILIDAD */}
@@ -517,6 +533,46 @@ export const BranchZakiaTab: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Recuadros Resumen al Final de la Hoja */}
+      <div className="pt-4 border-t border-stone-200 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-stone-800">
+              Recuadros Resumen Financiero &bull; Sucursal Zákia
+            </h3>
+            <p className="text-xs text-stone-500">
+              Ecuación neta mensual consolidada conforme a auditoría de 12 meses.
+            </p>
+          </div>
+          {onExport && (
+            <button
+              onClick={onExport}
+              className="text-xs font-semibold text-amber-800 hover:text-amber-950 flex items-center gap-1.5 cursor-pointer bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition-colors w-fit"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Abrir Hoja Exportable PDF</span>
+            </button>
+          )}
+        </div>
+
+        <SummaryEquationCards
+          ingresosMensuales={TOTALES_CONSOLIDADOS.promedioMensualVentasZakia}
+          ingresosAnuales={TOTALES_CONSOLIDADOS.ventasAnualesZakia12M}
+          gastosMensuales={TOTALES_CONSOLIDADOS.gastosMensualesZakia}
+          gastosAnuales={TOTALES_CONSOLIDADOS.gastosAnualesZakia12M}
+          gastosSemanales={91967}
+          rubrosCount={23}
+          utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualZakia}
+          utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualZakia12M}
+          margenNeto="19.9%"
+          onToggleIngresos={() => setShowIngresosTable(!showIngresosTable)}
+          isIngresosExpanded={showIngresosTable}
+          onSelectGastos={() => setActiveSection('gastos')}
+          onSelectResumen={() => setActiveSection('resumen')}
+          showClickHelper={true}
+        />
+      </div>
 
       {/* Selected Gasto Modal */}
       <DetailModal
