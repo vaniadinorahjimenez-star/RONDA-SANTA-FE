@@ -1,12 +1,28 @@
 @import "tailwindcss";
 
 @media print {
-  body {
+  @page {
+    size: letter portrait;
+    margin: 10mm 10mm 12mm 10mm;
+  }
+
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
+  #root {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
   .print\:hidden {
     display: none !important;
   }

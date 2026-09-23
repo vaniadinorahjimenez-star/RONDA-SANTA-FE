@@ -14,7 +14,8 @@ import {
   Printer,
   Briefcase,
   Check,
-  RotateCcw
+  RotateCcw,
+  Download
 } from 'lucide-react';
 import { 
   TOTALES_CONSOLIDADOS, 
@@ -39,7 +40,7 @@ import {
 import { SummaryEquationCards } from './SummaryEquationCards';
 
 interface UnifiedConsolidatedTabProps {
-  onExport?: () => void;
+  onExport?: (deducirAdmin?: boolean) => void;
 }
 
 export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ onExport }) => {
@@ -130,12 +131,12 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
         </div>
         {onExport && (
           <button
-            onClick={onExport}
+            onClick={() => onExport(deducirAdminGeneral)}
             className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0 active:scale-95"
-            title="Exportar hoja ejecutiva auditada en conjunto"
+            title="Guardar o descargar archivo consolidado unificado completo en PDF"
           >
-            <Printer className="w-4 h-4" />
-            <span>Exportar Resumen PDF</span>
+            <Download className="w-4 h-4" />
+            <span>Guardar / Descargar PDF Consolidado</span>
           </button>
         )}
       </div>
@@ -431,11 +432,11 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
           </div>
           {onExport && (
             <button
-              onClick={onExport}
-              className="text-xs font-semibold text-amber-800 hover:text-amber-950 flex items-center gap-1.5 cursor-pointer bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition-colors w-fit"
+              onClick={() => onExport(deducirAdminGeneral)}
+              className="text-xs font-bold text-amber-950 hover:text-stone-950 flex items-center gap-2 cursor-pointer bg-amber-200/80 hover:bg-amber-300 px-4 py-2 rounded-xl border border-amber-400 transition-colors shadow-2xs w-fit"
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Abrir Hoja Exportable PDF</span>
+              <Download className="w-4 h-4 text-amber-900" />
+              <span>Guardar (Descargar) Consolidado Completo en PDF</span>
             </button>
           )}
         </div>

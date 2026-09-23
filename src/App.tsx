@@ -17,8 +17,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('inicio');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
   const [printInitialReport, setPrintInitialReport] = useState<PrintReportType>('zakia');
+  const [printDeducirAdmin, setPrintDeducirAdmin] = useState<boolean>(false);
 
-  const handleOpenPrint = (reportType?: PrintReportType) => {
+  const handleOpenPrint = (reportType?: PrintReportType, deducirAdmin?: boolean) => {
     if (reportType) {
       setPrintInitialReport(reportType);
     } else {
@@ -27,6 +28,7 @@ export default function App() {
       else if (activeTab === 'refugio') setPrintInitialReport('refugio');
       else setPrintInitialReport('unificado');
     }
+    setPrintDeducirAdmin(Boolean(deducirAdmin));
     setIsPrintModalOpen(true);
   };
 
@@ -40,7 +42,7 @@ export default function App() {
       />
 
       {/* Main View Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+      <main className={`flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 ${isPrintModalOpen ? 'print:hidden' : ''}`}>
         {activeTab === 'inicio' && (
           <InicioTab onGoToBranches={() => setActiveTab('zakia')} />
         )}
@@ -54,7 +56,7 @@ export default function App() {
         )}
 
         {activeTab === 'unificado' && (
-          <UnifiedConsolidatedTab onExport={() => handleOpenPrint('unificado')} />
+          <UnifiedConsolidatedTab onExport={(deducir) => handleOpenPrint('unificado', deducir)} />
         )}
 
         {activeTab === 'propuesta' && <ProposalDonJuventinoTab />}
@@ -64,6 +66,7 @@ export default function App() {
       {isPrintModalOpen && (
         <PrintExecutiveReport 
           initialReport={printInitialReport} 
+          deducirAdmin={printDeducirAdmin}
           onClose={() => setIsPrintModalOpen(false)} 
         />
       )}

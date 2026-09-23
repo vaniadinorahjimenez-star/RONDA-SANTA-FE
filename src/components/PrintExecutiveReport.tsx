@@ -10,7 +10,7 @@ import {
 } from '../data/financialData';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { SummaryEquationCards } from './SummaryEquationCards';
-import { Store, Layers, Printer, X, Heart, Flame, TrendingUp } from 'lucide-react';
+import { Store, Layers, Printer, X, Heart, Flame, TrendingUp, Download, Info } from 'lucide-react';
 import { MonitoLogo } from './MonitoLogo';
 
 export type PrintReportType = 'carta' | 'zakia' | 'refugio' | 'unificado' | 'all';
@@ -18,16 +18,35 @@ export type PrintReportType = 'carta' | 'zakia' | 'refugio' | 'unificado' | 'all
 interface PrintExecutiveReportProps {
   onClose: () => void;
   initialReport?: PrintReportType;
+  deducirAdmin?: boolean;
 }
 
 export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({ 
   onClose, 
-  initialReport = 'carta' 
+  initialReport = 'carta',
+  deducirAdmin: initialDeducirAdmin = false
 }) => {
   const [selectedReport, setSelectedReport] = useState<PrintReportType>(initialReport);
+  const [deducirAdmin, setDeducirAdmin] = useState<boolean>(initialDeducirAdmin);
 
-  const handlePrint = () => {
+  const handlePrint = (reportName?: string) => {
+    const originalTitle = document.title;
+    const target = reportName || selectedReport;
+    if (target === 'unificado') {
+      document.title = 'Consolidado_Unificado_Completo_Panaderia_Santa_Fe';
+    } else if (target === 'carta') {
+      document.title = 'Carta_Intencion_Panaderia_Santa_Fe';
+    } else if (target === 'zakia') {
+      document.title = 'Reporte_Auditoria_Sucursal_Zakia';
+    } else if (target === 'refugio') {
+      document.title = 'Reporte_Auditoria_Sucursal_El_Refugio';
+    } else {
+      document.title = 'Dossier_Completo_Panaderia_Santa_Fe';
+    }
     window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1500);
   };
 
   // 1. ZÁKIA SORTED EXPENSES
@@ -586,7 +605,51 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
     </div>
   );
 
-  const renderUnificadoReport = () => (
+  const renderUnificadoReport = () => {
+    const MONTO_ADMIN_MENSUAL = 35000;
+    const gastosMensualesReporte = deducirAdmin 
+      ? TOTALES_CONSOLIDADOS.gastosMensualesTotal + MONTO_ADMIN_MENSUAL 
+      : TOTALES_CONSOLIDADOS.gastosMensualesTotal;
+    const gastosAnualesReporte = deducirAdmin 
+      ? TOTALES_CONSOLIDADOS.gastosAnualesCadenaTotal + (MONTO_ADMIN_MENSUAL * 12) 
+      : TOTALES_CONSOLIDADOS.gastosAnualesCadenaTotal;
+    const gastosSemanalesReporte = deducirAdmin 
+      ? Math.round(TOTALES_CONSOLIDADOS.gastosSemanalesTotal + (MONTO_ADMIN_MENSUAL * 12 / 52)) 
+      : TOTALES_CONSOLIDADOS.gastosSemanalesTotal;
+    const utilidadMensualReporte = deducirAdmin 
+      ? 200551 
+      : TOTALES_CONSOLIDADOS.utilidadMensualTotal;
+    const utilidadAnualReporte = deducirAdmin 
+      ? 200551 * 12 
+      : TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal;
+    const margenPonderadoReporte = ((utilidadMensualReporte / TOTALES_CONSOLIDADOS.promedioMensualVentasTotal) * 100).toFixed(1);
+
+    const gastosListUnificado = deducirAdmin 
+      ? [
+          ...consolidatedGastosList,
+          { 
+            concepto: 'Administración General (Deducción Operativa)', 
+            categoria: 'Administración y Otros', 
+            semanal: Math.round(MONTO_ADMIN_MENSUAL * 12 / 52), 
+            mensual: MONTO_ADMIN_MENSUAL, 
+            pct: Number(((MONTO_ADMIN_MENSUAL / gastosMensualesReporte) * 100).toFixed(1)) 
+          }
+        ]
+      : consolidatedGastosList;
+
+    const monthlyDataUnificado = consolidatedMonthlyData.map(m => {
+      const g = deducirAdmin ? m.gastosTotal + MONTO_ADMIN_MENSUAL : m.gastosTotal;
+      const u = m.ventasTotal - g;
+      const marg = Number(((u / m.ventasTotal) * 100).toFixed(1));
+      return {
+        ...m,
+        gastosTotal: g,
+        utilidadTotal: u,
+        margen: marg
+      };
+    });
+
+    return (
     <div className="space-y-8 print:space-y-6">
       {/* Institutional Header */}
       <div className="border-b-2 border-stone-800 pb-5 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
@@ -608,6 +671,28 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
         </div>
       </div>
 
+      {/* Botón y guía de descarga directa a PDF */}
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-amber-600 text-white rounded-xl shadow-xs">
+            <Download className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-amber-950">Descargar Archivo Consolidado Completo en PDF</h4>
+            <p className="text-xs text-amber-800">
+              Haga clic en el botón para descargar el documento PDF consolidado. En la ventana de impresión, seleccione <strong>"Guardar como PDF"</strong> en el destino.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => handlePrint('unificado')}
+          className="px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shrink-0 cursor-pointer shadow-sm active:scale-95 transition-all"
+        >
+          <Download className="w-4 h-4 text-amber-400" />
+          <span>Descargar PDF Ahora</span>
+        </button>
+      </div>
+
       {/* 1. DESGLOSE POR IMPORTANCIA DE COSTOS */}
       <div className="space-y-3">
         <div className="flex items-center justify-between border-b border-stone-300 pb-2">
@@ -621,7 +706,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </p>
           </div>
           <span className="text-xs font-bold text-amber-900 font-mono hidden sm:inline">
-            Total Mensual: {formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesTotal)}
+            Total Mensual: {formatCurrency(gastosMensualesReporte)}
           </span>
         </div>
 
@@ -638,7 +723,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {consolidatedGastosList.map((g, idx) => (
+              {gastosListUnificado.map((g, idx) => (
                 <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
                   <td className="py-2 px-3 text-center text-stone-400 font-mono text-[11px]">{idx + 1}</td>
                   <td className="py-2 px-3 font-semibold text-stone-900">{g.concepto}</td>
@@ -652,8 +737,8 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             <tfoot className="bg-stone-100 border-t-2 border-stone-300 font-bold text-stone-900">
               <tr>
                 <td colSpan={3} className="py-2.5 px-3 uppercase text-xs">Total Gastos Operativos Consolidados (Red Completa)</td>
-                <td className="py-2.5 px-3 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.gastosSemanalesTotal)}</td>
-                <td className="py-2.5 px-3 text-right font-mono text-base text-amber-950">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesTotal)}</td>
+                <td className="py-2.5 px-3 text-right font-mono">{formatCurrency(gastosSemanalesReporte)}</td>
+                <td className="py-2.5 px-3 text-right font-mono text-base text-amber-950">{formatCurrency(gastosMensualesReporte)}</td>
                 <td className="py-2.5 px-3 text-right font-mono text-emerald-800 font-extrabold">100.0%</td>
               </tr>
             </tfoot>
@@ -737,7 +822,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </p>
           </div>
           <span className="text-xs font-bold text-emerald-800 font-mono hidden sm:inline">
-            Utilidad Anual Consolidada: {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal)}
+            Utilidad Anual Consolidada: {formatCurrency(utilidadAnualReporte)}
           </span>
         </div>
 
@@ -753,7 +838,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {consolidatedMonthlyData.map((m, idx) => (
+              {monthlyDataUnificado.map((m, idx) => (
                 <tr key={m.mes} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
                   <td className="py-2 px-3 font-semibold text-stone-900">{m.mes}</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-800">{formatCurrency(m.ventasTotal)}</td>
@@ -767,16 +852,16 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               <tr>
                 <td className="py-2.5 px-3 uppercase text-xs">Total Anual (12 Meses)</td>
                 <td className="py-2.5 px-3 text-right font-mono text-amber-950">{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)}</td>
-                <td className="py-2.5 px-3 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesCadenaTotal)}</td>
-                <td className="py-2.5 px-3 text-right font-mono text-base text-emerald-800 font-extrabold">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal)}</td>
-                <td className="py-2.5 px-3 text-right font-mono text-emerald-800">{TOTALES_CONSOLIDADOS.margenPonderadoTotal}%</td>
+                <td className="py-2.5 px-3 text-right font-mono text-stone-700">{formatCurrency(gastosAnualesReporte)}</td>
+                <td className="py-2.5 px-3 text-right font-mono text-base text-emerald-800 font-extrabold">{formatCurrency(utilidadAnualReporte)}</td>
+                <td className="py-2.5 px-3 text-right font-mono text-emerald-800">{margenPonderadoReporte}%</td>
               </tr>
               <tr className="bg-emerald-50/60 font-semibold text-emerald-950">
                 <td className="py-2 px-3 uppercase text-[11px]">Promedio Mensual</td>
                 <td className="py-2 px-3 text-right font-mono font-bold">{formatCurrency(TOTALES_CONSOLIDADOS.promedioMensualVentasTotal)}</td>
-                <td className="py-2 px-3 text-right font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesTotal)}</td>
-                <td className="py-2 px-3 text-right font-mono font-extrabold text-emerald-900 text-sm">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualTotal)}</td>
-                <td className="py-2 px-3 text-right font-mono text-emerald-900 font-bold">{TOTALES_CONSOLIDADOS.margenPonderadoTotal}%</td>
+                <td className="py-2 px-3 text-right font-mono">{formatCurrency(gastosMensualesReporte)}</td>
+                <td className="py-2 px-3 text-right font-mono font-extrabold text-emerald-900 text-sm">{formatCurrency(utilidadMensualReporte)}</td>
+                <td className="py-2 px-3 text-right font-mono text-emerald-900 font-bold">{margenPonderadoReporte}%</td>
               </tr>
             </tfoot>
           </table>
@@ -791,13 +876,13 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
         <SummaryEquationCards
           ingresosMensuales={TOTALES_CONSOLIDADOS.promedioMensualVentasTotal}
           ingresosAnuales={TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal}
-          gastosMensuales={TOTALES_CONSOLIDADOS.gastosMensualesTotal}
-          gastosAnuales={TOTALES_CONSOLIDADOS.gastosAnualesCadenaTotal}
-          gastosSemanales={TOTALES_CONSOLIDADOS.gastosSemanalesTotal}
+          gastosMensuales={gastosMensualesReporte}
+          gastosAnuales={gastosAnualesReporte}
+          gastosSemanales={gastosSemanalesReporte}
           rubrosCount={47}
-          utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualTotal}
-          utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal}
-          margenNeto={`${TOTALES_CONSOLIDADOS.margenPonderadoTotal}%`}
+          utilidadMensual={utilidadMensualReporte}
+          utilidadAnual={utilidadAnualReporte}
+          margenNeto={`${margenPonderadoReporte}%`}
           isPrintMode={true}
           showClickHelper={false}
         />
@@ -817,7 +902,8 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
         </div>
       </div>
     </div>
-  );
+    );
+  };
 
   const renderCartaReport = () => {
     let savedPhotos: Array<{ id: number; label?: string; sublabel?: string; title?: string; subtitle?: string; dataUrl: string | null }> = [];
@@ -903,20 +989,11 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
         {/* Evidencia Fotográfica */}
         {savedPhotos.length > 0 && savedPhotos.some(p => p.dataUrl) && (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
-              Evidencia Fotográfica de Planta ({savedPhotos.filter(p => p.dataUrl).length} Fotografías)
-            </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
               {savedPhotos.filter(p => p.dataUrl).map((photo, i) => (
-                <div key={photo.id || i} className="border border-stone-200 rounded-xl overflow-hidden bg-stone-50">
+                <div key={photo.id || i} className="border border-stone-200 rounded-xl overflow-hidden bg-stone-50 shadow-2xs">
                   <div className="aspect-4/3 bg-stone-100 flex items-center justify-center overflow-hidden">
-                    <img src={photo.dataUrl!} alt={photo.title || photo.label || `Foto ${i + 1}`} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="p-1.5 text-[9px] text-center">
-                    <span className="font-bold text-stone-800 block truncate">{photo.title || photo.label || `Foto ${i + 1}`}</span>
-                    {(photo.subtitle || photo.sublabel) && (
-                      <span className="text-[8px] text-stone-500 block truncate">{photo.subtitle || photo.sublabel}</span>
-                    )}
+                    <img src={photo.dataUrl!} alt="Fotografía" className="w-full h-full object-cover" />
                   </div>
                 </div>
               ))}
@@ -949,8 +1026,8 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-stone-950/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full my-6 overflow-hidden border border-stone-200 flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 bg-stone-950/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:inset-auto print:p-0 print:bg-white print:overflow-visible print:block">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full my-6 overflow-hidden border border-stone-200 flex flex-col max-h-[92vh] print:max-h-none print:my-0 print:border-none print:shadow-none print:overflow-visible print:w-full print:block">
         {/* Top Control Bar (Never Printed) */}
         <div className="bg-stone-900 text-white p-3.5 px-5 flex flex-col sm:flex-row justify-between items-center gap-3 print:hidden shrink-0">
           <div className="flex items-center gap-2">
@@ -960,11 +1037,11 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={handlePrint}
+              onClick={() => handlePrint()}
               className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <Printer className="w-4 h-4" />
-              <span>Imprimir / Guardar PDF</span>
+              <Download className="w-4 h-4" />
+              <span>Guardar / Descargar PDF</span>
             </button>
             <button
               onClick={onClose}

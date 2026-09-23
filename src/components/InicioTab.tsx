@@ -437,18 +437,15 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
                 className={`${cardSpan} bg-white rounded-2xl border-2 border-stone-200 shadow-2xs hover:shadow-lg hover:border-amber-400 transition-all flex flex-col overflow-hidden group relative`}
               >
                 {photo.dataUrl ? (
-                  <div className="relative w-full h-full flex flex-col justify-end overflow-hidden">
+                  <div className="relative w-full h-full overflow-hidden">
                     <img
                       src={photo.dataUrl}
-                      alt={photo.title}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      alt={`Fotografía ${index + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/25 to-transparent pointer-events-none" />
 
-                    {/* Botones de acción flotantes */}
-                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 print:hidden">
+                    {/* Botones de acción flotantes al pasar el cursor */}
+                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 print:hidden opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => fileInputRefs.current[index]?.click()}
                         className="p-1.5 rounded-lg bg-stone-900/85 hover:bg-stone-900 text-white backdrop-blur-xs transition-colors cursor-pointer shadow-md"
@@ -463,21 +460,6 @@ export const InicioTab: React.FC<InicioTabProps> = ({ onGoToBranches }) => {
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
-                    </div>
-
-                    {/* Bottom Caption Overlay */}
-                    <div className="relative z-10 p-3 sm:p-4 text-white">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider bg-amber-600/90 backdrop-blur-xs px-2 py-0.5 rounded text-white">
-                          Foto {index + 1}
-                        </span>
-                        <span className="text-[11px] text-stone-200 font-medium truncate">
-                          {photo.subtitle}
-                        </span>
-                      </div>
-                      <p className="text-xs text-stone-300 mt-1 line-clamp-1">
-                        {photo.description}
-                      </p>
                     </div>
                   </div>
                 ) : (
