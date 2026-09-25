@@ -12,6 +12,8 @@ import {
   Store, 
   HelpCircle, 
   ArrowRight, 
+  ArrowUp,
+  ArrowDown,
   Filter, 
   Search,
   PieChart as PieChartIcon,
@@ -65,6 +67,12 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
     margen: item.margen
   }));
 
+  // Calculate totals dynamically from GASTOS_ZAKIA
+  const totalSemanalZakia = GASTOS_ZAKIA.reduce((acc, g) => acc + g.gastoSemanal, 0);
+  const totalDiarioZakia = GASTOS_ZAKIA.reduce((acc, g) => acc + g.gastoDiario, 0);
+  const totalMensualZakia = GASTOS_ZAKIA.reduce((acc, g) => acc + g.proyeccionMensual, 0);
+  const totalAnualZakia = totalMensualZakia * 12;
+
   // Category aggregations for pie chart
   const categoryData = Object.entries(
     GASTOS_ZAKIA.reduce((acc, curr) => {
@@ -74,7 +82,7 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
   ).map(([name, value]) => ({
     name,
     value: Math.round(value),
-    pct: ((value / 399400) * 100).toFixed(1)
+    pct: ((value / (totalMensualZakia || 1)) * 100).toFixed(1)
   })).sort((a, b) => b.value - a.value);
 
   const COLORS = ['#b45309', '#d97706', '#f59e0b', '#78350f', '#92400e'];
@@ -93,7 +101,7 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
         <div className="max-w-3xl">
           <div className="flex items-center gap-2 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Store className="w-4 h-4" />
-            <span>Panadería Santa Fé &bull; Sucursal Satélite Zákia</span>
+            <span>Panadería Santa Fé &bull; Sucursal Zákia</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             Análisis Operativo &amp; Financiero Zákia
@@ -170,10 +178,10 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
               <span>2. Menos Gastos Operativos</span>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-stone-900">
-              {formatCurrency(399400)}
+              {formatCurrency(totalMensualZakia)}
             </div>
             <div className="text-xs text-stone-700 mt-1">
-              Gasto Anual (12M): {formatCurrency(4792795)} &bull; Semanal: {formatCurrency(91967)}
+              Gasto Anual (12M): {formatCurrency(totalAnualZakia)} &bull; Semanal: {formatCurrency(totalSemanalZakia)}
             </div>
             <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-xs text-stone-600 flex items-center justify-between">
               <span>23 Rubros auditados</span>
@@ -200,7 +208,7 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
               {formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}
             </div>
             <div className="text-xs text-emerald-700 font-medium mt-1">
-              Margen Neto: <strong>19.9%</strong> &bull; Utilidad Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualZakia12M)}
+              Margen Neto: <strong>{formatPercent((TOTALES_CONSOLIDADOS.utilidadAnualZakia12M / TOTALES_CONSOLIDADOS.ventasAnualesZakia12M) * 100)}</strong> &bull; Utilidad Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualZakia12M)}
             </div>
             <div className="mt-2.5 pt-2 border-t border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
               <span>Retorno neto mensual</span>
@@ -303,6 +311,14 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
                 className="w-full pl-9 pr-4 py-1.5 text-xs bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/20 focus:border-amber-700"
               />
             </div>
+            <div className="flex items-center gap-2 sm:gap-3 text-[11px] text-stone-500">
+              <span className="flex items-center gap-1 font-medium bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">
+                <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" /> Gasto incrementó
+              </span>
+              <span className="flex items-center gap-1 font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+                <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" /> Gasto bajó
+              </span>
+            </div>
           </div>
 
           {/* Interactive Expenses Table */}
@@ -337,10 +353,40 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
                         </span>
                       </td>
                       <td className="py-3 px-4 font-semibold text-stone-900 group-hover:text-amber-800 transition-colors">
-                        {gasto.concepto}
+                        <div className="flex items-center gap-1.5">
+                          <span>{gasto.concepto}</span>
+                          {gasto.tendencia === 'subio' && (
+                            <span 
+                              className="inline-flex items-center text-red-600" 
+                              title={`Gasto incrementó (antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem)`}
+                            >
+                              <ArrowUp className="w-3 h-3 text-red-600 stroke-[3]" />
+                            </span>
+                          )}
+                          {gasto.tendencia === 'bajo' && (
+                            <span 
+                              className="inline-flex items-center text-emerald-600" 
+                              title={`Gasto bajó (antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem)`}
+                            >
+                              <ArrowDown className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-stone-700">
-                        {formatCurrency(gasto.gastoSemanal)}
+                        <div className="flex items-center justify-end gap-1">
+                          <span>{formatCurrency(gasto.gastoSemanal)}</span>
+                          {gasto.tendencia === 'subio' && (
+                            <span title={`Incrementó: antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem`}>
+                              <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" />
+                            </span>
+                          )}
+                          {gasto.tendencia === 'bajo' && (
+                            <span title={`Bajó: antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem`}>
+                              <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" />
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-stone-500">
                         {formatCurrency(gasto.gastoDiario, true)}
@@ -376,13 +422,13 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
                       Total General Zakia (23 Rubros)
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono">
-                      {formatCurrency(91967)}
+                      {formatCurrency(totalSemanalZakia)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono">
-                      {formatCurrency(13138.14, true)}
+                      {formatCurrency(totalDiarioZakia, true)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono text-amber-900 text-base">
-                      {formatCurrency(399399.54)}
+                      {formatCurrency(totalMensualZakia)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono">
                       100.0%
@@ -602,11 +648,11 @@ export const BranchZakiaTab: React.FC<BranchZakiaTabProps> = ({ onExport }) => {
           ingresosAnuales={TOTALES_CONSOLIDADOS.ventasAnualesZakia12M}
           gastosMensuales={TOTALES_CONSOLIDADOS.gastosMensualesZakia}
           gastosAnuales={TOTALES_CONSOLIDADOS.gastosAnualesZakia12M}
-          gastosSemanales={91967}
+          gastosSemanales={TOTALES_CONSOLIDADOS.gastosSemanalesZakia}
           rubrosCount={23}
           utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualZakia}
           utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualZakia12M}
-          margenNeto="19.9%"
+          margenNeto={formatPercent((TOTALES_CONSOLIDADOS.utilidadAnualZakia12M / TOTALES_CONSOLIDADOS.ventasAnualesZakia12M) * 100)}
           onToggleIngresos={() => setShowIngresosTable(!showIngresosTable)}
           isIngresosExpanded={showIngresosTable}
           onSelectGastos={() => setActiveSection('gastos')}

@@ -10,7 +10,7 @@ import {
 } from '../data/financialData';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { SummaryEquationCards } from './SummaryEquationCards';
-import { Store, Layers, Printer, X, Heart, Flame, TrendingUp, Download, Info } from 'lucide-react';
+import { Store, Layers, Printer, X, Heart, Flame, TrendingUp, Download, Info, ArrowUp, ArrowDown } from 'lucide-react';
 import { MonitoLogo } from './MonitoLogo';
 
 export type PrintReportType = 'carta' | 'zakia' | 'refugio' | 'unificado' | 'all';
@@ -57,6 +57,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
   const promVentasZakia = TOTALES_CONSOLIDADOS.promedioMensualVentasZakia;
   const totalTdcZakia = VENTAS_ZAKIA.reduce((s, v) => s + v.puntoDeVentaTDC, 0);
   const totalEfecZakia = VENTAS_ZAKIA.reduce((s, v) => s + v.ventasMostradorEfectivo, 0);
+  const margenNetoZakia = ((TOTALES_CONSOLIDADOS.utilidadAnualZakia12M / totalVentasZakia12M) * 100).toFixed(1);
 
   // 2. REFUGIO SORTED EXPENSES & SALES
   const sortedGastosRefugio = [...GASTOS_REFUGIO].sort((a, b) => b.proyeccionMensual - a.proyeccionMensual);
@@ -109,8 +110,8 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
   const consolidatedMonthlyData = meses.map((mes) => {
     const vz = VENTAS_ZAKIA.find(v => v.mes === mes)?.ventaTotalMensual || 0;
     const vr = VENTAS_REFUGIO.find(v => v.mes === mes)?.ventaTotalMensual || 0;
-    const gz = RESUMEN_UTILIDAD_ZAKIA.find(r => r.mes === mes)?.gastosOperativos || 399400;
-    const gr = RESUMEN_UTILIDAD_REFUGIO.find(r => r.mes === mes)?.gastosOperativos || 705771;
+    const gz = RESUMEN_UTILIDAD_ZAKIA.find(r => r.mes === mes)?.gastosOperativos || TOTALES_CONSOLIDADOS.gastosMensualesZakia;
+    const gr = RESUMEN_UTILIDAD_REFUGIO.find(r => r.mes === mes)?.gastosOperativos || TOTALES_CONSOLIDADOS.gastosMensualesRefugio;
     const totalVentas = vz + vr;
     const totalGastos = gz + gr;
     const totalUtilidad = totalVentas - totalGastos;
@@ -136,18 +137,18 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
         <div>
           <div className="flex items-center gap-2 text-amber-700 text-xs font-bold uppercase tracking-wider mb-1">
             <Store className="w-4 h-4" />
-            <span>Panadería Santa Fé &bull; Sucursal Satélite Zákia</span>
+            <span>Panadería Santa Fé &bull; Sucursal Zákia</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
             Resumen Operativo &amp; Financiero Auditado (12 Meses)
           </h1>
           <p className="text-xs text-stone-600 mt-1">
-            Plaza Comercial Zákia, Querétaro &bull; Cifras Auditadas y Conciliadas al 100% Real
+            Plaza Comercial Zákia, Querétaro &bull; <span className="font-bold text-stone-800">PROYECCIÓN REAL ENERO-SEPTIEMBRE</span>, los meses octubre, noviembre, diciembre son proyecciones esperadas
           </p>
         </div>
         <div className="text-left sm:text-right shrink-0">
           <span className="text-[10px] text-stone-500 uppercase tracking-widest block font-bold">Tipo de Unidad</span>
-          <span className="text-base font-bold text-stone-900">Sucursal Satélite (Mostrador)</span>
+          <span className="text-base font-bold text-stone-900">Sucursal Zákia (Mostrador)</span>
         </div>
       </div>
 
@@ -163,9 +164,19 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               Valores nominales proyectados mensualmente en Zákia ordenados por mayor impacto presupuestal.
             </p>
           </div>
-          <span className="text-xs font-bold text-amber-900 font-mono hidden sm:inline">
-            Total Mensual: {formatCurrency(totalMensualZakia)}
-          </span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-[10px] text-stone-500">
+              <span className="flex items-center gap-1 font-semibold text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded print:border-red-300">
+                <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" /> Incrementó
+              </span>
+              <span className="flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded print:border-emerald-300">
+                <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" /> Bajó
+              </span>
+            </div>
+            <span className="text-xs font-bold text-amber-900 font-mono hidden sm:inline">
+              Total Mensual: {formatCurrency(totalMensualZakia)}
+            </span>
+          </div>
         </div>
 
         <div className="overflow-x-auto border border-stone-200 rounded-xl">
@@ -185,11 +196,48 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
                 <tr key={g.no} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
                   <td className="py-2 px-3 text-center text-stone-400 font-mono text-[11px]">{idx + 1}</td>
                   <td className="py-2 px-3 font-semibold text-stone-900">
-                    {g.concepto}
+                    <div className="flex items-center gap-1.5">
+                      <span>{g.concepto}</span>
+                      {g.tendencia === 'subio' && (
+                        <span 
+                          className="inline-flex items-center text-red-600 print:text-red-700" 
+                          title={`Gasto incrementó (antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem)`}
+                        >
+                          <ArrowUp className="w-3 h-3 text-red-600 stroke-[3]" />
+                        </span>
+                      )}
+                      {g.tendencia === 'bajo' && (
+                        <span 
+                          className="inline-flex items-center text-emerald-600 print:text-emerald-700" 
+                          title={`Gasto bajó (antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem)`}
+                        >
+                          <ArrowDown className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
                     {g.descripcion && <span className="block text-[10px] text-stone-500 font-normal">{g.descripcion}</span>}
                   </td>
                   <td className="py-2 px-3 text-stone-600 text-[11px]">{g.categoria}</td>
-                  <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(g.gastoSemanal)}</td>
+                  <td className="py-2 px-3 text-right font-mono text-stone-700">
+                    <div className="flex items-center justify-end gap-1">
+                      <span>{formatCurrency(g.gastoSemanal)}</span>
+                      {g.tendencia === 'subio' && (
+                        <span title={`Incrementó: antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem`}>
+                          <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" />
+                        </span>
+                      )}
+                      {g.tendencia === 'bajo' && (
+                        <span title={`Bajó: antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem`}>
+                          <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+                    {g.gastoAnteriorSemanal !== undefined && (
+                      <span className="block text-[9px] text-stone-400 font-mono">
+                        antes {formatCurrency(g.gastoAnteriorSemanal)}
+                      </span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono font-bold text-stone-900">{formatCurrency(g.proyeccionMensual)}</td>
                   <td className="py-2 px-3 text-right font-mono font-semibold text-amber-900">{g.porcentajeTotal}%</td>
                 </tr>
@@ -239,7 +287,12 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             <tbody className="divide-y divide-stone-100">
               {VENTAS_ZAKIA.map((v, idx) => (
                 <tr key={v.mes} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                  <td className="py-2 px-3 font-semibold text-stone-900">{v.mes}</td>
+                  <td className="py-2 px-3 font-semibold text-stone-900">
+                    {v.mes}
+                    {['Octubre', 'Noviembre', 'Diciembre'].includes(v.mes) && (
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1 py-0.2 rounded ml-1.5 print:border print:border-amber-300">Proy.*</span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(v.puntoDeVentaTDC)}</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-500 text-[11px]">{v.porcentajeTDC}%</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(v.ventasMostradorEfectivo)}</td>
@@ -268,6 +321,9 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </tfoot>
           </table>
         </div>
+        <p className="text-[10px] text-stone-500 italic mt-1">
+          * PROYECCIÓN REAL ENERO-SEPTIEMBRE, los meses octubre, noviembre, diciembre son proyecciones esperadas.
+        </p>
       </div>
 
       {/* 3. RESUMEN DE UTILIDAD POR MES */}
@@ -279,7 +335,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               Resumen de Utilidad Neta por Mes
             </h2>
             <p className="text-[11px] text-stone-600 mt-0.5">
-              Ingresos Totales - Gastos Operativos = Utilidad Neta y Margen Mensual Auditado.
+              Ingresos Totales - Gastos Operativos = Utilidad Neta y Margen Mensual (Ene - Sep Real &bull; Oct - Dic Proyectado).
             </p>
           </div>
           <span className="text-xs font-bold text-emerald-800 font-mono hidden sm:inline">
@@ -301,7 +357,12 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             <tbody className="divide-y divide-stone-100">
               {RESUMEN_UTILIDAD_ZAKIA.map((r, idx) => (
                 <tr key={r.mes} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                  <td className="py-2 px-3 font-semibold text-stone-900">{r.mes}</td>
+                  <td className="py-2 px-3 font-semibold text-stone-900">
+                    {r.mes}
+                    {['Octubre', 'Noviembre', 'Diciembre'].includes(r.mes) && (
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1 py-0.2 rounded ml-1.5 print:border print:border-amber-300">Proy.*</span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono text-stone-800">{formatCurrency(r.ventaTotal)}</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-600">{formatCurrency(r.gastosOperativos)}</td>
                   <td className="py-2 px-3 text-right font-mono font-bold text-emerald-800">{formatCurrency(r.utilidadNeta)}</td>
@@ -315,18 +376,21 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
                 <td className="py-2.5 px-3 text-right font-mono text-amber-950">{formatCurrency(totalVentasZakia12M)}</td>
                 <td className="py-2.5 px-3 text-right font-mono text-stone-700">{formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesZakia12M)}</td>
                 <td className="py-2.5 px-3 text-right font-mono text-base text-emerald-800">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualZakia12M)}</td>
-                <td className="py-2.5 px-3 text-right font-mono text-emerald-800">19.9%</td>
+                <td className="py-2.5 px-3 text-right font-mono text-emerald-800">{margenNetoZakia}%</td>
               </tr>
               <tr className="bg-emerald-50/60 font-semibold text-emerald-950">
                 <td className="py-2 px-3 uppercase text-[11px]">Promedio Mensual</td>
                 <td className="py-2 px-3 text-right font-mono font-bold">{formatCurrency(promVentasZakia)}</td>
                 <td className="py-2 px-3 text-right font-mono">{formatCurrency(totalMensualZakia)}</td>
                 <td className="py-2 px-3 text-right font-mono font-extrabold text-emerald-900 text-sm">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}</td>
-                <td className="py-2 px-3 text-right font-mono text-emerald-900 font-bold">19.9%</td>
+                <td className="py-2 px-3 text-right font-mono text-emerald-900 font-bold">{margenNetoZakia}%</td>
               </tr>
             </tfoot>
           </table>
         </div>
+        <p className="text-[10px] text-stone-500 italic mt-1">
+          * PROYECCIÓN REAL ENERO-SEPTIEMBRE, los meses octubre, noviembre, diciembre son proyecciones esperadas.
+        </p>
       </div>
 
       {/* Y ABAJO LOS RECUADROS RESUMEN */}
@@ -343,7 +407,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
           rubrosCount={23}
           utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualZakia}
           utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualZakia12M}
-          margenNeto="19.9%"
+          margenNeto={`${margenNetoZakia}%`}
           isPrintMode={true}
           showClickHelper={false}
         />
@@ -378,7 +442,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             Resumen Operativo &amp; Financiero Auditado (12 Meses)
           </h1>
           <p className="text-xs text-stone-600 mt-1">
-            Planta Matriz de Producción &amp; Rutas de Reparto Mayorista, Querétaro &bull; Cifras Auditadas y Conciliadas al 100% Real
+            Planta Matriz de Producción &amp; Rutas de Reparto Mayorista, Querétaro &bull; <span className="font-bold text-stone-800">PROYECCIÓN REAL ENERO-SEPTIEMBRE</span>, los meses octubre, noviembre, diciembre son proyecciones esperadas
           </p>
         </div>
         <div className="text-left sm:text-right shrink-0">
@@ -399,9 +463,19 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               Valores nominales proyectados mensualmente en El Refugio ordenados por mayor impacto presupuestal.
             </p>
           </div>
-          <span className="text-xs font-bold text-amber-900 font-mono hidden sm:inline">
-            Total Mensual: {formatCurrency(totalMensualRefugio)}
-          </span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-[10px] text-stone-500">
+              <span className="flex items-center gap-1 font-semibold text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded print:border-red-300">
+                <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" /> Incrementó
+              </span>
+              <span className="flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded print:border-emerald-300">
+                <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" /> Bajó
+              </span>
+            </div>
+            <span className="text-xs font-bold text-amber-900 font-mono hidden sm:inline">
+              Total Mensual: {formatCurrency(totalMensualRefugio)}
+            </span>
+          </div>
         </div>
 
         <div className="overflow-x-auto border border-stone-200 rounded-xl">
@@ -421,11 +495,48 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
                 <tr key={g.no} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
                   <td className="py-2 px-3 text-center text-stone-400 font-mono text-[11px]">{idx + 1}</td>
                   <td className="py-2 px-3 font-semibold text-stone-900">
-                    {g.concepto}
+                    <div className="flex items-center gap-1.5">
+                      <span>{g.concepto}</span>
+                      {g.tendencia === 'subio' && (
+                        <span 
+                          className="inline-flex items-center text-red-600 print:text-red-700" 
+                          title={`Gasto incrementó (antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem)`}
+                        >
+                          <ArrowUp className="w-3 h-3 text-red-600 stroke-[3]" />
+                        </span>
+                      )}
+                      {g.tendencia === 'bajo' && (
+                        <span 
+                          className="inline-flex items-center text-emerald-600 print:text-emerald-700" 
+                          title={`Gasto bajó (antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem)`}
+                        >
+                          <ArrowDown className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
                     {g.descripcion && <span className="block text-[10px] text-stone-500 font-normal">{g.descripcion}</span>}
                   </td>
                   <td className="py-2 px-3 text-stone-600 text-[11px]">{g.categoria}</td>
-                  <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(g.gastoSemanal)}</td>
+                  <td className="py-2 px-3 text-right font-mono text-stone-700">
+                    <div className="flex items-center justify-end gap-1">
+                      <span>{formatCurrency(g.gastoSemanal)}</span>
+                      {g.tendencia === 'subio' && (
+                        <span title={`Incrementó: antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem`}>
+                          <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" />
+                        </span>
+                      )}
+                      {g.tendencia === 'bajo' && (
+                        <span title={`Bajó: antes ${formatCurrency(g.gastoAnteriorSemanal || 0)}/sem`}>
+                          <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+                    {g.gastoAnteriorSemanal !== undefined && (
+                      <span className="block text-[9px] text-stone-400 font-mono">
+                        antes {formatCurrency(g.gastoAnteriorSemanal)}
+                      </span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono font-bold text-stone-900">{formatCurrency(g.proyeccionMensual)}</td>
                   <td className="py-2 px-3 text-right font-mono font-semibold text-amber-900">{g.porcentajeTotal}%</td>
                 </tr>
@@ -433,7 +544,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </tbody>
             <tfoot className="bg-stone-100 border-t-2 border-stone-300 font-bold text-stone-900">
               <tr>
-                <td colSpan={3} className="py-2.5 px-3 uppercase text-xs">Total Gastos Operativos (24 Rubros)</td>
+                <td colSpan={3} className="py-2.5 px-3 uppercase text-xs">Total Gastos Operativos (23 Rubros)</td>
                 <td className="py-2.5 px-3 text-right font-mono">{formatCurrency(totalSemanalRefugio)}</td>
                 <td className="py-2.5 px-3 text-right font-mono text-base text-amber-950">{formatCurrency(totalMensualRefugio)}</td>
                 <td className="py-2.5 px-3 text-right font-mono text-emerald-800 font-extrabold">100.0%</td>
@@ -476,7 +587,12 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             <tbody className="divide-y divide-stone-100">
               {VENTAS_REFUGIO.map((v, idx) => (
                 <tr key={v.mes} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                  <td className="py-2 px-3 font-semibold text-stone-900">{v.mes}</td>
+                  <td className="py-2 px-3 font-semibold text-stone-900">
+                    {v.mes}
+                    {['Octubre', 'Noviembre', 'Diciembre'].includes(v.mes) && (
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1 py-0.2 rounded ml-1.5 print:border print:border-amber-300">Proy.*</span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(v.cobroTarjetaTDC)}</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(v.efectivoCalculado)}</td>
                   <td className="py-2 px-3 text-right font-mono font-semibold text-stone-900">{formatCurrency(v.ventaTotalMostrador)}</td>
@@ -508,6 +624,9 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </tfoot>
           </table>
         </div>
+        <p className="text-[10px] text-stone-500 italic mt-1">
+          * PROYECCIÓN REAL ENERO-SEPTIEMBRE, los meses octubre, noviembre, diciembre son proyecciones esperadas.
+        </p>
       </div>
 
       {/* 3. RESUMEN DE UTILIDAD POR MES */}
@@ -519,7 +638,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               Resumen de Utilidad Neta por Mes
             </h2>
             <p className="text-[11px] text-stone-600 mt-0.5">
-              Ventas Totales - Gastos Operativos de Planta Matriz = Utilidad Neta y Margen Real.
+              Ventas Totales - Gastos Operativos de Planta Matriz = Utilidad Neta y Margen Real (Ene - Sep Real &bull; Oct - Dic Proyectado).
             </p>
           </div>
           <span className="text-xs font-bold text-emerald-800 font-mono hidden sm:inline">
@@ -541,7 +660,12 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             <tbody className="divide-y divide-stone-100">
               {RESUMEN_UTILIDAD_REFUGIO.map((r, idx) => (
                 <tr key={r.mes} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                  <td className="py-2 px-3 font-semibold text-stone-900">{r.mes}</td>
+                  <td className="py-2 px-3 font-semibold text-stone-900">
+                    {r.mes}
+                    {['Octubre', 'Noviembre', 'Diciembre'].includes(r.mes) && (
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1 py-0.2 rounded ml-1.5 print:border print:border-amber-300">Proy.*</span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono text-stone-800">{formatCurrency(r.ventaTotal)}</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-600">{formatCurrency(r.gastosOperativos)}</td>
                   <td className="py-2 px-3 text-right font-mono font-bold text-emerald-800">{formatCurrency(r.utilidadNeta)}</td>
@@ -567,6 +691,9 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </tfoot>
           </table>
         </div>
+        <p className="text-[10px] text-stone-500 italic mt-1">
+          * PROYECCIÓN REAL ENERO-SEPTIEMBRE, los meses octubre, noviembre, diciembre son proyecciones esperadas.
+        </p>
       </div>
 
       {/* Y ABAJO LOS RECUADROS RESUMEN */}
@@ -580,7 +707,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
           gastosMensuales={totalMensualRefugio}
           gastosAnuales={TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M}
           gastosSemanales={totalSemanalRefugio}
-          rubrosCount={24}
+          rubrosCount={23}
           utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualRefugio}
           utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M}
           margenNeto={`${margenNetoRefugio}%`}
@@ -617,10 +744,10 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
       ? Math.round(TOTALES_CONSOLIDADOS.gastosSemanalesTotal + (MONTO_ADMIN_MENSUAL * 12 / 52)) 
       : TOTALES_CONSOLIDADOS.gastosSemanalesTotal;
     const utilidadMensualReporte = deducirAdmin 
-      ? 200551 
+      ? TOTALES_CONSOLIDADOS.utilidadMensualTotal - MONTO_ADMIN_MENSUAL 
       : TOTALES_CONSOLIDADOS.utilidadMensualTotal;
     const utilidadAnualReporte = deducirAdmin 
-      ? 200551 * 12 
+      ? TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal - (MONTO_ADMIN_MENSUAL * 12) 
       : TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal;
     const margenPonderadoReporte = ((utilidadMensualReporte / TOTALES_CONSOLIDADOS.promedioMensualVentasTotal) * 100).toFixed(1);
 
@@ -662,7 +789,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             Resumen Operativo &amp; Financiero Integral en Conjunto
           </h1>
           <p className="text-xs text-stone-600 mt-1">
-            Consolidación de Toda la Red Operativa (2 Unidades en Querétaro) &bull; Auditoría 12 Meses 100% Real
+            Consolidación de Toda la Red Operativa (2 Unidades en Querétaro) &bull; <span className="font-bold text-stone-800">PROYECCIÓN REAL ENERO-SEPTIEMBRE</span>, los meses octubre, noviembre, diciembre son proyecciones esperadas
           </p>
         </div>
         <div className="text-left sm:text-right shrink-0">
@@ -778,7 +905,12 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             <tbody className="divide-y divide-stone-100">
               {consolidatedMonthlyData.map((m, idx) => (
                 <tr key={m.mes} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                  <td className="py-2 px-3 font-semibold text-stone-900">{m.mes}</td>
+                  <td className="py-2 px-3 font-semibold text-stone-900">
+                    {m.mes}
+                    {['Octubre', 'Noviembre', 'Diciembre'].includes(m.mes) && (
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1 py-0.2 rounded ml-1.5 print:border print:border-amber-300">Proy.*</span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(m.ventasZakia)}</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-500 text-[11px]">{m.pctZakia}%</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-700">{formatCurrency(m.ventasRefugio)}</td>
@@ -807,6 +939,9 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </tfoot>
           </table>
         </div>
+        <p className="text-[10px] text-stone-500 italic mt-1">
+          * PROYECCIÓN REAL ENERO-SEPTIEMBRE, los meses octubre, noviembre, diciembre son proyecciones esperadas.
+        </p>
       </div>
 
       {/* 3. RESUMEN DE UTILIDAD POR MES */}
@@ -818,7 +953,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
               Resumen de Utilidad Neta por Mes
             </h2>
             <p className="text-[11px] text-stone-600 mt-0.5">
-              Ingresos Totales Consolidados - Gastos Totales = Utilidad Neta Consolidada y Margen Ponderado.
+              Ingresos Totales Consolidados - Gastos Totales = Utilidad Neta Consolidada y Margen Ponderado (Ene - Sep Real &bull; Oct - Dic Proyectado).
             </p>
           </div>
           <span className="text-xs font-bold text-emerald-800 font-mono hidden sm:inline">
@@ -840,7 +975,12 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             <tbody className="divide-y divide-stone-100">
               {monthlyDataUnificado.map((m, idx) => (
                 <tr key={m.mes} className={idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                  <td className="py-2 px-3 font-semibold text-stone-900">{m.mes}</td>
+                  <td className="py-2 px-3 font-semibold text-stone-900">
+                    {m.mes}
+                    {['Octubre', 'Noviembre', 'Diciembre'].includes(m.mes) && (
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1 py-0.2 rounded ml-1.5 print:border print:border-amber-300">Proy.*</span>
+                    )}
+                  </td>
                   <td className="py-2 px-3 text-right font-mono text-stone-800">{formatCurrency(m.ventasTotal)}</td>
                   <td className="py-2 px-3 text-right font-mono text-stone-600">{formatCurrency(m.gastosTotal)}</td>
                   <td className="py-2 px-3 text-right font-mono font-bold text-emerald-800">{formatCurrency(m.utilidadTotal)}</td>
@@ -866,6 +1006,9 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
             </tfoot>
           </table>
         </div>
+        <p className="text-[10px] text-stone-500 italic mt-1">
+          * PROYECCIÓN REAL ENERO-SEPTIEMBRE, los meses octubre, noviembre, diciembre son proyecciones esperadas.
+        </p>
       </div>
 
       {/* Y ABAJO LOS RECUADROS RESUMEN */}

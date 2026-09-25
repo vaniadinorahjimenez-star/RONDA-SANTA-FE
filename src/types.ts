@@ -8,6 +8,8 @@ export interface GastoRubro {
   porcentajeTotal: number;
   descripcion?: string;
   tipo?: 'fijo' | 'variable' | 'materia_prima' | 'personal';
+  tendencia?: 'subio' | 'bajo';
+  gastoAnteriorSemanal?: number;
 }
 
 export interface VentaMensualZakia {

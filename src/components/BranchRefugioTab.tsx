@@ -10,6 +10,8 @@ import {
   Store, 
   HelpCircle, 
   ArrowRight, 
+  ArrowUp,
+  ArrowDown,
   Filter, 
   Search,
   PieChart as PieChartIcon,
@@ -56,6 +58,12 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
     return matchesCategory && matchesSearch;
   });
 
+  // Calculate totals dynamically from GASTOS_REFUGIO
+  const totalSemanalRefugio = GASTOS_REFUGIO.reduce((acc, g) => acc + g.gastoSemanal, 0);
+  const totalDiarioRefugio = GASTOS_REFUGIO.reduce((acc, g) => acc + g.gastoDiario, 0);
+  const totalMensualRefugio = GASTOS_REFUGIO.reduce((acc, g) => acc + g.proyeccionMensual, 0);
+  const totalAnualRefugio = totalMensualRefugio * 12;
+
   // Category aggregations for pie chart
   const categoryData = Object.entries(
     GASTOS_REFUGIO.reduce((acc, curr) => {
@@ -65,7 +73,7 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
   ).map(([name, value]) => ({
     name,
     value: Math.round(value),
-    pct: ((value / 705771) * 100).toFixed(1)
+    pct: ((value / (totalMensualRefugio || 1)) * 100).toFixed(1)
   })).sort((a, b) => b.value - a.value);
 
   const COLORS = ['#9a3412', '#c2410c', '#ea580c', '#7c2d12', '#431407'];
@@ -182,7 +190,7 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
               {formatCurrency(TOTALES_CONSOLIDADOS.gastosMensualesRefugio)}
             </div>
             <div className="text-xs text-stone-700 mt-1">
-              Gasto Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M)} &bull; Semanal: {formatCurrency(162513)}
+              Gasto Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M)} &bull; Semanal: {formatCurrency(totalSemanalRefugio)}
             </div>
             <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-xs text-stone-600 flex items-center justify-between">
               <span>23 Rubros auditados</span>
@@ -209,7 +217,7 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
               {formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}
             </div>
             <div className="text-xs text-emerald-700 font-medium mt-1">
-              Margen Neto: <strong>17.0%</strong> &bull; Utilidad Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M)}
+              Margen Neto: <strong>{formatPercent((TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M / TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M) * 100)}</strong> &bull; Utilidad Anual (12M): {formatCurrency(TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M)}
             </div>
             <div className="mt-2.5 pt-2 border-t border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
               <span>Retorno neto mensual</span>
@@ -354,6 +362,14 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
                 className="w-full pl-9 pr-4 py-1.5 text-xs bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/20 focus:border-amber-700"
               />
             </div>
+            <div className="flex items-center gap-2 sm:gap-3 text-[11px] text-stone-500">
+              <span className="flex items-center gap-1 font-medium bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">
+                <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" /> Gasto incrementó
+              </span>
+              <span className="flex items-center gap-1 font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+                <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" /> Gasto bajó
+              </span>
+            </div>
           </div>
 
           {/* Interactive Expenses Table */}
@@ -388,10 +404,40 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
                         </span>
                       </td>
                       <td className="py-3 px-4 font-semibold text-stone-900 group-hover:text-amber-800 transition-colors">
-                        {gasto.concepto}
+                        <div className="flex items-center gap-1.5">
+                          <span>{gasto.concepto}</span>
+                          {gasto.tendencia === 'subio' && (
+                            <span 
+                              className="inline-flex items-center text-red-600" 
+                              title={`Gasto incrementó (antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem)`}
+                            >
+                              <ArrowUp className="w-3 h-3 text-red-600 stroke-[3]" />
+                            </span>
+                          )}
+                          {gasto.tendencia === 'bajo' && (
+                            <span 
+                              className="inline-flex items-center text-emerald-600" 
+                              title={`Gasto bajó (antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem)`}
+                            >
+                              <ArrowDown className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-stone-700">
-                        {formatCurrency(gasto.gastoSemanal)}
+                        <div className="flex items-center justify-end gap-1">
+                          <span>{formatCurrency(gasto.gastoSemanal)}</span>
+                          {gasto.tendencia === 'subio' && (
+                            <span title={`Incrementó: antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem`}>
+                              <ArrowUp className="w-2.5 h-2.5 text-red-600 stroke-[3]" />
+                            </span>
+                          )}
+                          {gasto.tendencia === 'bajo' && (
+                            <span title={`Bajó: antes ${formatCurrency(gasto.gastoAnteriorSemanal || 0)}/sem`}>
+                              <ArrowDown className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" />
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-stone-500">
                         {formatCurrency(gasto.gastoDiario, true)}
@@ -427,13 +473,13 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
                       Total General Refugio (23 Rubros)
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono">
-                      {formatCurrency(162513)}
+                      {formatCurrency(totalSemanalRefugio)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono">
-                      {formatCurrency(23216.14, true)}
+                      {formatCurrency(totalDiarioRefugio, true)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono text-amber-900 text-base">
-                      {formatCurrency(705770.74)}
+                      {formatCurrency(totalMensualRefugio)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono">
                       100.0%
@@ -675,11 +721,11 @@ export const BranchRefugioTab: React.FC<BranchRefugioTabProps> = ({ onExport }) 
           ingresosAnuales={TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M}
           gastosMensuales={TOTALES_CONSOLIDADOS.gastosMensualesRefugio}
           gastosAnuales={TOTALES_CONSOLIDADOS.gastosAnualesRefugio12M}
-          gastosSemanales={162442}
-          rubrosCount={24}
+          gastosSemanales={TOTALES_CONSOLIDADOS.gastosSemanalesRefugio}
+          rubrosCount={23}
           utilidadMensual={TOTALES_CONSOLIDADOS.utilidadMensualRefugio}
           utilidadAnual={TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M}
-          margenNeto={`${margenNetoRefugio}%`}
+          margenNeto={formatPercent((TOTALES_CONSOLIDADOS.utilidadAnualRefugio12M / TOTALES_CONSOLIDADOS.ventasAnualesRefugio12M) * 100)}
           onToggleIngresos={() => setShowIngresosTable(!showIngresosTable)}
           isIngresosExpanded={showIngresosTable}
           onSelectGastos={() => setActiveSection('gastos')}

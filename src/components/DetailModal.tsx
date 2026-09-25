@@ -1,7 +1,7 @@
 import React from 'react';
 import { GastoRubro } from '../types';
 import { formatCurrency, formatPercent } from '../utils/formatters';
-import { X, Calendar, DollarSign, Tag, Info, TrendingUp, AlertCircle } from 'lucide-react';
+import { X, Calendar, DollarSign, Tag, Info, TrendingUp, AlertCircle, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface DetailModalProps {
   item: GastoRubro | null;
@@ -42,6 +42,29 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, sucursalNombre, 
 
         {/* Modal Body */}
         <div className="p-6 space-y-6">
+          {/* Trend Indicator if Modified */}
+          {item.tendencia && (
+            <div className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
+              item.tendencia === 'subio' 
+                ? 'bg-red-50 border-red-200 text-red-900' 
+                : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+            }`}>
+              <div className="flex items-center gap-1.5 font-bold">
+                {item.tendencia === 'subio' ? (
+                  <ArrowUp className="w-4 h-4 text-red-600 stroke-[3]" />
+                ) : (
+                  <ArrowDown className="w-4 h-4 text-emerald-600 stroke-[3]" />
+                )}
+                <span>{item.tendencia === 'subio' ? 'Gasto Modificado: Incrementó' : 'Gasto Modificado: Disminuyó'}</span>
+              </div>
+              {item.gastoAnteriorSemanal !== undefined && (
+                <div className="font-mono text-stone-600 text-[11px]">
+                  Semanal anterior: <span className="line-through">{formatCurrency(item.gastoAnteriorSemanal)}</span> &rarr; <strong className="text-stone-900">{formatCurrency(item.gastoSemanal)}</strong>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Quick Metrics Grid */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">

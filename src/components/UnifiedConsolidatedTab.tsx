@@ -72,15 +72,15 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
     ? Math.round(TOTALES_CONSOLIDADOS.gastosSemanalesTotal + (MONTO_ADMIN_ANUAL / 52)) // $262,486 MXN
     : TOTALES_CONSOLIDADOS.gastosSemanalesTotal; // $254,409 MXN
 
-  // 3. Utilidad neta mensual: calculada sobre 200,551 MXN exactos cuando está activo
+  // 3. Utilidad neta mensual: calculada con o sin los $35,000 MXN de Administración General
   const utilidadMensualTotal = deducirAdminGeneral
-    ? 200551 // $235,551 - $35,000 = $200,551 MXN
-    : TOTALES_CONSOLIDADOS.utilidadMensualTotal; // $235,551 MXN
+    ? TOTALES_CONSOLIDADOS.utilidadMensualTotal - MONTO_ADMIN_MENSUAL
+    : TOTALES_CONSOLIDADOS.utilidadMensualTotal;
 
-  // 4. Utilidad neta anualizada: $200,551 x 12 = $2,406,612 MXN
+  // 4. Utilidad neta anualizada: calculada dinámicamente
   const utilidadNetaAnualizada = deducirAdminGeneral
-    ? 200551 * 12 // $2,406,612 MXN
-    : TOTALES_CONSOLIDADOS.proyeccionAnualizadaUtilidad; // $2,826,609 MXN
+    ? TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal - MONTO_ADMIN_ANUAL
+    : TOTALES_CONSOLIDADOS.utilidadAnualCadenaTotal;
 
   // Margen neto ponderado
   const margenPonderadoTotal = Number(((utilidadMensualTotal / ventasMensualesTotal) * 100).toFixed(2));
@@ -93,8 +93,8 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
   const consolidatedMonthly = meses.map((mes) => {
     const vz = VENTAS_ZAKIA.find(v => v.mes === mes)?.ventaTotalMensual || 0;
     const vr = VENTAS_REFUGIO.find(v => v.mes === mes)?.ventaTotalMensual || 0;
-    const gz = RESUMEN_UTILIDAD_ZAKIA.find(r => r.mes === mes)?.gastosOperativos || 399400;
-    const gr = RESUMEN_UTILIDAD_REFUGIO.find(r => r.mes === mes)?.gastosOperativos || 705771;
+    const gz = RESUMEN_UTILIDAD_ZAKIA.find(r => r.mes === mes)?.gastosOperativos || TOTALES_CONSOLIDADOS.gastosMensualesZakia;
+    const gr = RESUMEN_UTILIDAD_REFUGIO.find(r => r.mes === mes)?.gastosOperativos || TOTALES_CONSOLIDADOS.gastosMensualesRefugio;
     const adminMes = deducirAdminGeneral ? MONTO_ADMIN_MENSUAL : 0;
     const uz = vz - gz;
     const ur = vr - gr;
@@ -243,13 +243,19 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
             </div>
             <div className="mt-2 text-xs text-emerald-800 space-y-0.5 font-medium">
               <div className="flex justify-between">
-                <span>Refugio ({((TOTALES_CONSOLIDADOS.utilidadMensualRefugio / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% de util.):</span>
+                <span>Refugio ({((TOTALES_CONSOLIDADOS.utilidadMensualRefugio / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% de sucursales):</span>
                 <span className="font-bold font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualRefugio)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Zákia ({((TOTALES_CONSOLIDADOS.utilidadMensualZakia / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% de util.):</span>
+                <span>Zákia ({((TOTALES_CONSOLIDADOS.utilidadMensualZakia / TOTALES_CONSOLIDADOS.utilidadMensualTotal) * 100).toFixed(1)}% de sucursales):</span>
                 <span className="font-bold font-mono">{formatCurrency(TOTALES_CONSOLIDADOS.utilidadMensualZakia)}</span>
               </div>
+              {deducirAdminGeneral && (
+                <div className="flex justify-between pt-1 border-t border-emerald-200 text-emerald-900 font-bold">
+                  <span>Deducción Admón. General:</span>
+                  <span className="font-mono">-{formatCurrency(MONTO_ADMIN_MENSUAL)}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -275,8 +281,8 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
             <span className="text-xl font-black text-emerald-950 font-mono">{formatCurrency(utilidadNetaAnualizada)}</span>
             <span className="text-[10px] text-emerald-800 block mt-0.5 font-bold">
               {deducirAdminGeneral 
-                ? 'Calculada sobre $200,551/mes (x 12 meses)' 
-                : 'Calculada sobre $235,551/mes (x 12 meses)'}
+                ? `Calculada sobre ${formatCurrency(utilidadMensualTotal)}/mes (descontando -$420k anuales)` 
+                : `Calculada sobre ${formatCurrency(utilidadMensualTotal)}/mes (x 12 meses)`}
             </span>
           </div>
         </div>
@@ -368,7 +374,7 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
                 <td className="py-3.5 px-4 text-right font-mono text-emerald-950 text-base">
                   {formatCurrency(utilidadMensualTotal)}
                   {deducirAdminGeneral && (
-                    <span className="block text-[10px] text-emerald-700 font-bold">Sobre $200,551 MXN</span>
+                    <span className="block text-[10px] text-emerald-700 font-bold">Descuenta -$35,000 Admón.</span>
                   )}
                 </td>
                 <td className="py-3.5 px-4 text-center text-xs text-emerald-800">
@@ -427,7 +433,7 @@ export const UnifiedConsolidatedTab: React.FC<UnifiedConsolidatedTabProps> = ({ 
               Recuadros Resumen Financiero &bull; Cadena Consolidada (Zákia + El Refugio)
             </h3>
             <p className="text-xs text-stone-500">
-              Ecuación neta mensual consolidada de la red integral conforme a auditoría de 12 meses {deducirAdminGeneral ? '(ajustada sobre $200,551 MXN de utilidad neta)' : ''}.
+              Ecuación neta mensual consolidada de la red integral conforme a auditoría de 12 meses {deducirAdminGeneral ? `(ajustada sobre ${formatCurrency(utilidadMensualTotal)} de utilidad neta)` : ''}.
             </p>
           </div>
           {onExport && (

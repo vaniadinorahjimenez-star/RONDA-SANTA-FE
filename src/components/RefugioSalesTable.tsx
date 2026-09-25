@@ -32,9 +32,9 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
   // Combine Ventas with Resumen de Utilidad
   const monthlyRows = VENTAS_REFUGIO.map(v => {
     const res = RESUMEN_UTILIDAD_REFUGIO.find(r => r.mes === v.mes) || {
-      gastosOperativos: 705771,
-      utilidadNeta: v.ventaTotalMensual - 705771,
-      margen: ((v.ventaTotalMensual - 705771) / v.ventaTotalMensual) * 100
+      gastosOperativos: TOTALES_CONSOLIDADOS.gastosMensualesRefugio,
+      utilidadNeta: v.ventaTotalMensual - TOTALES_CONSOLIDADOS.gastosMensualesRefugio,
+      margen: ((v.ventaTotalMensual - TOTALES_CONSOLIDADOS.gastosMensualesRefugio) / v.ventaTotalMensual) * 100
     };
     return {
       ...v,
@@ -56,7 +56,7 @@ export const RefugioSalesTable: React.FC<RefugioSalesTableProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 mb-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-amber-700" />
-            Tabla Auditada &amp; Anualizada 100% Real (Sucursal El Refugio)
+            Proyección Real Ene-Sep &bull; Oct-Dic Proyectados (Sucursal El Refugio)
           </div>
           <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
             {title}

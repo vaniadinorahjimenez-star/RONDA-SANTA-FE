@@ -21,9 +21,9 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
   // Combine Ventas with Resumen de Utilidad
   const monthlyRows = VENTAS_ZAKIA.map(v => {
     const res = RESUMEN_UTILIDAD_ZAKIA.find(r => r.mes === v.mes) || {
-      gastosOperativos: 399400,
-      utilidadNeta: v.ventaTotalMensual - 399400,
-      margen: ((v.ventaTotalMensual - 399400) / v.ventaTotalMensual) * 100
+      gastosOperativos: TOTALES_CONSOLIDADOS.gastosMensualesZakia,
+      utilidadNeta: v.ventaTotalMensual - TOTALES_CONSOLIDADOS.gastosMensualesZakia,
+      margen: ((v.ventaTotalMensual - TOTALES_CONSOLIDADOS.gastosMensualesZakia) / v.ventaTotalMensual) * 100
     };
     return {
       ...v,
@@ -60,7 +60,7 @@ export const ZakiaSalesTable: React.FC<ZakiaSalesTableProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 mb-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-amber-700" />
-            Tabla Auditada 100% Real (Sucursal Zákia)
+            Proyección Real Ene-Sep &bull; Oct-Dic Proyectados (Sucursal Zákia)
           </div>
           <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
             {title}
