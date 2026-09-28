@@ -45,7 +45,7 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
             Adquisición de Cadena en Marcha &bull; <span className="font-bold text-white">PANADERÍA SANTA FÉ</span>
           </h2>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Levantamiento de capital de <strong>$10,000,000 MXN</strong> para la compra estratégica y consolidación de <strong>Panadería Santa Fé</strong> (2 sucursales en plena operación: Zákia y El Refugio, Querétaro). Facturación auditada de <strong>{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)} anuales</strong> (con {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)} auditados en 12 meses en Zákia), flujo de caja diario inmediato y retornos atractivos del <strong>13% al 16% anual</strong> con respaldo en activos físicos.
+            Levantamiento de capital de <strong>$10,000,000 MXN</strong> para la compra estratégica y consolidación de <strong>Panadería Santa Fé</strong> (2 sucursales en plena operación: Zákia y El Refugio, Querétaro). Facturación auditada de <strong>{formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesCadenaTotal)} anuales</strong> (con {formatCurrency(TOTALES_CONSOLIDADOS.ventasAnualesZakia12M)} auditados en 12 meses en Zákia), flujo de caja diario inmediato y retornos atractivos del <strong>10% al 14% anual</strong> con respaldo en activos físicos.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -106,7 +106,7 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
             Target ROI Anual
           </span>
           <div className="text-2xl sm:text-3xl font-bold text-amber-500 mt-1 font-mono tracking-tight">
-            13% &ndash; 16% <span className="text-xs font-normal text-slate-500">anual</span>
+            10% &ndash; 14% <span className="text-xs font-normal text-slate-500">anual</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Pago mensual en cuenta bancaria
@@ -391,9 +391,9 @@ export const ExecutiveSummaryTab: React.FC<ExecutiveSummaryTabProps> = ({
                 <div className="text-amber-400 font-bold uppercase text-[11px]">Panadería Santa Fé (Tu Oferta)</div>
                 <span className="text-[10px] bg-amber-500 text-slate-950 font-bold px-1.5 py-0.5 rounded uppercase">Recomendado</span>
               </div>
-              <div className="text-2xl font-bold text-amber-400 font-mono">$25,667 &ndash; $29,333 <span className="text-xs opacity-80">/ mes</span></div>
+              <div className="text-2xl font-bold text-amber-400 font-mono">$18,333 &ndash; $25,667 <span className="text-xs opacity-80">/ mes</span></div>
               <p className="text-slate-300 leading-relaxed">
-                Por los mismos $2.2 MDP, a tasas del 14% al 16% acordadas, el inversionista recibe de <strong>$25,667 a $29,333 pesos al mes</strong> en efectivo puntual, duplicando o triplicando la renta de la casa.
+                Por los mismos $2.2 MDP, a tasas del 10% al 14% acordadas, el inversionista recibe de <strong>$18,333 a $25,667 pesos al mes</strong> en efectivo puntual, duplicando con creces la renta neta de la casa ($9,800/mes) y superando a Cetes.
               </p>
             </div>
           </div>

@@ -11,6 +11,7 @@ import { BranchZakiaTab } from './components/BranchZakiaTab';
 import { BranchRefugioTab } from './components/BranchRefugioTab';
 import { UnifiedConsolidatedTab } from './components/UnifiedConsolidatedTab';
 import { ProposalDonJuventinoTab } from './components/ProposalDonJuventinoTab';
+import { InvestorCalculatorTab } from './components/InvestorCalculatorTab';
 import { PrintExecutiveReport, PrintReportType } from './components/PrintExecutiveReport';
 
 export default function App() {
@@ -59,6 +60,8 @@ export default function App() {
           <UnifiedConsolidatedTab onExport={(deducir) => handleOpenPrint('unificado', deducir)} />
         )}
 
+        {activeTab === 'calculadora' && <InvestorCalculatorTab />}
+
         {activeTab === 'propuesta' && <ProposalDonJuventinoTab />}
       </main>
 
@@ -106,6 +109,12 @@ export default function App() {
               className="hover:text-slate-900 transition-colors cursor-pointer"
             >
               Consolidado
+            </button>
+            <button 
+              onClick={() => setActiveTab('calculadora')} 
+              className="hover:text-amber-600 font-medium transition-colors cursor-pointer"
+            >
+              Calculadora Inversionistas
             </button>
             <button 
               onClick={() => setActiveTab('propuesta')} 

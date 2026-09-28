@@ -39,10 +39,10 @@ import {
 } from 'recharts';
 
 export const InvestorCalculatorTab: React.FC = () => {
-  // Investment parameters state - Default to $2.2M and 13.0% in Tasa Personalizada
+  // Investment parameters state - Default to $2.2M and 12.0% in Tasa Personalizada (Rango 10% - 14%)
   const [monto, setMonto] = useState<number>(2200000); 
   const [rateMode, setRateMode] = useState<'libre' | 'preferencial' | 'escala'>('libre');
-  const [tasaManual, setTasaManual] = useState<number>(13.0);
+  const [tasaManual, setTasaManual] = useState<number>(12.0);
   const [plazoAnios, setPlazoAnios] = useState<number>(3);
   const [capitalizacion, setCapitalizacion] = useState<'mensual' | 'compuesto'>('mensual');
 
@@ -51,7 +51,7 @@ export const InvestorCalculatorTab: React.FC = () => {
     if (rateMode === 'escala') {
       return calcularTasaEscala(monto);
     } else if (rateMode === 'preferencial') {
-      return 14.5; 
+      return 12.0; 
     } else {
       return tasaManual;
     }
@@ -243,11 +243,16 @@ export const InvestorCalculatorTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Rate Selector with 13% Personalizada Default */}
+          {/* Rate Selector with 10% - 14% Range */}
           <div className="space-y-3 pt-2 border-t border-slate-100">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
-              Tasa de Retorno Anual Acordada:
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
+                Tasa de Retorno Anual Acordada:
+              </label>
+              <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                Rango 10% &ndash; 14%
+              </span>
+            </div>
 
             {/* Mode selection tabs */}
             <div className="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl">
@@ -269,7 +274,7 @@ export const InvestorCalculatorTab: React.FC = () => {
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Oferta 14.5%
+                Oferta 12.0%
               </button>
               <button
                 onClick={() => setRateMode('escala')}
@@ -288,41 +293,52 @@ export const InvestorCalculatorTab: React.FC = () => {
               <div className="p-3.5 bg-amber-500/10 border border-amber-300 rounded-xl space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold text-amber-950">
-                    Tasa Personalizada (Editable):
+                    Tasa Personalizada (10% al 14%):
                   </span>
                   <div className="flex items-center gap-1.5">
                     <input
                       type="number"
-                      min={8}
-                      max={20}
+                      min={10}
+                      max={14}
                       step={0.5}
                       value={tasaManual}
-                      onChange={(e) => setTasaManual(Number(e.target.value))}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setTasaManual(val);
+                      }}
                       className="w-16 px-2 py-0.5 text-base font-black text-right text-amber-700 bg-white border border-amber-300 rounded-lg font-mono focus:ring-2 focus:ring-amber-500"
                     />
                     <span className="text-xs font-bold text-amber-900">% anual</span>
                   </div>
                 </div>
 
-                {/* Smooth rate slider */}
-                <input
-                  type="range"
-                  min={8}
-                  max={20}
-                  step={0.5}
-                  value={tasaManual}
-                  onChange={(e) => setTasaManual(Number(e.target.value))}
-                  className="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
-                />
+                {/* Smooth rate slider (10 to 14) */}
+                <div className="space-y-1">
+                  <input
+                    type="range"
+                    min={10}
+                    max={14}
+                    step={0.5}
+                    value={tasaManual}
+                    onChange={(e) => setTasaManual(Number(e.target.value))}
+                    className="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                  />
+                  <div className="flex justify-between text-[10px] font-bold text-amber-900/70 font-mono">
+                    <span>10.0% (Mínimo)</span>
+                    <span>12.0% (Equilibrio)</span>
+                    <span>14.0% (Máximo)</span>
+                  </div>
+                </div>
 
-                {/* Quick Preset Buttons (13% highlighted) */}
+                {/* Quick Preset Buttons (10% to 14%) */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] uppercase font-bold text-amber-900/80 mr-1">Rango Clave:</span>
+                  <span className="text-[10px] uppercase font-bold text-amber-900/80 mr-1">Rangos:</span>
                   {[
+                    { label: '10.0%', val: 10.0 },
+                    { label: '11.0%', val: 11.0 },
+                    { label: '12.0%', val: 12.0 },
                     { label: '13.0%', val: 13.0 },
                     { label: '14.0%', val: 14.0 },
-                    { label: '15.0%', val: 15.0 },
-                    { label: '16.0%', val: 16.0 },
                   ].map((preset) => (
                     <button
                       key={preset.val}
@@ -341,11 +357,11 @@ export const InvestorCalculatorTab: React.FC = () => {
             ) : rateMode === 'preferencial' ? (
               <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-slate-800">Oferta Preferencial:</span>
-                  <span className="text-xl font-bold text-amber-600 font-mono">14.5% anual</span>
+                  <span className="text-xs font-bold text-slate-800">Oferta Preferencial Sugerida:</span>
+                  <span className="text-xl font-bold text-amber-600 font-mono">12.0% anual</span>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Punto medio entre 13% y 16% para maximizar atractivo y retención del inversionista.
+                  Punto medio del rango de negociación (10% al 14%) para balance óptimo de flujo y rentabilidad.
                 </p>
               </div>
             ) : (
@@ -357,7 +373,7 @@ export const InvestorCalculatorTab: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Regla proporcional: 1 MDP genera 8.0%, escalando hasta 10 MDP al 12.0% anual.
+                  Regla proporcional: 1 MDP genera 10.0%, escalando hasta 10 MDP al 14.0% anual.
                 </p>
               </div>
             )}
