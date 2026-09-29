@@ -230,19 +230,19 @@ export const ValuationMultiplesSection: React.FC<ValuationMultiplesSectionProps>
               <tr className="hover:bg-stone-50/70 transition-colors">
                 <td className="py-3.5 px-4 sm:px-6">
                   <div className="font-bold text-stone-900 text-xs sm:text-sm">
-                    Capital en Orden &mdash; &ldquo;Por qué tu empresa puede valer menos de 3x EBITDA&rdquo;
+                    Capital en Orden
                   </div>
                   <div className="text-xs text-amber-900 font-medium mt-0.5">
                     Concentración de clientes extrema comprime el múltiplo a 2x&ndash;2.5x
                   </div>
                   <a
-                    href="https://capitalenorden.com/blog/multiplos-bajos-pyme-mexico"
+                    href="https://capitalenorden.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-900 font-semibold underline mt-1.5 transition-colors"
                     title="Abrir enlace de referencia en nueva pestaña"
                   >
-                    <span>capitalenorden.com/blog/multiplos-bajos-pyme-mexico</span>
+                    <span>capitalenorden.com</span>
                     <ExternalLink className="w-3 h-3 shrink-0" />
                   </a>
                 </td>

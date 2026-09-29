@@ -264,18 +264,18 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
                     <tr className="hover:bg-stone-50/70 transition-colors">
                       <td className="p-3 sm:p-3.5 w-5/12 align-middle">
                         <div className="font-extrabold text-stone-900 text-xs sm:text-sm leading-snug">
-                          Capital en Orden &mdash; &ldquo;Por qué tu empresa puede valer menos de 3x EBITDA&rdquo;
+                          Capital en Orden
                         </div>
                         <div className="text-[11px] text-amber-900 font-bold mt-1">
                           Concentración de clientes extrema comprime el múltiplo a 2x&ndash;2.5x
                         </div>
                         <a
-                          href="https://capitalenorden.com/blog/multiplos-bajos-pyme-mexico"
+                          href="https://capitalenorden.com"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-[10px] text-amber-800 hover:text-amber-950 font-medium underline mt-1.5"
                         >
-                          <span>capitalenorden.com/blog/multiplos-bajos-pyme-mexico</span>
+                          <span>capitalenorden.com</span>
                           <ExternalLink className="w-3 h-3 shrink-0" />
                         </a>
                       </td>
