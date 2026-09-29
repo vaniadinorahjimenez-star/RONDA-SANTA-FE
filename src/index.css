@@ -3,7 +3,7 @@
 @media print {
   @page {
     size: letter portrait;
-    margin: 10mm 10mm 12mm 10mm;
+    margin: 8mm 8mm 10mm 8mm;
   }
 
   html, body {
@@ -16,11 +16,53 @@
     margin: 0 !important;
     padding: 0 !important;
   }
-  
-  #root {
+
+  /* When printing the formal proposal document, hide the entire main application (#root) */
+  body.printing-proposal-open > #root,
+  body.printing-proposal-open header,
+  body.printing-proposal-open nav,
+  body.printing-proposal-open main,
+  body.printing-proposal-open footer {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* When printing the executive audit report, hide the entire main application (#root) */
+  body.printing-report-open > #root,
+  body.printing-report-open header,
+  body.printing-report-open nav,
+  body.printing-report-open main,
+  body.printing-report-open footer {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Print portal display rules */
+  #proposal-print-portal {
+    display: block !important;
+    position: static !important;
     width: 100% !important;
     height: auto !important;
     overflow: visible !important;
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    inset: auto !important;
+  }
+
+  #printable-proposal-doc {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
   }
 
   .print\:hidden {
@@ -28,12 +70,12 @@
   }
   
   .page-break-before {
-    page-break-before: always;
-    break-before: page;
+    page-break-before: always !important;
+    break-before: page !important;
   }
 
   .avoid-break {
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }

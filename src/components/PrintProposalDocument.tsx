@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import html2pdf from 'html2pdf.js';
 import { 
   Printer, 
@@ -112,14 +113,24 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  useEffect(() => {
+    document.body.classList.add('printing-proposal-open');
+    return () => {
+      document.body.classList.remove('printing-proposal-open');
+    };
+  }, []);
+
   const currentDate = new Date().toLocaleDateString('es-MX', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
 
-  return (
-    <div className="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs flex flex-col items-center justify-start overflow-y-auto p-2 sm:p-4 md:p-6 print:p-0 print:bg-white print:static print:inset-auto">
+  return createPortal(
+    <div 
+      id="proposal-print-portal"
+      className="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs flex flex-col items-center justify-start overflow-y-auto p-2 sm:p-4 md:p-6 print:p-0 print:bg-white print:static print:inset-auto print:overflow-visible print:block print:w-full print:m-0"
+    >
       {/* Floating Toolbar (Hidden on print) */}
       <div className="w-full max-w-4xl bg-stone-900 text-white rounded-2xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl border border-stone-700 print:hidden sticky top-2 z-50">
         <div className="flex items-center gap-2.5">
@@ -446,13 +457,16 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
             </div>
           </div>
 
-          {/* Section Subtitle */}
-          <div>
-            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-700">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Las 4 Alternativas de Formalización Financiera (Valuación Base: $9,360,000 MXN)</span>
+          {/* Section Subtitle (Starts Page 2 cleanly) */}
+          <div className="page-break-before pt-6 border-t-2 border-stone-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-700">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>Las 4 Alternativas de Formalización Financiera (Valuación Base: $9,360,000 MXN)</span>
+              </div>
+              <span className="text-[11px] text-stone-500 font-mono font-bold">Página 2 / 3</span>
             </div>
-            <p className="text-xs text-stone-600 mt-0.5">
+            <p className="text-xs text-stone-600">
               Cualquiera de estas 4 opciones garantiza certeza jurídica, liquidez y respaldo financiero total para que Don Juventino elija el esquema que mejor responda a su proyecto de vida:
             </p>
           </div>
@@ -663,7 +677,7 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
                   Cuadro Comparativo Oficial de las 4 Alternativas
                 </h2>
               </div>
-              <span className="text-xs text-stone-500 font-mono">Página 2 / 2</span>
+              <span className="text-[11px] text-stone-500 font-mono font-bold">Página 3 / 3</span>
             </div>
             <p className="text-xs text-stone-600 mt-1">
               Contraste directo entre los 4 esquemas para evaluar liquidez inicial, ingresos mensuales, totales a percibir y respaldo legal:
@@ -883,6 +897,7 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

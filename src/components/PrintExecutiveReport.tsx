@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   TOTALES_CONSOLIDADOS, 
   GASTOS_ZAKIA, 
@@ -1168,8 +1169,15 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
     );
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-stone-950/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:inset-auto print:p-0 print:bg-white print:overflow-visible print:block">
+  useEffect(() => {
+    document.body.classList.add('printing-report-open');
+    return () => {
+      document.body.classList.remove('printing-report-open');
+    };
+  }, []);
+
+  return createPortal(
+    <div id="executive-report-print-portal" className="fixed inset-0 z-50 bg-stone-950/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:inset-auto print:p-0 print:bg-white print:overflow-visible print:block">
       <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full my-6 overflow-hidden border border-stone-200 flex flex-col max-h-[92vh] print:max-h-none print:my-0 print:border-none print:shadow-none print:overflow-visible print:w-full print:block">
         {/* Top Control Bar (Never Printed) */}
         <div className="bg-stone-900 text-white p-3.5 px-5 flex flex-col sm:flex-row justify-between items-center gap-3 print:hidden shrink-0">
@@ -1281,6 +1289,7 @@ export const PrintExecutiveReport: React.FC<PrintExecutiveReportProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
