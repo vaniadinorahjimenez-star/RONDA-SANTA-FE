@@ -416,6 +416,19 @@ export const ProposalDonJuventinoTab: React.FC = () => {
           <p className="text-stone-300 text-sm sm:text-base mt-3 leading-relaxed">
             Cuatro alternativas financieras y operativas formuladas para brindarle bienestar, liquidez inmediata, total certeza jurídica y la tranquilidad que merece para disfrutar de su patrimonio y retiro.
           </p>
+
+          <div className="mt-5 pt-4 border-t border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <button
+              onClick={() => setIsPrintDocOpen(true)}
+              className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-stone-950 font-black text-sm shadow-xl hover:shadow-2xl transition-all cursor-pointer active:scale-95 group"
+            >
+              <Download className="w-4 h-4 text-stone-950 group-hover:translate-y-0.5 transition-transform" />
+              <span>Descargar Propuesta y Valuación Formal (PDF Oficial)</span>
+            </button>
+            <span className="text-xs text-stone-400 font-medium">
+              Formato notarial con sustento PyME, 3 valuaciones y las 4 alternativas.
+            </span>
+          </div>
         </div>
       </div>
 

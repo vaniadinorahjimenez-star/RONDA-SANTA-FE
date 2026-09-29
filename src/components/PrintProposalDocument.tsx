@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import html2pdf from 'html2pdf.js';
 import { 
   Printer, 
   Download, 
@@ -19,7 +20,8 @@ import {
   Building,
   Briefcase,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 
@@ -32,6 +34,8 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
   onClose,
   confirmedChoice = null
 }) => {
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
+
   const handleDownloadPDF = () => {
     const originalTitle = document.title;
     document.title = 'Propuesta_y_Valuacion_Don_Juventino_Panaderia_Santa_Fe';
@@ -39,6 +43,73 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
     setTimeout(() => {
       document.title = originalTitle;
     }, 1500);
+  };
+
+  const handleDirectPDFDownload = async () => {
+    const element = document.getElementById('printable-proposal-doc');
+    if (!element) {
+      handleDownloadPDF();
+      return;
+    }
+
+    setIsGeneratingPDF(true);
+    try {
+      const opt = {
+        margin: [6, 6, 6, 6],
+        filename: 'Propuesta_y_Valuacion_Don_Juventino_Perez.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+      };
+      // @ts-ignore
+      await html2pdf().set(opt).from(element).save();
+    } catch (err) {
+      console.error('Error generating PDF with html2pdf, falling back to window.print():', err);
+      handleDownloadPDF();
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  const handleDownloadStandaloneHTML = () => {
+    const element = document.getElementById('printable-proposal-doc');
+    if (!element) return;
+    const fullHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuesta y Valuación - Don Juventino Pérez - Panadería Santa Fé</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @media print {
+      @page { size: letter portrait; margin: 8mm; }
+      body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
+      .page-break-before { page-break-before: always; break-before: page; }
+      .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-900 p-4 sm:p-8 font-sans">
+  <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-stone-200">
+    ${element.innerHTML}
+  </div>
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 500);
+    };
+  </script>
+</body>
+</html>`;
+    const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Propuesta_y_Valuacion_Don_Juventino_Perez.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const currentDate = new Date().toLocaleDateString('es-MX', {
@@ -52,34 +123,67 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
       {/* Floating Toolbar (Hidden on print) */}
       <div className="w-full max-w-4xl bg-stone-900 text-white rounded-2xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl border border-stone-700 print:hidden sticky top-2 z-50">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold shrink-0">
             <FileText className="w-5 h-5" />
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-1.5">
-              <span>Documento Oficial para Imprimir / Guardar en PDF</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                Formato Ejecutivo
+              <span>Propuesta y Valuación Formal</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                Formato Ejecutivo Oficial
               </span>
             </h3>
             <p className="text-xs text-stone-400">
-              Listo para descargar en PDF o imprimir ante notario con valuación, fuentes, 4 propuestas y cuadro comparativo.
+              Descargue el archivo PDF real a su equipo o imprímalo en formato notarial.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+          {/* Botón Principal: Descargar PDF Real */}
+          <button
+            onClick={handleDirectPDFDownload}
+            disabled={isGeneratingPDF}
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95 disabled:opacity-60"
+            title="Generar y descargar el archivo PDF oficial directamente a su dispositivo"
+          >
+            {isGeneratingPDF ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-stone-950" />
+                <span>Generando PDF...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4 text-stone-950" />
+                <span>Descargar PDF (.pdf)</span>
+              </>
+            )}
+          </button>
+
+          {/* Botón Secundario: Imprimir con navegador */}
           <button
             onClick={handleDownloadPDF}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
-            title="Abrir diálogo de impresión para guardar como PDF"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white font-bold text-xs border border-stone-600 transition-all cursor-pointer active:scale-95"
+            title="Abrir diálogo de impresión para guardar con el navegador"
           >
-            <Download className="w-4 h-4" />
-            <span>Descargar en PDF / Imprimir</span>
+            <Printer className="w-4 h-4" />
+            <span>Imprimir</span>
           </button>
+
+          {/* Botón Descargar HTML Autónomo */}
+          <button
+            onClick={handleDownloadStandaloneHTML}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-medium text-xs border border-stone-700 transition-all cursor-pointer active:scale-95"
+            title="Descargar archivo HTML autónomo para abrir y compartir offline"
+          >
+            <FileText className="w-3.5 h-3.5 text-amber-400" />
+            <span>Archivo .html</span>
+          </button>
+
+          {/* Botón Cerrar */}
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors cursor-pointer border border-stone-700"
+            className="p-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white transition-colors cursor-pointer border border-stone-700"
             title="Cerrar vista previa"
           >
             <X className="w-5 h-5" />
@@ -88,7 +192,7 @@ export const PrintProposalDocument: React.FC<PrintProposalDocumentProps> = ({
       </div>
 
       {/* PRINTABLE SHEET CONTAINER (Styled to look like professional legal / executive report) */}
-      <div className="w-full max-w-4xl bg-white text-stone-900 rounded-2xl shadow-2xl p-6 sm:p-10 border border-stone-200 print:border-none print:shadow-none print:p-0 print:m-0 print:max-w-none print:rounded-none">
+      <div id="printable-proposal-doc" className="w-full max-w-4xl bg-white text-stone-900 rounded-2xl shadow-2xl p-6 sm:p-10 border border-stone-200 print:border-none print:shadow-none print:p-0 print:m-0 print:max-w-none print:rounded-none">
         
         {/* ================= PAGE 1: HEADER, VALUACIÓN PYME Y 4 PROPUESTAS ================= */}
         <div className="space-y-6">
