@@ -13,14 +13,21 @@ import { UnifiedConsolidatedTab } from './components/UnifiedConsolidatedTab';
 import { ProposalDonJuventinoTab } from './components/ProposalDonJuventinoTab';
 import { InvestorCalculatorTab } from './components/InvestorCalculatorTab';
 import { PrintExecutiveReport, PrintReportType } from './components/PrintExecutiveReport';
+import { PrintProposalDocument } from './components/PrintProposalDocument';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('inicio');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
+  const [isPrintProposalOpen, setIsPrintProposalOpen] = useState<boolean>(false);
   const [printInitialReport, setPrintInitialReport] = useState<PrintReportType>('zakia');
   const [printDeducirAdmin, setPrintDeducirAdmin] = useState<boolean>(false);
 
   const handleOpenPrint = (reportType?: PrintReportType, deducirAdmin?: boolean) => {
+    if (activeTab === 'propuesta' && !reportType) {
+      setIsPrintProposalOpen(true);
+      return;
+    }
+
     if (reportType) {
       setPrintInitialReport(reportType);
     } else {
@@ -65,12 +72,19 @@ export default function App() {
         {activeTab === 'propuesta' && <ProposalDonJuventinoTab />}
       </main>
 
-      {/* Printable / PDF Export Modal */}
+      {/* Printable / PDF Export Modal for Audits */}
       {isPrintModalOpen && (
         <PrintExecutiveReport 
           initialReport={printInitialReport} 
           deducirAdmin={printDeducirAdmin}
           onClose={() => setIsPrintModalOpen(false)} 
+        />
+      )}
+
+      {/* Printable / PDF Document Modal for Proposals */}
+      {isPrintProposalOpen && (
+        <PrintProposalDocument
+          onClose={() => setIsPrintProposalOpen(false)} 
         />
       )}
 
@@ -120,7 +134,7 @@ export default function App() {
               onClick={() => setActiveTab('propuesta')} 
               className="hover:text-amber-600 font-medium transition-colors cursor-pointer"
             >
-              Propuesta Don Juventino
+              Propuesta &amp; Valuación (Don Juventino)
             </button>
             <button 
               onClick={() => handleOpenPrint()} 
