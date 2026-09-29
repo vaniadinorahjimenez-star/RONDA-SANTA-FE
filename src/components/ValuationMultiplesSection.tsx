@@ -11,7 +11,8 @@ import {
   FileText,
   ShieldAlert,
   ArrowRight,
-  Briefcase
+  Briefcase,
+  ExternalLink
 } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 
@@ -22,15 +23,15 @@ interface ValuationMultiplesSectionProps {
 export const ValuationMultiplesSection: React.FC<ValuationMultiplesSectionProps> = ({
   onSelectMultiple
 }) => {
-  // Cartas tapadas (cerradas) individuales para las 3 alternativas
+  // Cartas abiertas por defecto según requerimiento
   const [openedCards, setOpenedCards] = useState<{
     apertura: boolean;
     medio: boolean;
     techo: boolean;
   }>({
-    apertura: false,
-    medio: false, // La carta de $9,360,000 inicia cerrada para mostrarla al tocar
-    techo: false,
+    techo: true,
+    apertura: true,
+    medio: true,
   });
 
   const handleToggle = (card: 'apertura' | 'medio' | 'techo') => {
@@ -63,55 +64,13 @@ export const ValuationMultiplesSection: React.FC<ValuationMultiplesSectionProps>
   const utilidadMensualNormalizada = 270881; // $305,881 - $35,000
   const utilidadAnualNormalizada = utilidadMensualNormalizada * 12; // $3,250,572
 
-  // Escenarios de múltiplos solicitados
+  // Escenarios de múltiplos ordenados: 1° Techo 3.5x, 2° Oferta de Apertura 2.4x, 3° Punto Medio 2.9x
   const escenarios = [
-    {
-      id: 'apertura' as const,
-      multiplo: '2.4x',
-      nombre: 'Oferta de Apertura',
-      badge: 'Apertura Prudente',
-      badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
-      cardTheme: 'from-amber-950 via-stone-900 to-stone-900 border-amber-500/40',
-      highlightBorder: 'border-amber-500',
-      highlightBg: 'bg-amber-50/70',
-      cifra: 7800000,
-      cifraFormatted: '$7,800,000',
-      mesesRoi: '28.8 meses',
-      aniosRoi: '2.4 años',
-      descripcion: 'Oferta disciplinada de entrada para iniciar la negociación. Protege la liquidez inicial y mitiga el riesgo de variabilidad del último trimestre.',
-      criterio: 'Rango conservador de mercado (Capital en Orden: 2x - 3x).',
-      ventajas: [
-        'Recuperación acelerada del capital en menos de 29 meses.',
-        'Colchón financiero amplio para absorber imprevistos o caídas de venta.',
-        'Certeza de pago sin presionar el flujo operativo de las sucursales.'
-      ]
-    },
-    {
-      id: 'medio' as const,
-      multiplo: '2.9x',
-      nombre: 'Punto Medio de Negociación',
-      badge: 'Punto de Equilibrio Recomendado',
-      badgeColor: 'bg-emerald-100 text-emerald-950 border-emerald-300',
-      cardTheme: 'from-emerald-950 via-stone-900 to-stone-900 border-emerald-500/50',
-      highlightBorder: 'border-emerald-500',
-      highlightBg: 'bg-emerald-50/80',
-      cifra: 9360000,
-      cifraFormatted: '$9,360,000',
-      mesesRoi: '34.6 meses',
-      aniosRoi: '2.9 años',
-      descripcion: 'Punto medio de negociación justo y razonable para ambas partes. Reconoce el valor de la empresa en marcha (Zákia y El Refugio) manteniendo un periodo de retorno por debajo de los 3 años.',
-      criterio: 'Punto de equilibrio óptimo dentro del estándar PyME México (2.5x - 3.5x).',
-      ventajas: [
-        'Retorno de inversión en exactamente 34.6 meses sin tocar un solo peso de utilidad.',
-        'Precio competitivo que reconoce el esfuerzo patrimonial del fundador.',
-        'Atractivo tanto para Don Juventino como para la estructura de fondeo.'
-      ]
-    },
     {
       id: 'techo' as const,
       multiplo: '3.5x',
       nombre: 'Techo con Riesgo',
-      badge: 'Límite Máximo Condicionado',
+      badge: 'Límite Máximo Condicionado (1° Lugar)',
       badgeColor: 'bg-rose-100 text-rose-950 border-rose-300',
       cardTheme: 'from-rose-950 via-stone-900 to-stone-900 border-rose-500/40',
       highlightBorder: 'border-rose-400',
@@ -126,6 +85,48 @@ export const ValuationMultiplesSection: React.FC<ValuationMultiplesSectionProps>
         'Máxima aspiración económica para el vendedor.',
         'Exige acompañamiento o esquemas diferidos para no asfixiar el capital de trabajo.',
         'Retorno prolongado a 40.3 meses (~3.4 años).'
+      ]
+    },
+    {
+      id: 'apertura' as const,
+      multiplo: '2.4x',
+      nombre: 'Oferta de Apertura',
+      badge: 'Apertura Prudente (2° Lugar)',
+      badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+      cardTheme: 'from-amber-950 via-stone-900 to-stone-900 border-amber-500/40',
+      highlightBorder: 'border-amber-500',
+      highlightBg: 'bg-amber-50/70',
+      cifra: 7800000,
+      cifraFormatted: '$7,800,000',
+      mesesRoi: '28.8 meses',
+      aniosRoi: '2.4 años',
+      descripcion: 'Oferta disciplinada de entrada para iniciar la negociación. Protege la liquidez inicial y mitiga el riesgo de variabilidad del último trimestre.',
+      criterio: 'Rango conservador de mercado (Capital en Orden: 2x - 2.5x).',
+      ventajas: [
+        'Recuperación acelerada del capital en menos de 29 meses.',
+        'Colchón financiero amplio para absorber imprevistos o caídas de venta.',
+        'Certeza de pago sin presionar el flujo operativo de las sucursales.'
+      ]
+    },
+    {
+      id: 'medio' as const,
+      multiplo: '2.9x',
+      nombre: 'Punto Medio de Negociación',
+      badge: 'Punto de Equilibrio Recomendado (3° Lugar)',
+      badgeColor: 'bg-emerald-100 text-emerald-950 border-emerald-300',
+      cardTheme: 'from-emerald-950 via-stone-900 to-stone-900 border-emerald-500/50',
+      highlightBorder: 'border-emerald-500',
+      highlightBg: 'bg-emerald-50/80',
+      cifra: 9360000,
+      cifraFormatted: '$9,360,000',
+      mesesRoi: '34.6 meses',
+      aniosRoi: '2.9 años',
+      descripcion: 'Punto medio de negociación justo y razonable para ambas partes. Reconoce el valor de la empresa en marcha (Zákia y El Refugio) manteniendo un periodo de retorno por debajo de los 3 años.',
+      criterio: 'Punto de equilibrio óptimo dentro del estándar PyME México (2.5x - 3.5x).',
+      ventajas: [
+        'Retorno de inversión en exactamente 34.6 meses sin tocar un solo peso de utilidad.',
+        'Precio competitivo que reconoce el esfuerzo patrimonial del fundador.',
+        'Atractivo tanto para Don Juventino como para la estructura de fondeo.'
       ]
     }
   ];
@@ -219,38 +220,71 @@ export const ValuationMultiplesSection: React.FC<ValuationMultiplesSectionProps>
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="bg-stone-100 text-stone-800 font-bold text-[11px] uppercase tracking-wider border-b border-stone-200">
               <tr>
-                <th className="py-3 px-4 sm:px-6">Referencia de mercado (México)</th>
-                <th className="py-3 px-4 text-center">Múltiplo típico</th>
-                <th className="py-3 px-4 sm:px-6">Factores Clave / Aplicación</th>
+                <th className="py-3 px-4 sm:px-6 w-5/12">Referencia de Mercado (México) &amp; Publicación</th>
+                <th className="py-3 px-4 text-center w-2/12">Múltiplo Típico</th>
+                <th className="py-3 px-4 sm:px-6 w-5/12">Criterio Técnico / Factor Clave</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200 text-stone-700">
+              {/* Referencia 1: Multiplos bajos */}
               <tr className="hover:bg-stone-50/70 transition-colors">
-                <td className="py-3.5 px-4 sm:px-6 font-semibold text-stone-900">
-                  Negocios con dependencia total del dueño o cifras basadas en proyección (Capital en Orden)
+                <td className="py-3.5 px-4 sm:px-6">
+                  <div className="font-bold text-stone-900 text-xs sm:text-sm">
+                    Capital en Orden &mdash; &ldquo;Por qué tu empresa puede valer menos de 3x EBITDA&rdquo;
+                  </div>
+                  <div className="text-xs text-amber-900 font-medium mt-0.5">
+                    Concentración de clientes extrema comprime el múltiplo a 2x&ndash;2.5x
+                  </div>
+                  <a
+                    href="https://capitalenorden.com/blog/multiplos-bajos-pyme-mexico"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-900 font-semibold underline mt-1.5 transition-colors"
+                    title="Abrir enlace de referencia en nueva pestaña"
+                  >
+                    <span>capitalenorden.com/blog/multiplos-bajos-pyme-mexico</span>
+                    <ExternalLink className="w-3 h-3 shrink-0" />
+                  </a>
                 </td>
                 <td className="py-3.5 px-4 text-center font-mono font-bold text-amber-900 bg-amber-50/50">
-                  <span className="px-2.5 py-1 rounded-md bg-amber-100 border border-amber-300">
-                    2x &ndash; 3x
+                  <span className="px-2.5 py-1 rounded-md bg-amber-100 border border-amber-300 text-xs">
+                    2x &ndash; 2.5x
                   </span>
-                  <span className="block text-[10px] text-stone-500 mt-1 font-normal">utilidad / EBITDA normalizado</span>
+                  <span className="block text-[10px] text-stone-500 mt-1 font-normal">EBITDA normalizado</span>
                 </td>
                 <td className="py-3.5 px-4 sm:px-6 text-xs text-stone-600 leading-relaxed">
-                  Aplica a modelos donde las utilidades descansan en gran medida en la figura del fundador y donde parte del ejercicio anual proviene de meses proyectados que deben convalidarse.
+                  Aplica cuando la concentración de ingresos o la dependencia en personas clave comprime los múltiplos hacia rangos conservadores (2.0x a 2.5x), justificando una oferta prudente de entrada.
                 </td>
               </tr>
+
+              {/* Referencia 2: Como comprar una empresa */}
               <tr className="hover:bg-stone-50/70 transition-colors">
-                <td className="py-3.5 px-4 sm:px-6 font-semibold text-stone-900">
-                  PyME con alta dependencia del fundador y concentración relevante (Capital en Orden)
+                <td className="py-3.5 px-4 sm:px-6">
+                  <div className="font-bold text-stone-900 text-xs sm:text-sm">
+                    Capital en Orden &mdash; &ldquo;Cómo Comprar una Empresa en México&rdquo;
+                  </div>
+                  <div className="text-xs text-emerald-900 font-medium mt-0.5">
+                    Negocios con alta dependencia del fundador se ubican en 2.5x&ndash;3.5x EBITDA
+                  </div>
+                  <a
+                    href="https://capitalenorden.com/guia/comprar-empresa-mexico"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold underline mt-1.5 transition-colors"
+                    title="Abrir enlace de referencia en nueva pestaña"
+                  >
+                    <span>capitalenorden.com/guia/comprar-empresa-mexico</span>
+                    <ExternalLink className="w-3 h-3 shrink-0" />
+                  </a>
                 </td>
                 <td className="py-3.5 px-4 text-center font-mono font-bold text-emerald-900 bg-emerald-50/50">
-                  <span className="px-2.5 py-1 rounded-md bg-emerald-100 border border-emerald-300">
+                  <span className="px-2.5 py-1 rounded-md bg-emerald-100 border border-emerald-300 text-xs">
                     2.5x &ndash; 3.5x
                   </span>
                   <span className="block text-[10px] text-stone-500 mt-1 font-normal">EBITDA normalizado</span>
                 </td>
                 <td className="py-3.5 px-4 sm:px-6 text-xs text-stone-600 leading-relaxed">
-                  Aplica a PyMEs de alimentos con marca reconocida y 2 unidades operando que requieren un periodo de transición estructurado para desvincular al fundador sin mermar ventas.
+                  Aplica a PyMEs de alimentos con marca reconocida y 2 unidades operando que requieren un periodo de transición estructurado para desvincular al fundador sin mermar ventas ni utilidades.
                 </td>
               </tr>
             </tbody>
@@ -258,20 +292,20 @@ export const ValuationMultiplesSection: React.FC<ValuationMultiplesSectionProps>
         </div>
       </div>
 
-      {/* 4. CARTAS CERRADAS INTERACTIVAS DE VALUACIÓN */}
+      {/* 4. CARTAS INTERACTIVAS DE VALUACIÓN (ORDEN: 1° TECHO 3.5x, 2° APERTURA 2.4x, 3° MEDIO 2.9x) */}
       <div className="space-y-4">
         {/* Barra de control para abrir / cerrar cartas */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl shadow-xs">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-amber-900 uppercase tracking-wider">
               <Sparkles className="w-4 h-4 text-amber-700" />
-              <span>Cartas Cerradas de Negociación</span>
+              <span>Cartas de Valuación y Negociación (Abiertas)</span>
             </div>
             <h3 className="text-base sm:text-lg font-bold text-stone-900 mt-0.5">
-              Toca cada carta cerrada para mostrar la cifra y análisis
+              1° Techo de 3.5x &bull; 2° Oferta de Apertura (2.4x) &bull; 3° Punto Medio (2.9x)
             </h3>
             <p className="text-xs text-stone-600 mt-0.5">
-              Especialmente la carta de <strong>$9,360,000 (2.9x)</strong> se encuentra cerrada para presentarla cuando se toque en la reunión.
+              Las 3 cartas se presentan abiertas en el orden solicitado para su consulta y análisis de retorno de inversión.
             </p>
           </div>
 

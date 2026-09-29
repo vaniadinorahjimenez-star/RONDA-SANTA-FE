@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { 
   Handshake, 
@@ -28,7 +28,11 @@ import {
   Eye,
   EyeOff,
   Delete,
-  Download
+  Download,
+  Building,
+  Home,
+  Landmark,
+  Key
 } from 'lucide-react';
 import { ValuationMultiplesSection } from './ValuationMultiplesSection';
 import { PrintProposalDocument } from './PrintProposalDocument';
@@ -47,13 +51,13 @@ interface AmortizacionRow {
   flujoTotalAnual: number;
 }
 
-// Opción 3: $5 MDP invertidos al 13% anual fijo, abonos anuales de $1 MDP a capital
+// Opción 3: $4,360,000 MXN diferidos como capital al 13% anual fijo (4 abonos de $1,000,000 MXN y último abono de $360,000 MXN)
 const TABLA_AMORTIZACION_PROP3: AmortizacionRow[] = [
-  { periodo: 'Año 1', saldoInsoluto: 5000000, interesMensual: 54167, interesAnual: 650000, amortizacionCapital: 1000000, flujoTotalAnual: 1650000 },
-  { periodo: 'Año 2', saldoInsoluto: 4000000, interesMensual: 43333, interesAnual: 520000, amortizacionCapital: 1000000, flujoTotalAnual: 1520000 },
-  { periodo: 'Año 3', saldoInsoluto: 3000000, interesMensual: 32500, interesAnual: 390000, amortizacionCapital: 1000000, flujoTotalAnual: 1390000 },
-  { periodo: 'Año 4', saldoInsoluto: 2000000, interesMensual: 21667, interesAnual: 260000, amortizacionCapital: 1000000, flujoTotalAnual: 1260000 },
-  { periodo: 'Año 5', saldoInsoluto: 1000000, interesMensual: 10833, interesAnual: 130000, amortizacionCapital: 1000000, flujoTotalAnual: 1130000 },
+  { periodo: 'Año 1', saldoInsoluto: 4360000, interesMensual: 47233, interesAnual: 566800, amortizacionCapital: 1000000, flujoTotalAnual: 1566800 },
+  { periodo: 'Año 2', saldoInsoluto: 3360000, interesMensual: 36400, interesAnual: 436800, amortizacionCapital: 1000000, flujoTotalAnual: 1436800 },
+  { periodo: 'Año 3', saldoInsoluto: 2360000, interesMensual: 25567, interesAnual: 306800, amortizacionCapital: 1000000, flujoTotalAnual: 1306800 },
+  { periodo: 'Año 4', saldoInsoluto: 1360000, interesMensual: 14733, interesAnual: 176800, amortizacionCapital: 1000000, flujoTotalAnual: 1176800 },
+  { periodo: 'Año 5', saldoInsoluto: 360000, interesMensual: 3900, interesAnual: 46800, amortizacionCapital: 360000, flujoTotalAnual: 406800 },
 ];
 
 interface PlanBlandoRow {
@@ -61,17 +65,15 @@ interface PlanBlandoRow {
   meses: string;
   mensualidadFija: number;
   pagoAnualDonJuventino: number;
-  colchonOperativoMensual: number;
-  colchonOperativoAnual: number;
   saldoRestante: number;
 }
 
 // Opción 2: 42 meses (3.5 años) a $150,000 MXN mensuales = $6.3 MDP diferidos + $5 MDP inicial = $11,300,000 MXN
 const TABLA_PLAN_BLANDO_PROP2: PlanBlandoRow[] = [
-  { periodo: 'Año 1', meses: 'Meses 1 al 12', mensualidadFija: 150000, pagoAnualDonJuventino: 1800000, colchonOperativoMensual: 120881, colchonOperativoAnual: 1450572, saldoRestante: 4500000 },
-  { periodo: 'Año 2', meses: 'Meses 13 al 24', mensualidadFija: 150000, pagoAnualDonJuventino: 1800000, colchonOperativoMensual: 120881, colchonOperativoAnual: 1450572, saldoRestante: 2700000 },
-  { periodo: 'Año 3', meses: 'Meses 25 al 36', mensualidadFija: 150000, pagoAnualDonJuventino: 1800000, colchonOperativoMensual: 120881, colchonOperativoAnual: 1450572, saldoRestante: 900000 },
-  { periodo: 'Año 4 (6 meses)', meses: 'Meses 37 al 42', mensualidadFija: 150000, pagoAnualDonJuventino: 900000, colchonOperativoMensual: 120881, colchonOperativoAnual: 725286, saldoRestante: 0 },
+  { periodo: 'Año 1', meses: 'Meses 1 al 12', mensualidadFija: 150000, pagoAnualDonJuventino: 1800000, saldoRestante: 4500000 },
+  { periodo: 'Año 2', meses: 'Meses 13 al 24', mensualidadFija: 150000, pagoAnualDonJuventino: 1800000, saldoRestante: 2700000 },
+  { periodo: 'Año 3', meses: 'Meses 25 al 36', mensualidadFija: 150000, pagoAnualDonJuventino: 1800000, saldoRestante: 900000 },
+  { periodo: 'Año 4 (6 meses)', meses: 'Meses 37 al 42', mensualidadFija: 150000, pagoAnualDonJuventino: 900000, saldoRestante: 0 },
 ];
 
 export const ProposalDonJuventinoTab: React.FC = () => {
@@ -127,14 +129,50 @@ export const ProposalDonJuventinoTab: React.FC = () => {
     setOpenedProposals({ 1: false, 2: false, 3: false, 4: false });
   };
   
-  // Interactive slider for Scenario 3 utility simulation
-  const [simulatedUtility, setSimulatedUtility] = useState<number>(233333);
+  // Configuración interactiva para Propuesta 4: Traspaso de Activos Inmobiliarios
+  const [plusvaliaRateProp4, setPlusvaliaRateProp4] = useState<number>(0.06); // 6% anual moderada
+  const [inflacionRentaRateProp4] = useState<number>(0.05); // 5% ajuste anual de rentas
 
-  // Mínimo de $35,000 mensuales garantizados por un periodo forzoso mínimo de 10 años y vitalicio
-  const MIN_PENSION_MENSUAL = 35000;
-  const rawCalculatedPension = Math.round(simulatedUtility * 0.15);
-  const calculatedPensionMensual = Math.max(MIN_PENSION_MENSUAL, rawCalculatedPension);
-  const calculatedPensionAnual = calculatedPensionMensual * 12;
+  // Valores clave de activos inmobiliarios
+  const VALOR_CASA_TIERRA_PURA = 7000000;
+  const RENTA_CASA_TIERRA_PURA = 40000;
+  const VALOR_DEPTO_ZAKIA = 2400000;
+  const RENTA_DEPTO_ZAKIA = 13000;
+  const EFECTIVO_INICIAL_PROP4 = 1000000;
+  const VALOR_TOTAL_ACTIVOS_PROP4 = 10400000; // $7M + $2.4M + $1M
+  const VALOR_INMUEBLES_BASE = 9400000; // $7M + $2.4M
+  const RENTA_MENSUAL_INICIAL_PROP4 = 53000; // $40k + $13k
+  const RENTA_ANUAL_INICIAL_PROP4 = 636000;
+
+  // Corrida financiera de 5 años para Propuesta 4 (con ajuste de rentas y plusvalía compuesta)
+  const corridaPropuesta4 = useMemo(() => {
+    const rows = [];
+    let rentasAcum = 0;
+    for (let yr = 1; yr <= 5; yr++) {
+      const rentaMensual = Math.round(53000 * Math.pow(1 + inflacionRentaRateProp4, yr - 1));
+      const rentasAnuales = rentaMensual * 12;
+      rentasAcum += rentasAnuales;
+      const valorInmuebles = Math.round(VALOR_INMUEBLES_BASE * Math.pow(1 + plusvaliaRateProp4, yr));
+      const valorInmueblesPrev = yr === 1 ? VALOR_INMUEBLES_BASE : Math.round(VALOR_INMUEBLES_BASE * Math.pow(1 + plusvaliaRateProp4, yr - 1));
+      const plusvaliaGanadaAnual = valorInmuebles - valorInmueblesPrev;
+      const plusvaliaAcumulada = valorInmuebles - VALOR_INMUEBLES_BASE;
+      const patrimonioTotal = EFECTIVO_INICIAL_PROP4 + rentasAcum + valorInmuebles;
+      
+      rows.push({
+        year: yr,
+        periodo: `Año ${yr}`,
+        meses: `Meses ${(yr - 1) * 12 + 1} al ${yr * 12}`,
+        rentaMensual,
+        rentasAnuales,
+        rentasAcumuladas: rentasAcum,
+        valorInmuebles,
+        plusvaliaGanadaAnual,
+        plusvaliaAcumulada,
+        patrimonioTotal
+      });
+    }
+    return rows;
+  }, [plusvaliaRateProp4, inflacionRentaRateProp4]);
 
   const handlePrintProposal = () => {
     setIsPrintDocOpen(true);
@@ -523,10 +561,10 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs sm:text-sm font-bold text-white leading-tight group-hover:text-amber-100 transition-colors">
-                      Adquisición Directa de Contado
+                      Adquisición Directa en $9,360,000
                     </h4>
                     <p className="text-[10px] sm:text-[11px] text-amber-100/90 leading-tight truncate">
-                      100% ante notario en una sola exhibición
+                      Oferta: $8.5M contado &bull; Certeza en un solo pago
                     </p>
                   </div>
                 </div>
@@ -584,10 +622,10 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs sm:text-sm font-extrabold text-stone-900 leading-tight">
-                      Adquisición Directa de Contado
+                      Adquisición Directa en $9,360,000
                     </h4>
                     <p className="text-[10px] sm:text-[11px] text-stone-600 leading-tight truncate">
-                      100% ante notario en una sola exhibición
+                      Oferta: $8.5M contado &bull; Certeza en un solo pago
                     </p>
                   </div>
                 </div>
@@ -707,7 +745,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
               </div>
             )}
 
-            {/* Card 3: Inversionista 13% (Blue / Zafiro) */}
+            {/* Card 3: Pagos 1 MDP Anuales + Intereses (Blue / Zafiro) */}
             {!openedProposals[3] ? (
               <div
                 onClick={() => {
@@ -719,7 +757,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 <div className="flex items-center justify-between gap-1.5 mb-1">
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-900/60 border border-blue-300/40 text-blue-100 uppercase tracking-wider">
                     <TrendingUp className="w-3 h-3 text-blue-200" />
-                    PROPUESTA 3 &bull; Inversionista 13%
+                    PROPUESTA 3 &bull; Pagos 1 MDP Anuales + Intereses
                   </span>
                   <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-blue-100 bg-indigo-950/60 px-1.5 py-0.5 rounded border border-blue-300/30">
                     <EyeOff className="w-2.5 h-2.5 text-blue-200" />
@@ -733,10 +771,10 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs sm:text-sm font-bold text-white leading-tight group-hover:text-blue-100 transition-colors">
-                      Inversión Patrimonial al 13%
+                      Pagos 1 MDP Anuales + Intereses
                     </h4>
                     <p className="text-[10px] sm:text-[11px] text-blue-100/90 leading-tight truncate">
-                      Rendimiento anual fijo con abonos a capital
+                      $5 MDP inicial + 4 pagos de $1 MDP y $360k (+ intereses 13%)
                     </p>
                   </div>
                 </div>
@@ -761,7 +799,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 <div className="flex items-center justify-between gap-1.5 mb-1">
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300">
                     <TrendingUp className="w-3 h-3 text-blue-800" />
-                    PROPUESTA 3 &bull; Inversionista 13%
+                    PROPUESTA 3 &bull; Pagos 1 MDP Anuales + Intereses
                   </span>
                   <div className="flex items-center gap-1">
                     {confirmedChoice === 3 && (
@@ -794,10 +832,10 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs sm:text-sm font-extrabold text-stone-900 leading-tight">
-                      Inversión Patrimonial al 13%
+                      Pagos 1 MDP Anuales + Intereses
                     </h4>
                     <p className="text-[10px] sm:text-[11px] text-stone-600 leading-tight truncate">
-                      Rendimiento anual fijo con abonos a capital
+                      $5 MDP inicial + 4 pagos de $1 MDP y $360k (+ intereses 13%)
                     </p>
                   </div>
                 </div>
@@ -812,7 +850,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
               </div>
             )}
 
-            {/* Card 4: Sociedad Vitalicia (Emerald / Esmeralda) */}
+            {/* Card 4: Traspaso de Activos Inmobiliarios (Emerald / Esmeralda Patrimonial) */}
             {!openedProposals[4] ? (
               <div
                 onClick={() => {
@@ -823,8 +861,8 @@ export const ProposalDonJuventinoTab: React.FC = () => {
               >
                 <div className="flex items-center justify-between gap-1.5 mb-1">
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-300/40 text-emerald-100 uppercase tracking-wider">
-                    <HeartHandshake className="w-3 h-3 text-emerald-200" />
-                    PROPUESTA 4 &bull; Sociedad 13%
+                    <Home className="w-3 h-3 text-emerald-200" />
+                    PROPUESTA 4 &bull; Inmobiliaria
                   </span>
                   <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-100 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-300/30">
                     <EyeOff className="w-2.5 h-2.5 text-emerald-200" />
@@ -834,14 +872,14 @@ export const ProposalDonJuventinoTab: React.FC = () => {
 
                 <div className="flex items-center gap-2 my-0.5">
                   <div className="w-7 h-7 rounded-lg bg-emerald-950/50 text-emerald-200 border border-emerald-300/40 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-                    <HeartHandshake className="w-3.5 h-3.5" />
+                    <Home className="w-3.5 h-3.5" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs sm:text-sm font-bold text-white leading-tight group-hover:text-emerald-100 transition-colors">
-                      Sociedad Patrimonial (13%)
+                      Traspaso de Activos Inmobiliarios
                     </h4>
                     <p className="text-[10px] sm:text-[11px] text-emerald-100/90 leading-tight truncate">
-                      Ingreso mensual vitalicio no heredado
+                      Casa Tierra Pura + Depto Zákia + $1M &bull; Rentas $53k/mes
                     </p>
                   </div>
                 </div>
@@ -865,8 +903,8 @@ export const ProposalDonJuventinoTab: React.FC = () => {
               >
                 <div className="flex items-center justify-between gap-1.5 mb-1">
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
-                    <HeartHandshake className="w-3 h-3 text-emerald-800" />
-                    PROPUESTA 4 &bull; Sociedad 13%
+                    <Home className="w-3 h-3 text-emerald-800" />
+                    PROPUESTA 4 &bull; Inmobiliaria
                   </span>
                   <div className="flex items-center gap-1">
                     {confirmedChoice === 4 && (
@@ -895,14 +933,14 @@ export const ProposalDonJuventinoTab: React.FC = () => {
 
                 <div className="flex items-center gap-2 my-0.5">
                   <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <HeartHandshake className="w-3.5 h-3.5" />
+                    <Home className="w-3.5 h-3.5" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs sm:text-sm font-extrabold text-stone-900 leading-tight">
-                      Sociedad Patrimonial (13%)
+                      Traspaso de Activos Inmobiliarios
                     </h4>
                     <p className="text-[10px] sm:text-[11px] text-stone-600 leading-tight truncate">
-                      Ingreso mensual vitalicio no heredado
+                      Casa Tierra Pura + Depto Zákia + $1M &bull; Rentas $53k/mes
                     </p>
                   </div>
                 </div>
@@ -912,7 +950,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                     {selectedScenario === 4 ? 'Viendo corrida a un lado' : 'Ver corrida a un lado'}
                     <ChevronRight className="w-3 h-3 text-emerald-700" />
                   </span>
-                  <span className="text-stone-500 font-medium">Vitalicio</span>
+                  <span className="text-stone-500 font-medium">Activos: $10.4 MDP</span>
                 </div>
               </div>
             )}
@@ -951,80 +989,85 @@ export const ProposalDonJuventinoTab: React.FC = () => {
           <>
             {/* Scenario 1 Detailed Tab */}
             {selectedScenario === 1 && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-3">
               <div>
                 <span className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-900 mb-2">
                   <Banknote className="w-4 h-4 text-amber-800" />
-                  Propuesta 1 en Detalle
+                  Propuesta 1 en Detalle &bull; Valuación Base: $9,360,000 MXN
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-stone-900">
-                  Adquisición Directa de Contado (Liquidez Inmediata en Efectivo)
+                  Adquisición Directa en $9,360,000
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  Orientada a brindarle certidumbre financiera absoluta y disponibilidad inmediata de fondos en una sola exhibición.
+                <p className="text-xs sm:text-sm text-stone-700 mt-1 font-medium">
+                  Valuación del negocio fijada en <strong>$9,360,000 MXN</strong> con oferta del pago de <strong>8.5 millones de contado ($8,500,000 MXN)</strong>. Certeza en un solo pago, facilitando su transición inmediata hacia nuevos proyectos.
                 </p>
               </div>
 
-              <div className="text-left sm:text-right bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
-                <span className="text-xs text-stone-500 block">Pago 100% Líquido</span>
+              <div className="text-left sm:text-right bg-stone-50 p-3.5 rounded-2xl border border-stone-200 shrink-0">
+                <span className="text-xs text-stone-500 block">Oferta de Contado (Cash)</span>
                 <span className="text-2xl font-extrabold text-stone-900 font-mono">{formatCurrency(8500000)}</span>
+                <span className="text-[11px] text-amber-800 font-semibold block mt-0.5">Valuación Base: $9,360,000 MXN</span>
               </div>
             </div>
 
-            {/* Justificación de Valuación de Mercado */}
-            <div className="bg-stone-50 rounded-2xl p-5 sm:p-6 border border-stone-200 space-y-4">
+            {/* Justificación y Oferta de Contado */}
+            <div className="bg-stone-50 rounded-2xl p-4 sm:p-5 border border-stone-200 space-y-3">
               <div className="flex items-center gap-2 text-stone-900 font-bold text-sm">
                 <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                <h4>Justificación Técnica de Valuación de Mercado ($9,000,000 MXN)</h4>
+                <h4>Oferta de Adquisición Directa de Contado ($8.5 MDP)</h4>
               </div>
               <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                La valuación técnica del establecimiento se sitúa en <strong>$9,000,000 MXN</strong>, calculada con base en los múltiplos de mercado estándar para empresas y comercios tradicionales en marcha dentro del sector de alimentos y panificación, los cuales oscilan habitualmente entre <strong>3 y 4 veces la utilidad neta anual</strong>:
+                Con base en la valuación de <strong>$9,360,000 MXN</strong>, se formaliza la <strong>oferta de pago de $8,500,000 MXN de contado</strong>: <em>certeza en un solo pago, facilitando su transición inmediata hacia nuevos proyectos</em> sin exposición crediticia ni dependencia de utilidades futuras.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                <div className="bg-white p-3 rounded-xl border border-stone-200">
                   <span className="text-stone-500 block text-[11px]">Utilidad Base Mensual</span>
-                  <span className="text-base font-bold text-stone-900 font-mono">{formatCurrency(230000)}</span>
-                  <span className="text-[10px] text-stone-400 block mt-0.5">Promedio neto mensual</span>
+                  <span className="text-base font-bold text-stone-900 font-mono">{formatCurrency(270881)}</span>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">Normalizada (con admin. deducida)</span>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                <div className="bg-white p-3 rounded-xl border border-stone-200">
                   <span className="text-stone-500 block text-[11px]">Utilidad Neta Anual</span>
-                  <span className="text-base font-bold text-stone-900 font-mono">{formatCurrency(2760000)}</span>
-                  <span className="text-[10px] text-stone-400 block mt-0.5">$230,000 &times; 12 meses</span>
+                  <span className="text-base font-bold text-stone-900 font-mono">{formatCurrency(3250572)}</span>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">$270,881 &times; 12 meses</span>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-stone-200">
-                  <span className="text-stone-500 block text-[11px]">Rango Múltiplos (3x - 4x)</span>
-                  <span className="text-base font-bold text-stone-900 font-mono">$8.28M &ndash; $11.04M</span>
-                  <span className="text-[10px] text-stone-400 block mt-0.5">3.0x a 4.0x utilidad neta</span>
+                <div className="bg-white p-3 rounded-xl border border-stone-200">
+                  <span className="text-stone-500 block text-[11px]">Valuación de Referencia</span>
+                  <span className="text-base font-extrabold text-stone-900 font-mono">{formatCurrency(9360000)}</span>
+                  <span className="text-[10px] text-emerald-700 block mt-0.5">2.88x EBITDA / Base común 4 opciones</span>
                 </div>
-                <div className="bg-amber-100/60 p-3.5 rounded-xl border border-amber-300">
-                  <span className="text-amber-900 block text-[11px] font-bold">Valuación Fijada</span>
-                  <span className="text-base font-extrabold text-amber-950 font-mono">{formatCurrency(9000000)}</span>
-                  <span className="text-[10px] text-amber-800 block mt-0.5">Múltiplo de mercado objetivo (3.26x)</span>
+                <div className="bg-amber-100/70 p-3 rounded-xl border border-amber-300">
+                  <span className="text-amber-950 block text-[11px] font-bold">Oferta de Contado</span>
+                  <span className="text-base font-black text-amber-950 font-mono">{formatCurrency(8500000)}</span>
+                  <span className="text-[10px] text-amber-900 block mt-0.5">Liquidez 100% inmediata ante notario</span>
                 </div>
               </div>
             </div>
 
             {/* Condiciones de la Oferta Cash */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
-              <div className="p-5 rounded-2xl border border-stone-200 bg-white space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+              <div className="p-4 rounded-2xl border border-stone-200 bg-white space-y-2.5">
                 <h5 className="font-bold text-stone-900 text-sm flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   Condiciones Operativas y Legales
                 </h5>
-                <ul className="space-y-2.5 text-stone-600">
+                <ul className="space-y-2 text-stone-600">
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-stone-900 min-w-36">Valuación del negocio:</span>
-                    <span>$9,000,000 MXN</span>
+                    <span className="font-semibold text-stone-900 font-mono">$9,360,000 MXN</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="font-bold text-stone-900 min-w-36">Monto en efectivo (Cash):</span>
+                    <span className="font-bold text-stone-900 min-w-36">Oferta de contado (Cash):</span>
                     <span className="font-bold text-emerald-700 font-mono">$8,500,000 MXN</span>
                   </li>
                   <li className="flex items-start gap-2">
+                    <span className="font-bold text-stone-900 min-w-36">Propósito central:</span>
+                    <span className="text-stone-800">Certeza en un solo pago, facilitando su transición inmediata hacia nuevos proyectos.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
                     <span className="font-bold text-stone-900 min-w-36">Forma de liquidación:</span>
-                    <span>Pago íntegro de contado a la firma del contrato y entrega de la unidad.</span>
+                    <span>Pago íntegro de contado a la firma del contrato ante notario.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-stone-900 min-w-36">Saldo pendiente:</span>
@@ -1033,7 +1076,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 </ul>
               </div>
 
-              <div className="p-5 rounded-2xl border border-amber-200 bg-amber-50/50 space-y-3">
+              <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50/50 space-y-2.5">
                 <h5 className="font-bold text-amber-950 text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-700" />
                   Beneficios Inmediatos para Don Juventino
@@ -1041,15 +1084,15 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 <ul className="space-y-2 text-stone-700 text-xs sm:text-sm">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
-                    <span><strong>Disponibilidad inmediata:</strong> $8,500,000 MXN líquidos en su cuenta bancaria desde el día uno.</span>
+                    <span><strong>Certeza en un solo pago:</strong> $8,500,000 MXN líquidos en su cuenta bancaria desde el día uno ante notario.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
-                    <span><strong>Cero contingencias futuras:</strong> Sin depender de utilidades mensuales, ventas o fluctuaciones de mercado.</span>
+                    <span><strong>Transición inmediata hacia nuevos proyectos:</strong> Deslinde total de responsabilidades laborales, operativas y fiscales.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
-                    <span><strong>Retiro pleno y digno:</strong> Cierre expedito de la operación y deslinde total de compromisos operativos y fiscales.</span>
+                    <span><strong>Cero contingencias futuras:</strong> Sin depender de utilidades mensuales, ventas ni fluctuaciones de mercado.</span>
                   </li>
                 </ul>
               </div>
@@ -1070,7 +1113,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   Financiamiento a 42 Meses ($150,000 MXN Mensuales Fijos / 3.5 Años)
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  Esquema equilibrado de 42 meses (3.5 años) pagando $150,000 MXN fijos al mes. Esta alternativa suma $6,300,000 MXN en pagos diferidos que, sumados a los $5,000,000 MXN iniciales de contado, alcanzan un total acumulado de $11,300,000 MXN para Don Juventino, garantizando a la vez un colchón operativo mensual de $120,881 MXN libres para contingencias de la panadería.
+                  Esquema equilibrado de 42 meses (3.5 años) pagando $150,000 MXN fijos al mes. Esta alternativa suma $6,300,000 MXN en pagos diferidos que, sumados a los $5,000,000 MXN iniciales de contado, alcanzan un total acumulado de $11,300,000 MXN para Don Juventino con total predictibilidad y respaldo notarial.
                 </p>
               </div>
 
@@ -1082,7 +1125,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
             </div>
 
             {/* Condiciones principales de la Propuesta 2 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs sm:text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
               <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200">
                 <span className="text-stone-500 block text-xs">Pago Inicial en Efectivo</span>
                 <span className="text-xl font-bold text-stone-900 font-mono">{formatCurrency(5000000)}</span>
@@ -1098,33 +1141,28 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 <span className="text-xl font-bold text-stone-900 font-mono">{formatCurrency(6300000)}</span>
                 <p className="text-stone-600 text-xs mt-1">42 mensualidades fijas garantizadas con pagarés.</p>
               </div>
-              <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200">
-                <span className="text-amber-900 font-semibold block text-xs">Colchón Operativo Panadería</span>
-                <span className="text-xl font-bold text-amber-950 font-mono">{formatCurrency(120881)} <span className="text-xs font-normal">/mes</span></span>
-                <p className="text-amber-800 text-xs mt-1">Reserva libre para mantenimiento e imprevistos.</p>
-              </div>
             </div>
 
             {/* Justificación de Equilibrio Financiero: ¿Por qué 42 meses a $150k? */}
             <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
               <h5 className="font-bold text-stone-900 text-sm flex items-center gap-2">
                 <Scale className="w-4 h-4 text-teal-700" />
-                El Equilibrio Perfecto: 42 Meses a $150,000 MXN ($11,300,000 MXN Totales)
+                Estructura de Certeza: 42 Meses a $150,000 MXN ($11,300,000 MXN Totales)
               </h5>
               <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Esta alternativa equilibra un flujo de efectivo sumamente atractivo para Don Juventino con la viabilidad operativa de las dos sucursales. Con <strong>42 meses a $150,000 MXN mensuales</strong> se logra una fórmula ganar-ganar:
+                Esta alternativa ofrece un flujo mensual continuo y programado de <strong>$150,000 MXN al mes</strong> durante 3.5 años, alcanzando un total acumulado muy superior al esquema de contado:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-1">
                 <div className="bg-white p-3.5 rounded-xl border border-stone-200 space-y-1">
-                  <span className="font-bold text-teal-900 block">Beneficio para Don Juventino:</span>
+                  <span className="font-bold text-teal-900 block">Flujo Mensual Sustancial para Don Juventino:</span>
                   <p className="text-stone-600">
                     Recibe <strong>$150,000 MXN mensuales garantizados</strong> durante 42 meses continuos (3.5 años), sumando <strong>$6,300,000 MXN</strong>. Con los $5,000,000 MXN iniciales de contado, percibe un total de <strong>$11,300,000 MXN</strong> en su bolsa.
                   </p>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-stone-200 space-y-1">
-                  <span className="font-bold text-amber-900 block">Beneficio Operativo para la Panadería:</span>
+                  <span className="font-bold text-teal-900 block">Certeza Jurídica y Respaldo Notarial:</span>
                   <p className="text-stone-600">
-                    De la utilidad mensual normalizada de $270,881 MXN, tras pagar la mensualidad de $150,000 MXN a Don Juventino, restan <strong>$120,881 MXN mensuales libres ($1,450,572 MXN al año)</strong> de colchón de seguridad para refacciones de hornos, materias primas y contingencias.
+                    Cada mensualidad queda respaldada por un <strong>pagaré mercantil notarial independiente</strong> entregado desde el día uno, otorgándole plena seguridad jurídica sin depender de fluctuaciones operativas.
                   </p>
                 </div>
               </div>
@@ -1154,7 +1192,6 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                       <th className="py-3 px-4">Meses</th>
                       <th className="py-3 px-4 text-right font-semibold text-teal-900">Mensualidad Fija</th>
                       <th className="py-3 px-4 text-right">Pago Anual Don Juventino</th>
-                      <th className="py-3 px-4 text-right text-amber-900 font-semibold bg-amber-50/50">Colchón Mensual Negocio</th>
                       <th className="py-3 px-4 text-right font-mono">Saldo por Liquidar</th>
                     </tr>
                   </thead>
@@ -1165,9 +1202,6 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                         <td className="py-3 px-4 text-stone-600">{row.meses}</td>
                         <td className="py-3 px-4 text-right font-mono font-bold text-teal-900 bg-teal-50/30">{formatCurrency(row.mensualidadFija)}</td>
                         <td className="py-3 px-4 text-right font-mono font-semibold text-stone-900">{formatCurrency(row.pagoAnualDonJuventino)}</td>
-                        <td className="py-3 px-4 text-right font-mono font-bold text-amber-900 bg-amber-50/40">
-                          {formatCurrency(row.colchonOperativoMensual)} <span className="text-[10px] text-stone-500 font-normal">({formatCurrency(row.colchonOperativoAnual)}/año)</span>
-                        </td>
                         <td className="py-3 px-4 text-right font-mono text-stone-600">{formatCurrency(row.saldoRestante)}</td>
                       </tr>
                     ))}
@@ -1177,9 +1211,6 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                       <td colSpan={2} className="py-3 px-4 uppercase text-xs">Total 3.5 Años (42 Mensualidades)</td>
                       <td className="py-3 px-4 text-right font-mono text-teal-900 font-bold">$150k / mes</td>
                       <td className="py-3 px-4 text-right font-mono text-stone-950 font-extrabold text-sm">{formatCurrency(6300000)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-amber-950 font-extrabold bg-amber-100/60">
-                        {formatCurrency(5076990)} <span className="text-[10px] font-normal block text-amber-900">(reserva total panadería)</span>
-                      </td>
                       <td className="py-3 px-4 text-right font-mono text-emerald-700 font-extrabold">$0 (Liquidado)</td>
                     </tr>
                   </tfoot>
@@ -1214,20 +1245,20 @@ export const ProposalDonJuventinoTab: React.FC = () => {
               <div>
                 <span className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-900 mb-2">
                   <TrendingUp className="w-4 h-4 text-blue-800" />
-                  Propuesta 3 en Detalle &bull; Rol Inversionista 13% Anual con Abonos a Capital
+                  Propuesta 3 en Detalle &bull; Pagos 1 MDP Anuales + Intereses
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-stone-900">
-                  Inversión Patrimonial al 13% Anual con Abono Anual de $1 MDP a Capital
+                  Pagos 1 MDP Anuales + Intereses
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  $5 MDP iniciales en efectivo. Para los otros $5 MDP: ¿En qué o en dónde va a invertir el capital Don Juventino para que no pierda valor en el banco? Se colocan como Inversionista al 13% anual fijo (muy superior a los pagarés bancarios o Cetes). Recibe sus intereses mes con mes para sus gastos y, al final de cada año, un anticipo de $1 MDP a capital, por lo que el interés va bajando año con año conforme disminuye el saldo.
+                  $5 MDP iniciales en efectivo. Para los restantes $4,360,000 MXN: ¿En qué o en dónde va a invertir el capital Don Juventino para que no pierda valor en el banco? Se colocan como Inversionista al 13% anual fijo (muy superior a los pagarés bancarios o Cetes). Recibe sus intereses mes con mes para sus gastos y abonos anuales a capital (4 abonos de $1,000,000 MXN y un último pago de $360,000 MXN), sumando exactamente los $9,360,000 MXN de valuación base más $1,534,000 MXN de intereses al 13%.
                 </p>
               </div>
 
               <div className="text-left sm:text-right bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
                 <span className="text-xs text-stone-500 block">Total Acumulado (5 Años)</span>
-                <span className="text-2xl font-extrabold text-blue-900 font-mono">{formatCurrency(11950000)}</span>
-                <span className="text-[11px] text-blue-700 block mt-0.5">$5 MDP Cash + $5 MDP Capital + $1.95 MDP Intereses al 13%</span>
+                <span className="text-2xl font-extrabold text-blue-900 font-mono">{formatCurrency(10894000)}</span>
+                <span className="text-[11px] text-blue-700 block mt-0.5">$5 MDP Cash + $4.36 MDP Capital + $1.534 MDP Intereses al 13%</span>
               </div>
             </div>
 
@@ -1238,7 +1269,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 <span className="text-sm">Pregunta Clave: ¿En qué o en dónde va a invertir el capital Don Juventino?</span>
               </div>
               <p className="leading-relaxed text-stone-600">
-                Don Juventino, si recibe todo el dinero junto de golpe, <strong>¿en qué o en dónde lo va a invertir para protegerlo y hacerlo crecer?</strong> En los bancos tradicionales los pagarés ofrecen rendimientos bajos (aprox. 6% a 8%) y descuentan impuestos; si se guarda en cuenta corriente pierde poder adquisitivo frente a la inflación. En cambio, colocando los otros <strong>$5,000,000 MXN como Inversionista en la panadería</strong>, obtiene un rendimiento preferencial del <strong>13.0% anual fijo (mucho mayor y superior que el banco)</strong> con pagarés mercantiles notariales. Recibe sus intereses mes a mes para sus gastos de retiro y, al final de cada año, se le entrega un abono de <strong>$1,000,000 MXN directo a capital</strong>. Al amortizarse capital año con año, el monto de intereses va bajando de forma programada y ordenada hasta liquidar el 100% en 5 años.
+                Don Juventino, si recibe todo el dinero junto de golpe, <strong>¿en qué o en dónde lo va a invertir para protegerlo y hacerlo crecer?</strong> En los bancos tradicionales los pagarés ofrecen rendimientos bajos (aprox. 6% a 8%) y descuentan impuestos; si se guarda en cuenta corriente pierde poder adquisitivo frente a la inflación. En cambio, colocando los restantes <strong>$4,360,000 MXN como Inversionista en la panadería</strong> (que sumados a los $5 MDP iniciales completan la <strong>valuación de $9,360,000 MXN</strong>), obtiene un rendimiento preferencial del <strong>13.0% anual fijo (muy superior al banco)</strong> con pagarés mercantiles notariales. Recibe sus intereses mes a mes para sus gastos de retiro y abonos de capital (<strong>4 pagos de $1 MDP y un último pago de $360,000 MXN</strong>), liquidando el 100% en 5 años y acumulando <strong>$10,894,000 MXN</strong> en total.
               </p>
             </div>
 
@@ -1251,13 +1282,13 @@ export const ProposalDonJuventinoTab: React.FC = () => {
               </div>
               <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200">
                 <span className="text-stone-500 block text-xs">Capital como Inversionista</span>
-                <span className="text-xl font-bold text-stone-900 font-mono">{formatCurrency(5000000)}</span>
-                <p className="text-stone-600 text-xs mt-1">Pagarés notariales con abonos de $1 MDP a fin de año.</p>
+                <span className="text-xl font-bold text-stone-900 font-mono">{formatCurrency(4360000)}</span>
+                <p className="text-stone-600 text-xs mt-1">4 pagos de $1 MDP + pago final de $360,000 MXN.</p>
               </div>
               <div className="p-4 bg-blue-50/70 rounded-2xl border border-blue-200">
                 <span className="text-blue-900 font-semibold block text-xs">Intereses Devengados al 13%</span>
-                <span className="text-xl font-bold text-blue-950 font-mono">{formatCurrency(1950000)}</span>
-                <p className="text-blue-800 text-xs mt-1">Interés mensual decreciente ($54,167 &rarr; $10,833/mes).</p>
+                <span className="text-xl font-bold text-blue-950 font-mono">{formatCurrency(1534000)}</span>
+                <p className="text-blue-800 text-xs mt-1">Interés mensual decreciente ($47,233 &rarr; $3,900/mes).</p>
               </div>
             </div>
 
@@ -1269,7 +1300,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                     Calendario Detallado de Pagos de Don Juventino (5 Años / 60 Meses al 13% Anual)
                   </h5>
                   <p className="text-xs text-stone-500">
-                    Intereses pagados mensualmente más abonos anuales de capital de $1,000,000 MXN a fin de cada año.
+                    Intereses pagados mensualmente más 4 abonos de $1,000,000 MXN y liquidación final de $360,000 MXN a capital.
                   </p>
                 </div>
                 <span className="text-xs font-bold text-blue-900 bg-blue-100 px-2.5 py-1 rounded-full">
@@ -1304,11 +1335,11 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   <tfoot className="bg-stone-100 border-t-2 border-stone-300 font-bold text-stone-900 text-xs sm:text-sm">
                     <tr>
                       <td colSpan={2} className="py-3 px-4 uppercase text-xs">Total Saldo Amortizado + Intereses al 13%</td>
-                      <td className="py-3 px-4 text-right font-mono text-blue-900 text-xs font-normal">($54,167 &rarr; $10,833/mes)</td>
-                      <td className="py-3 px-4 text-right font-mono text-blue-950 font-bold">{formatCurrency(1950000)}</td>
-                      <td className="py-3 px-4 text-right font-mono">{formatCurrency(5000000)}</td>
+                      <td className="py-3 px-4 text-right font-mono text-blue-900 text-xs font-normal">($47,233 &rarr; $3,900/mes)</td>
+                      <td className="py-3 px-4 text-right font-mono text-blue-950 font-bold">{formatCurrency(1534000)}</td>
+                      <td className="py-3 px-4 text-right font-mono">{formatCurrency(4360000)}</td>
                       <td className="py-3 px-4 text-right font-mono text-blue-950 text-base font-extrabold bg-blue-100/80">
-                        {formatCurrency(6950000)}
+                        {formatCurrency(5894000)}
                       </td>
                     </tr>
                   </tfoot>
@@ -1323,151 +1354,332 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   Resumen de Liquidación Total para Don Juventino (Opción 3)
                 </span>
                 <p className="text-xs sm:text-sm text-stone-700">
-                  <strong>$5,000,000 MXN</strong> iniciales + <strong>$5,000,000 MXN</strong> de capital amortizado + <strong>$1,950,000 MXN</strong> de intereses al 13% anual.
+                  <strong>$5,000,000 MXN</strong> iniciales + <strong>$4,360,000 MXN</strong> de capital amortizado + <strong>$1,534,000 MXN</strong> de intereses al 13% anual.
                 </p>
               </div>
               <div className="text-right whitespace-nowrap">
                 <span className="text-xs text-blue-800 block font-medium">Importe Total Acumulado</span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-blue-950 font-mono">
-                  {formatCurrency(11950000)}
+                  {formatCurrency(10894000)}
                 </span>
               </div>
             </div>
           </div>
         )}
 
-        {/* Scenario 4 Detailed Tab (OPCIÓN 4: SOCIEDAD 13% CON INGRESO VITALICIO NO HEREDADO) */}
+        {/* Scenario 4 Detailed Tab (OPCIÓN 4: TRASPASO DE ACTIVOS INMOBILIARIOS + RENTAS) */}
         {selectedScenario === 4 && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
               <div>
                 <span className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 mb-2">
-                  <HeartHandshake className="w-4 h-4 text-emerald-800" />
-                  Propuesta 4 en Detalle &bull; Sociedad 13% e Ingreso Vitalicio No Heredable
+                  <Home className="w-4 h-4 text-emerald-800" />
+                  Propuesta 4 en Detalle &bull; Traspaso de Activos Inmobiliarios Generando Capital
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-stone-900">
-                  Sociedad Patrimonial (13% de Acciones) con Ingreso Mensual Vitalicio No Heredado
+                  Traspaso de Activos Inmobiliarios ($10.4 MDP) + Flujo de Rentas de $53,000/mes
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  Don Juventino se retira completamente de la operación diaria recibiendo $5,000,000 MXN iniciales en efectivo y manteniéndose como dueño del 13% de la sociedad. Este esquema le otorga un ingreso mensual vitalicio no heredado (personalísimo de por vida) con un piso mínimo garantizado de $35,000 MXN mensuales: hacia arriba si hay más venta y utilidades, pero nunca hacia abajo de los $35,000 MXN.
+                  Don Juventino adquiere la plena propiedad escriturada de 2 bienes raíces residenciales de alta plusvalía en Querétaro (Casa en Tierra Pura de $7 MDP y Departamento en Zákia de $2.4 MDP) actualmente rentados y generando $53,000 MXN mensuales, más $1,000,000 MXN en efectivo de contado a la firma. Los activos iniciales acumulan $10,400,000 MXN y generan rendimientos crecientes por plusvalía y rentas.
                 </p>
               </div>
 
-              <div className="text-left sm:text-right bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
-                <span className="text-xs text-stone-500 block">Ingreso Mensual Vitalicio Garantizado</span>
-                <span className="text-2xl font-extrabold text-emerald-900 font-mono">{formatCurrency(35000)}</span>
-                <span className="text-[11px] text-emerald-700 block mt-0.5">Dueño del 13% &bull; Hacia arriba si hay más venta, nunca hacia abajo</span>
+              <div className="text-left sm:text-right bg-stone-50 p-3.5 rounded-2xl border border-stone-200 shrink-0">
+                <span className="text-xs text-stone-500 block">Proyección Patrimonial a 5 Años</span>
+                <span className="text-2xl font-extrabold text-emerald-950 font-mono">{formatCurrency(corridaPropuesta4[4]?.patrimonioTotal || 17093622)}</span>
+                <span className="text-[11px] text-stone-500 font-semibold block mt-0.5 font-sans">(10,400,000 de arranque)</span>
               </div>
             </div>
 
-            {/* Los 3 Pilares de la Propuesta 4 */}
+            {/* Desglose de los 3 Activos Entregados a Don Juventino */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
-              <div className="p-5 rounded-2xl border border-stone-200 bg-white space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold mb-3">
-                  <Banknote className="w-5 h-5" />
+              {/* Activo 1: Casa en Tierra Pura */}
+              <div className="p-4 sm:p-5 rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-50/70 via-white to-white space-y-3 relative overflow-hidden shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-xs">
+                    <Home className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+                    Propiedad 1 &bull; Querétaro
+                  </span>
                 </div>
-                <h5 className="font-bold text-stone-900 text-sm">1. Pago Inicial de Contado</h5>
-                <p className="text-stone-600">
-                  <strong className="text-stone-900 font-mono text-base">{formatCurrency(5000000)}</strong> entregados de manera íntegra y de contado a la firma del convenio formal ante notario público.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-2xl border border-stone-200 bg-white space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-stone-100 text-stone-800 flex items-center justify-center font-bold mb-3">
-                  <Coffee className="w-5 h-5 text-amber-700" />
-                </div>
-                <h5 className="font-bold text-stone-900 text-sm">2. Asunción Operativa Absoluta</h5>
-                <p className="text-stone-600">
-                  Nosotros asumimos el 100% de la carga: turnos matutinos desde las <strong>4:30 AM</strong>, personal, plantilla, abasto de harina/materia prima, mantenimiento de hornos y obligaciones fiscales.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-2xl border border-emerald-200 bg-emerald-50/50 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold mb-3">
-                  <HeartHandshake className="w-5 h-5" />
-                </div>
-                <h5 className="font-bold text-emerald-950 text-sm">3. Dueño del 13% y Retiro Vitalicio</h5>
-                <p className="text-stone-700">
-                  Ingreso vitalicio <strong>no heredado</strong> con piso garantizado de <strong>$35,000 MXN mensuales</strong>: hacia arriba si la panadería incrementa ventas y utilidades, pero <strong>nunca hacia abajo</strong>.
-                </p>
-              </div>
-            </div>
-
-            {/* Cláusula de Seguridad Patrimonial: 13%, Vitalicio No Heredable */}
-            <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-300 flex items-start gap-3 text-xs sm:text-sm text-emerald-950">
-              <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <strong className="text-emerald-900 font-semibold block">
-                  Condiciones de Sociedad y Retiro Vitalicio para Don Juventino:
-                </strong>
-                <p className="text-stone-700 text-xs leading-relaxed">
-                  Don Juventino es <strong>dueño del 13% de la sociedad</strong>. Este esquema le confiere un <strong>ingreso mensual vitalicio personalísimo (no heredado)</strong> con un piso irreductible de <strong>$35,000 MXN mensuales garantizados</strong>. Si en cualquier ejercicio o mes las ventas y utilidades crecen, su 13% le pagará el importe mayor correspondiente (hacia arriba); pero bajo ninguna circunstancia recibirá menos de $35,000 MXN al mes (nunca hacia abajo).
-                </p>
-              </div>
-            </div>
-
-            {/* Simulador Interactivo de Sociedad al 13% con Piso Garantizado */}
-            <div className="bg-stone-50 rounded-2xl p-5 sm:p-6 border border-stone-200 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h5 className="font-bold text-stone-900 text-sm flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
-                    Simulador: 13% de Utilidad Mensual vs. Piso Garantizado de $35,000 MXN
-                  </h5>
-                  <p className="text-xs text-stone-600 mt-0.5">
-                    Don Juventino es dueño del 13% y tiene asegurado el piso de <strong>$35,000 MXN mensuales</strong>. Hacia arriba si hay más venta y utilidades, cobra el monto superior real; pero nunca hacia abajo de $35,000 MXN.
+                  <h5 className="font-extrabold text-stone-900 text-base">Casa en Tierra Pura</h5>
+                  <p className="text-xs text-stone-500 mt-0.5">Residencial exclusivo de gran demanda</p>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-1">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-stone-500 text-xs">Valor Comercial:</span>
+                    <span className="text-base font-black text-stone-900 font-mono">{formatCurrency(VALOR_CASA_TIERRA_PURA)}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline pt-1 border-t border-stone-100">
+                    <span className="text-emerald-900 text-xs font-semibold">Renta Mensual Actual:</span>
+                    <span className="text-sm font-extrabold text-emerald-900 font-mono">{formatCurrency(RENTA_CASA_TIERRA_PURA)} / mes</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-stone-600 leading-tight">
+                  Escrituración notarial al 100% a nombre de Don Juventino. Arrendatario vigente y al corriente en pagos.
+                </p>
+              </div>
+
+              {/* Activo 2: Depto en Zákia */}
+              <div className="p-4 sm:p-5 rounded-2xl border-2 border-teal-300 bg-gradient-to-br from-teal-50/70 via-white to-white space-y-3 relative overflow-hidden shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="w-9 h-9 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold shadow-xs">
+                    <Building className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 border border-teal-300">
+                    Propiedad 2 &bull; Zákia
+                  </span>
+                </div>
+                <div>
+                  <h5 className="font-extrabold text-stone-900 text-base">Departamento en Zákia</h5>
+                  <p className="text-xs text-stone-500 mt-0.5">Polo residencial consolidado con parques</p>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-1">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-stone-500 text-xs">Valor Comercial:</span>
+                    <span className="text-base font-black text-stone-900 font-mono">{formatCurrency(VALOR_DEPTO_ZAKIA)}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline pt-1 border-t border-stone-100">
+                    <span className="text-teal-900 text-xs font-semibold">Renta Mensual Actual:</span>
+                    <span className="text-sm font-extrabold text-teal-900 font-mono">{formatCurrency(RENTA_DEPTO_ZAKIA)} / mes</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-stone-600 leading-tight">
+                  Excelente ubicación con alta absorción de renta. Se entrega con contrato y depósito de garantía transferido.
+                </p>
+              </div>
+
+              {/* Activo 3: Efectivo de Contado */}
+              <div className="p-4 sm:p-5 rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/70 via-white to-white space-y-3 relative overflow-hidden shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold shadow-xs">
+                    <Banknote className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                    Liquidez Inmediata
+                  </span>
+                </div>
+                <div>
+                  <h5 className="font-extrabold text-stone-900 text-base">Efectivo de Contado</h5>
+                  <p className="text-xs text-stone-500 mt-0.5">Transferencia íntegra a la firma notarial</p>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-1">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-stone-500 text-xs">Monto en Efectivo:</span>
+                    <span className="text-base font-black text-stone-900 font-mono">{formatCurrency(EFECTIVO_INICIAL_PROP4)}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline pt-1 border-t border-stone-100">
+                    <span className="text-amber-900 text-xs font-semibold">Disponibilidad:</span>
+                    <span className="text-sm font-extrabold text-amber-900 font-mono">Día 1 ante Notario</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-stone-600 leading-tight">
+                  Capital disponible en cuenta bancaria para proyectos personales, imprevistos o fondo de emergencia.
+                </p>
+              </div>
+            </div>
+
+            {/* Resumen de Activos Acumulados ($10.4 MDP) y Rentas ($53k/mes) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-950 via-teal-950 to-stone-900 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-400 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  Total Activos que Acumulan $10.4 MDP de Arranque
+                </span>
+                <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
+                  Casa Tierra Pura ($7.0M) + Depto Zákia ($2.4M) + Efectivo ($1.0M) = <strong className="text-white font-mono text-base">{formatCurrency(VALOR_TOTAL_ACTIVOS_PROP4)}</strong> en patrimonio tangible escriturado desde el primer día.
+                </p>
+              </div>
+
+              <div className="bg-white/10 p-3.5 rounded-xl border border-white/20 shrink-0 text-left sm:text-right">
+                <span className="text-[11px] text-stone-300 block font-medium">Renta Mensual Total Inmediata:</span>
+                <span className="text-xl sm:text-2xl font-black text-emerald-300 font-mono">{formatCurrency(RENTA_MENSUAL_INICIAL_PROP4)} / mes</span>
+                <span className="text-[11px] text-stone-400 block mt-0.5 font-sans">${formatCurrency(RENTA_ANUAL_INICIAL_PROP4)}/año inicial</span>
+              </div>
+            </div>
+
+            {/* Ventajas Clave del Esquema Inmobiliario */}
+            <div className="bg-stone-50 rounded-2xl p-5 border border-stone-200 space-y-3">
+              <h5 className="font-bold text-stone-900 text-sm flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                Ventajas Patrimoniales de la Propuesta 4 para Don Juventino
+              </h5>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                    <TrendingUp className="w-4 h-4 text-emerald-700 shrink-0" />
+                    <span>1. Plusvalía Continua</span>
+                  </div>
+                  <p className="text-stone-600 text-[11px] leading-relaxed">
+                    Tierra Pura y Zákia son zonas con la mayor plusvalía de Querétaro. Los inmuebles suben de valor año tras año blindando el capital.
                   </p>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs text-stone-500 block">Utilidad Neta Mensual del Negocio:</span>
-                  <span className="text-lg font-bold text-stone-900 font-mono">{formatCurrency(simulatedUtility)}</span>
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs text-stone-500 font-mono">
-                  <span>Actual: $270,881 / mes</span>
-                  <span>Objetivo Operativo: $350,000 / mes</span>
-                </div>
-                <input 
-                  type="range"
-                  min="180000"
-                  max="400000"
-                  step="10000"
-                  value={simulatedUtility}
-                  onChange={(e) => setSimulatedUtility(Number(e.target.value))}
-                  className="w-full h-2.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                <div className="bg-white p-3.5 rounded-xl border border-stone-200">
-                  <span className="text-stone-500 block">Piso Mensual Garantizado</span>
-                  <span className="text-lg font-extrabold text-stone-900 font-mono">$35,000 MXN</span>
-                  <span className="text-[10px] text-emerald-700 block mt-0.5">Nunca hacia abajo</span>
-                </div>
-                <div className="bg-white p-3.5 rounded-xl border border-stone-200">
-                  <span className="text-stone-500 block">13% de Utilidad Mensual</span>
-                  <span className="text-lg font-bold text-stone-900 font-mono">{formatCurrency(rawCalculatedPension)}</span>
-                  <span className="text-[10px] text-stone-400 block mt-0.5">13% de {formatCurrency(simulatedUtility)}</span>
-                </div>
-                <div className="bg-emerald-100/80 p-3.5 rounded-xl border border-emerald-300">
-                  <div className="flex items-center justify-between">
-                    <span className="text-emerald-900 font-bold block">Ingreso a Percibir</span>
-                    {rawCalculatedPension <= MIN_PENSION_MENSUAL && (
-                      <span className="text-[9px] font-bold bg-emerald-200 text-emerald-800 px-1.5 py-0.5 rounded">Piso activo</span>
-                    )}
-                    {rawCalculatedPension > MIN_PENSION_MENSUAL && (
-                      <span className="text-[9px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded">Alza por venta</span>
-                    )}
+                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-teal-900">
+                    <Coins className="w-4 h-4 text-teal-700 shrink-0" />
+                    <span>2. Ingresos de $53,000/mes</span>
                   </div>
-                  <span className="text-xl font-extrabold text-emerald-950 font-mono">{formatCurrency(calculatedPensionMensual)}</span>
-                  <span className="text-[10px] text-emerald-800 block mt-0.5">Depósito mensual vitalicio</span>
+                  <p className="text-stone-600 text-[11px] leading-relaxed">
+                    Flujo de efectivo pasivo inmediato sin levantarse a las 4:30 AM, sin personal ni presiones de operación de hornos.
+                  </p>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-stone-200">
-                  <span className="text-stone-500 block">Condición Jurídica</span>
-                  <span className="text-lg font-bold text-stone-900 font-mono">Vitalicio</span>
-                  <span className="text-[10px] text-stone-400 block mt-0.5">Personalísimo (no heredado)</span>
+
+                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-stone-900">
+                    <Landmark className="w-4 h-4 text-amber-700 shrink-0" />
+                    <span>3. Escrituras Notariales</span>
+                  </div>
+                  <p className="text-stone-600 text-[11px] leading-relaxed">
+                    Inmuebles 100% a su nombre libres de gravamen, legalmente transmisibles y heredables a su familia con plena certeza.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                    <Banknote className="w-4 h-4 text-amber-700 shrink-0" />
+                    <span>4. $1 MDP Efectivo + Rentas</span>
+                  </div>
+                  <p className="text-stone-600 text-[11px] leading-relaxed">
+                    Combina liquidez inmediata en mano para disfrutar el retiro con un flujo permanente de rentas para el gasto mensual.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Corrida Financiera Detallada a 5 Años (Rentas + Plusvalía Moderada) */}
+            <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs space-y-0">
+              <div className="p-4 sm:p-5 bg-gradient-to-r from-stone-50 via-emerald-50/30 to-white border-b border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-bold mb-1">
+                    <Calendar className="w-3 h-3 text-emerald-700" />
+                    Proyección Financiera Oficial
+                  </div>
+                  <h5 className="font-extrabold text-stone-900 text-base">
+                    Corrida a 5 Años: ¿Cuánto Habría Ganado con Plusvalía Moderada y Rentas?
+                  </h5>
+                  <p className="text-xs text-stone-600 mt-0.5">
+                    Supuestos: Plusvalía conservadora en Querétaro de <strong>{(plusvaliaRateProp4 * 100).toFixed(1)}% anual</strong> sobre $9.4 MDP en inmuebles + ajuste inflacionario de rentas de <strong>{(inflacionRentaRateProp4 * 100).toFixed(1)}% anual</strong>.
+                  </p>
+                </div>
+
+                {/* Plusvalía Simulator Selector */}
+                <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-stone-200 shrink-0">
+                  <span className="text-[10px] text-stone-500 font-semibold px-2">Plusvalía Anual:</span>
+                  {[0.05, 0.06, 0.07].map((rate) => (
+                    <button
+                      key={rate}
+                      type="button"
+                      onClick={() => setPlusvaliaRateProp4(rate)}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                        plusvaliaRateProp4 === rate
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                      }`}
+                    >
+                      {(rate * 100).toFixed(0)}% {rate === 0.06 && '(Moderada)'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Table of 5 Years Projection */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-stone-100 border-b border-stone-200 text-stone-700 uppercase text-[10px] tracking-wider font-bold">
+                    <tr>
+                      <th className="py-3 px-3.5">Periodo</th>
+                      <th className="py-3 px-3 text-right font-mono text-emerald-900">Renta Mensual</th>
+                      <th className="py-3 px-3 text-right">Rentas Cobradas / Año</th>
+                      <th className="py-3 px-3 text-right font-semibold text-emerald-950 bg-emerald-50/30">Rentas Acumuladas</th>
+                      <th className="py-3 px-3 text-right text-stone-700">Plusvalía Anual ({((plusvaliaRateProp4 * 100)).toFixed(0)}%)</th>
+                      <th className="py-3 px-3 text-right font-semibold text-teal-950 bg-teal-50/30">Plusvalía Acumulada</th>
+                      <th className="py-3 px-3 text-right font-mono font-bold text-stone-900">Valor Inmuebles</th>
+                      <th className="py-3 px-3.5 text-right font-mono font-black text-emerald-950 bg-emerald-100/50">Total Patrimonio</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {corridaPropuesta4.map((row) => (
+                      <tr key={row.year} className="hover:bg-emerald-50/20 transition-colors">
+                        <td className="py-3 px-3.5 font-bold text-stone-900">
+                          {row.periodo}
+                          <span className="block text-[10px] text-stone-500 font-normal">{row.meses}</span>
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-bold text-emerald-900">
+                          {formatCurrency(row.rentaMensual)}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono text-stone-700">
+                          {formatCurrency(row.rentasAnuales)}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-bold text-emerald-950 bg-emerald-50/30">
+                          {formatCurrency(row.rentasAcumuladas)}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono text-stone-700">
+                          +{formatCurrency(row.plusvaliaGanadaAnual)}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-bold text-teal-950 bg-teal-50/30">
+                          +{formatCurrency(row.plusvaliaAcumulada)}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-bold text-stone-900">
+                          {formatCurrency(row.valorInmuebles)}
+                        </td>
+                        <td className="py-3 px-3.5 text-right font-mono font-black text-emerald-950 bg-emerald-100/40 text-sm">
+                          {formatCurrency(row.patrimonioTotal)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-stone-100 border-t-2 border-stone-300 font-bold text-stone-900 text-xs">
+                    <tr>
+                      <td className="py-3 px-3.5 uppercase font-bold text-[11px]">Gran Total 5 Años</td>
+                      <td className="py-3 px-3 text-right font-mono text-emerald-900 text-[11px]">$53k &rarr; $64k/m</td>
+                      <td className="py-3 px-3 text-right font-mono text-stone-500 text-[10px]">(60 mensualidades)</td>
+                      <td className="py-3 px-3 text-right font-mono text-emerald-950 font-extrabold bg-emerald-100/60">
+                        {formatCurrency(corridaPropuesta4[4]?.rentasAcumuladas || 0)}
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono text-stone-500 text-[10px]">({((plusvaliaRateProp4 * 100)).toFixed(0)}% anual)</td>
+                      <td className="py-3 px-3 text-right font-mono text-teal-950 font-extrabold bg-teal-100/60">
+                        +{formatCurrency(corridaPropuesta4[4]?.plusvaliaAcumulada || 0)}
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono text-stone-950 font-extrabold">
+                        {formatCurrency(corridaPropuesta4[4]?.valorInmuebles || 0)}
+                      </td>
+                      <td className="py-3 px-3.5 text-right font-mono text-emerald-950 text-base font-black bg-emerald-200/80">
+                        {formatCurrency(corridaPropuesta4[4]?.patrimonioTotal || 0)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {/* Bottom Breakdown of 5-Year Gain */}
+              <div className="p-4 sm:p-5 bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white border-t border-stone-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  <div className="p-3 bg-white rounded-xl border border-stone-200">
+                    <span className="text-stone-500 block text-[11px]">Efectivo Inicial Recibido</span>
+                    <span className="text-base font-extrabold text-stone-900 font-mono">{formatCurrency(EFECTIVO_INICIAL_PROP4)}</span>
+                    <span className="text-[10px] text-stone-400 block mt-0.5">En mano desde el día 1</span>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-emerald-200">
+                    <span className="text-emerald-900 block text-[11px] font-semibold">Total Rentas Cobradas (5 Años)</span>
+                    <span className="text-base font-extrabold text-emerald-950 font-mono">{formatCurrency(corridaPropuesta4[4]?.rentasAcumuladas || 0)}</span>
+                    <span className="text-[10px] text-emerald-700 block mt-0.5">Líquido mes con mes en cuenta</span>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-teal-200">
+                    <span className="text-teal-900 block text-[11px] font-semibold">Plusvalía Inmuebles Ganada (5 Años)</span>
+                    <span className="text-base font-extrabold text-teal-950 font-mono">+{formatCurrency(corridaPropuesta4[4]?.plusvaliaAcumulada || 0)}</span>
+                    <span className="text-[10px] text-teal-700 block mt-0.5">Aumento de valor escriturado</span>
+                  </div>
+
+                  <div className="p-3 bg-emerald-600 text-white rounded-xl shadow-xs">
+                    <span className="text-emerald-100 block text-[11px] font-bold uppercase tracking-wider">Patrimonio Total en 5 Años</span>
+                    <span className="text-lg font-black text-white font-mono">{formatCurrency(corridaPropuesta4[4]?.patrimonioTotal || 0)}</span>
+                    <span className="text-[10px] text-emerald-100 block mt-0.5">Ganancia neta: +{formatCurrency((corridaPropuesta4[4]?.patrimonioTotal || 0) - VALOR_TOTAL_ACTIVOS_PROP4)}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1511,10 +1723,10 @@ export const ProposalDonJuventinoTab: React.FC = () => {
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div>
               <strong>Preferencia Registrada: Opción {confirmedChoice} (
-                {confirmedChoice === 1 && 'Adquisición Directa de Contado - $8,500,000 MXN Líquidos'}
+                {confirmedChoice === 1 && 'Adquisición Directa en $9,360,000 MXN - Oferta de $8,500,000 MXN de Contado'}
                 {confirmedChoice === 2 && 'Financiamiento a 42 Meses (3.5 Años) - $11,300,000 MXN Total ($150,000/mes fijos)'}
-                {confirmedChoice === 3 && 'Inversión Patrimonial al 13% con Abonos a Capital - $11,950,000 MXN Total'}
-                {confirmedChoice === 4 && 'Sociedad Patrimonial (13%) con Ingreso Vitalicio No Heredado - $5 MDP + Mínimo $35,000 MXN/mes Vitalicio'}
+                {confirmedChoice === 3 && 'Pagos 1 MDP Anuales + Intereses ($4.36 MDP Cap. + $1.534 MDP Int.) - $10,894,000 MXN Total'}
+                {confirmedChoice === 4 && 'Traspaso de Activos Inmobiliarios (~$17.1 MDP a 5 Años - 10,400 de arranque) - Casa Tierra Pura + Depto Zákia + $1M Cash & Rentas'}
               )</strong>
               <p className="mt-0.5 text-stone-700 text-xs">
                 Esta alternativa será la base para la redacción del convenio formal y calendarización notarial. Puede cambiar de opción en cualquier momento haciendo clic en otra tarjeta a la izquierda.
@@ -1601,7 +1813,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                       <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-200 text-blue-900 font-bold">Abierta</span>
                     )}
                   </div>
-                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5">Inversionista 13% Anual</span>
+                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5">Pagos 1 MDP Anuales + Intereses</span>
                 </th>
                 <th
                   onClick={() => { setSelectedScenario(4); handleOpenProposal(4); }}
@@ -1616,11 +1828,35 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                       <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-200 text-emerald-900 font-bold">Abierta</span>
                     )}
                   </div>
-                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5">Sociedad 13% Vitalicia</span>
+                  <span className="text-[10px] font-normal block text-stone-500 mt-0.5">Activos Inmobiliarios</span>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200/80">
+              {/* 0. Valuación Base de Referencia */}
+              <tr className="bg-stone-50/80 hover:bg-stone-100/60 transition-colors">
+                <td className="py-3 px-4 sm:px-6 font-bold text-stone-900">
+                  Valuación Base de Referencia
+                  <span className="block text-[10px] text-stone-500 font-normal font-sans">(Base común para las 4 alternativas)</span>
+                </td>
+                <td className={`py-3 px-3 text-center font-mono font-extrabold text-amber-950 ${selectedScenario === 1 ? 'bg-amber-100/60 ring-1 ring-amber-300' : ''}`}>
+                  <span>$9,360,000 MXN</span>
+                  <span className="text-[10px] font-semibold text-amber-800 block mt-0.5">Oferta cash: $8.5 MDP</span>
+                </td>
+                <td className={`py-3 px-3 text-center font-mono font-bold text-teal-950 ${selectedScenario === 2 ? 'bg-teal-100/60 ring-1 ring-teal-300' : ''}`}>
+                  <span>$9,360,000 MXN</span>
+                  <span className="text-[10px] font-semibold text-teal-800 block mt-0.5">Total diferido: $11.3 MDP</span>
+                </td>
+                <td className={`py-3 px-3 text-center font-mono font-bold text-blue-950 ${selectedScenario === 3 ? 'bg-blue-100/60 ring-1 ring-blue-300' : ''}`}>
+                  <span>$9,360,000 MXN</span>
+                  <span className="text-[10px] font-semibold text-blue-800 block mt-0.5">Total con 13%: $10.89 MDP</span>
+                </td>
+                <td className={`py-3 px-3 text-center font-mono font-bold text-emerald-950 ${selectedScenario === 4 ? 'bg-emerald-100/60 ring-1 ring-emerald-300' : ''}`}>
+                  <span>$9,360,000 MXN</span>
+                  <span className="text-[10px] font-semibold text-emerald-800 block mt-0.5">Activos: $10.4 MDP</span>
+                </td>
+              </tr>
+
               {/* 1. Pago Inicial en Efectivo */}
               <tr className="hover:bg-stone-50/70 transition-colors">
                 <td className="py-3.5 px-4 sm:px-6 font-semibold text-stone-900">
@@ -1639,8 +1875,8 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   <span className="text-[10px] font-normal text-stone-500 block mt-0.5">(de contado a la firma)</span>
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono font-bold text-emerald-950 ${selectedScenario === 4 ? 'bg-emerald-50/50' : ''}`}>
-                  <span className="text-base text-emerald-950">$5,000,000 MXN</span>
-                  <span className="text-[10px] font-normal text-stone-500 block mt-0.5">(de contado a la firma)</span>
+                  <span className="text-base text-emerald-950">$1,000,000 MXN</span>
+                  <span className="text-[10px] font-normal text-stone-500 block mt-0.5">+ 2 Inmuebles ($9.4 MDP)</span>
                 </td>
               </tr>
 
@@ -1658,12 +1894,12 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   <span className="text-[10px] font-semibold text-teal-700 block mt-0.5">(fijos e idénticos por 42 meses)</span>
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono font-bold text-blue-950 ${selectedScenario === 3 ? 'bg-blue-50/50' : ''}`}>
-                  <span className="text-xs font-bold text-blue-900">$54,167 &rarr; $10,833 / mes</span>
+                  <span className="text-xs font-bold text-blue-900">$47,233 &rarr; $3,900 / mes</span>
                   <span className="text-[10px] font-normal text-blue-700 block mt-0.5">(intereses al 13% según saldo)</span>
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono font-bold text-emerald-950 ${selectedScenario === 4 ? 'bg-emerald-50/50' : ''}`}>
-                  <span className="text-sm font-black text-emerald-900">$35,000 MXN / mes mín.</span>
-                  <span className="text-[10px] font-semibold text-emerald-700 block mt-0.5">(hacia arriba si hay más venta, nunca hacia abajo)</span>
+                  <span className="text-sm font-black text-emerald-900">$53,000 MXN / mes</span>
+                  <span className="text-[10px] font-semibold text-emerald-700 block mt-0.5">(Tierra Pura $40k + Zákia $13k)</span>
                 </td>
               </tr>
 
@@ -1681,13 +1917,13 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono font-bold text-blue-900 ${selectedScenario === 3 ? 'bg-blue-50/50' : ''}`}>
                   <span className="px-2 py-0.5 rounded-md bg-blue-100 border border-blue-300 font-extrabold text-blue-950">
-                    $1,000,000 MXN
+                    4 de $1 MDP + $360k
                   </span>
                   <span className="text-[10px] text-blue-700 block mt-0.5">(cada fin de año directo a capital)</span>
                 </td>
-                <td className={`py-3.5 px-3 text-center text-stone-500 ${selectedScenario === 4 ? 'bg-emerald-50/50' : ''}`}>
-                  N/A
-                  <span className="text-[10px] text-emerald-700 block mt-0.5">(ingreso vitalicio mensual)</span>
+                <td className={`py-3.5 px-3 text-center text-stone-600 ${selectedScenario === 4 ? 'bg-emerald-50/50' : ''}`}>
+                  <span className="font-semibold text-emerald-900">Plusvalía Inmobiliaria</span>
+                  <span className="text-[10px] text-emerald-700 block mt-0.5">(+6.0% anual moderada)</span>
                 </td>
               </tr>
 
@@ -1706,7 +1942,8 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   5 años (60 meses)
                 </td>
                 <td className={`py-3.5 px-3 text-center font-bold text-emerald-900 ${selectedScenario === 4 ? 'bg-emerald-50/50' : ''}`}>
-                  Vitalicio (de por vida)
+                  Patrimonial Permanente
+                  <span className="text-[10px] font-normal text-stone-500 block mt-0.5">(5 años corrida: +$6.7 MDP)</span>
                 </td>
               </tr>
 
@@ -1724,12 +1961,12 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   <span className="text-[10px] text-teal-700 block font-normal font-sans">$5 MDP cash + $6.3 MDP cuotas</span>
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono font-extrabold text-blue-950 ${selectedScenario === 3 ? 'bg-blue-50/50' : ''}`}>
-                  <div className="text-base sm:text-lg font-black">{formatCurrency(11950000)}</div>
-                  <span className="text-[10px] text-blue-700 block font-normal font-sans">$5M cash + $5M cap. + $1.95M int. 13%</span>
+                  <div className="text-base sm:text-lg font-black">{formatCurrency(10894000)}</div>
+                  <span className="text-[10px] text-blue-700 block font-normal font-sans">$5M cash + $4.36M cap. + $1.53M int. 13%</span>
                 </td>
                 <td className={`py-3.5 px-3 text-center font-mono font-extrabold text-emerald-950 ${selectedScenario === 4 ? 'bg-emerald-50/50' : ''}`}>
-                  <div className="text-sm font-black">$5 MDP + Vitalicio</div>
-                  <span className="text-[10px] text-emerald-700 block font-normal font-sans">$35,000/mes mín. de por vida</span>
+                  <div className="text-base sm:text-lg font-black">{formatCurrency(corridaPropuesta4[4]?.patrimonioTotal || 17093622)}</div>
+                  <span className="text-[10px] text-stone-500 block font-normal font-sans">10,400 de arranque</span>
                 </td>
               </tr>
 
@@ -1748,7 +1985,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   Inversionista patrimonial ganando 13% anual fijo (superior al banco).
                 </td>
                 <td className={`py-3.5 px-3 text-center text-emerald-950 text-xs ${selectedScenario === 4 ? 'bg-emerald-50/50 font-medium' : ''}`}>
-                  Dueño del 13% de la sociedad con derecho a utilidades crecientes.
+                  Dueño del 100% de 2 propiedades residenciales rentadas generando flujo pasivo.
                 </td>
               </tr>
 
@@ -1767,7 +2004,7 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                   Contrato de inversión mutuo y pagarés notariales al 13% anual.
                 </td>
                 <td className={`py-3.5 px-3 text-center text-emerald-900 text-xs ${selectedScenario === 4 ? 'bg-emerald-50/50 font-medium' : ''}`}>
-                  Escritura de sociedad (13%) y cláusula notarial de pensión vitalicia no reducible.
+                  Escrituras notariales públicas libres de gravamen + contratos de arrendamiento vigentes.
                 </td>
               </tr>
 
@@ -1786,11 +2023,11 @@ export const ProposalDonJuventinoTab: React.FC = () => {
                 </td>
                 <td className={`py-4 px-3 text-xs leading-relaxed text-stone-700 ${selectedScenario === 3 ? 'bg-blue-100/60' : ''}`}>
                   <span className="font-bold text-blue-950 block mb-1">Si quiere hacer crecer el capital:</span>
-                  Gana 13% anual fijo (muy superior al banco), con intereses mensuales y $1 MDP cada año.
+                  Gana 13% anual fijo, con abonos a capital (4 de $1 MDP y $360k) acumulando $10.89 MDP.
                 </td>
                 <td className={`py-4 px-3 text-xs leading-relaxed text-stone-700 ${selectedScenario === 4 ? 'bg-emerald-100/60' : ''}`}>
-                  <span className="font-bold text-emerald-950 block mb-1">Si quiere tranquilidad de por vida:</span>
-                  Recibe $5 MDP en mano y un piso vitalicio de $35k/mes con ganancias al alza si hay más venta.
+                  <span className="font-bold text-emerald-950 block mb-1">Si busca activos de ladrillo y rentas:</span>
+                  Adquiere $10.4 MDP de arranque en propiedades y efectivo, cobrando $53k/mes y acumulando más de $17.0 MDP en 5 años.
                 </td>
               </tr>
             </tbody>
