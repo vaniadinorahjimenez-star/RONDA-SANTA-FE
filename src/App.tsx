@@ -125,12 +125,6 @@ export default function App() {
               Consolidado
             </button>
             <button 
-              onClick={() => setActiveTab('calculadora')} 
-              className="hover:text-amber-600 font-medium transition-colors cursor-pointer"
-            >
-              Calculadora Inversionistas
-            </button>
-            <button 
               onClick={() => setActiveTab('propuesta')} 
               className="hover:text-amber-600 font-medium transition-colors cursor-pointer"
             >
