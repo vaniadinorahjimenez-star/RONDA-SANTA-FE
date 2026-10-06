@@ -6,7 +6,8 @@ import {
   Layers, 
   Printer, 
   Handshake,
-  Heart
+  Heart,
+  Calculator
 } from 'lucide-react';
 import { MonitoLogo } from './MonitoLogo';
 
@@ -26,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'zakia' as TabId, label: 'Sucursal Zákia', icon: Store },
     { id: 'refugio' as TabId, label: 'Sucursal Refugio', icon: Store },
     { id: 'unificado' as TabId, label: 'Consolidado Unificado', icon: Layers, badge: 'Ambas' },
+    { id: 'calculadora' as TabId, label: 'Calculadora Inversionistas', icon: Calculator, badge: 'Simulador' },
     { id: 'propuesta' as TabId, label: 'Propuesta & Valuación', icon: Handshake, badge: 'Don Juventino' },
   ];
 

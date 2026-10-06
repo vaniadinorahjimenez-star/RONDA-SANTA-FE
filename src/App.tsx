@@ -16,7 +16,7 @@ import { PrintExecutiveReport, PrintReportType } from './components/PrintExecuti
 import { PrintProposalDocument } from './components/PrintProposalDocument';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabId>('inicio');
+  const [activeTab, setActiveTab] = useState<TabId>('calculadora');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
   const [isPrintProposalOpen, setIsPrintProposalOpen] = useState<boolean>(false);
   const [printInitialReport, setPrintInitialReport] = useState<PrintReportType>('zakia');
@@ -123,6 +123,12 @@ export default function App() {
               className="hover:text-slate-900 transition-colors cursor-pointer"
             >
               Consolidado
+            </button>
+            <button 
+              onClick={() => setActiveTab('calculadora')} 
+              className="hover:text-amber-600 font-medium transition-colors cursor-pointer"
+            >
+              Calculadora Inversionistas
             </button>
             <button 
               onClick={() => setActiveTab('propuesta')} 
